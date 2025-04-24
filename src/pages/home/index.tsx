@@ -21,6 +21,7 @@ import { motion } from "motion/react";
 const Home = () => {
   const [activeLinkOnSearch, setActiveLinkOnSearch] = useState<ListLinkSearch>("buy");
   const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<ITypeProperties>("House");
+
   return (
     <Layout>
       {/* Hero  */}
@@ -45,18 +46,36 @@ const Home = () => {
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-[40px] font-semibold">
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 100, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.5 }}
+                  className="text-[40px] font-semibold"
+                >
                   Easy Way to Find a <br />
                   Perfect Property
-                </h2>
-                <p className="text-[#181a20] text-[15px] font-normal leading-7">
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 100, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.5 }}
+                  className="text-[#181a20] text-[15px] font-normal leading-7"
+                >
                   Find the perfect property for you and your family. We have a wide range of properties to
                   choose from.
-                </p>
+                </motion.p>
               </div>
 
               {/* Search  */}
-              <div className="flex flex-col pt-10">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 100, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5 }}
+                className="flex flex-col pt-10"
+              >
                 <ul className="bg-white flex items-center max-w-fit rounded-tr-xl rounded-tl-xl font-semibold text-slate-500 border-b border-black/20 *:px-4 *:py-4 px-4 ">
                   {listLinkOnSearch.map((link) => (
                     <li
@@ -87,9 +106,15 @@ const Home = () => {
                     <BiSearch />
                   </Button>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex items-center gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 100, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5 }}
+                className="flex items-center gap-6"
+              >
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center bg-white rounded-full p-2">
                     <PiHouseSimple />
@@ -114,7 +139,7 @@ const Home = () => {
                   </div>
                   <span className="text-[#181a20] text-[15px] font-normal">Villa</span>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -185,9 +210,41 @@ const Home = () => {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            {Properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+          <div className="grid grid-cols-3 gap-6">
+            {Properties.map((property) =>
+              property.type === activeLinkOnProperties ? (
+                <PropertyCard key={property.id} property={property} />
+              ) : null
+            )}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Explore Properties Types */}
+      <section>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 100, y: 0 }}
+          transition={{ duration: 1.2 }}
+          viewport={{ once: true }}
+          className="max-w-[1230px] mx-auto w-full py-[120px] space-y-8"
+        >
+          <div>
+            <h2 className="text-[30px] font-semibold ">Explore Properties Types</h2>
+            <p className="text-[#181a20] text-[15px] font-normal leading-7  ">
+              Discover unique properties styles that suit your lifestyle.
+            </p>
+          </div>
+          <div className="grid grid-cols-4 ">
+            {typeProperties.map((type, index) => (
+              <div key={index} className="flex items-center flex-col gap-2 p-10 cursor-pointer ">
+                <img
+                  src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600"
+                  alt="property"
+                  className="aspect-[1/1.5] object-cover rounded-sm"
+                />
+                <span className="text-[#181a20] text-[15px] font-normal">{type.title}</span>
+              </div>
             ))}
           </div>
         </motion.div>

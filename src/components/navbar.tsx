@@ -1,17 +1,36 @@
 import { linkNavbar } from "@/constants/home";
+import { useEffect, useRef } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const location = useLocation();
   const currentPath = location.pathname.split("/")[1];
+  const navbarRef = useRef<HTMLDivElement>(null);
+
   const isActive = (path: string) => {
     return `${
       currentPath === path.split("/")[1] ? "text-[#eb6753]" : "text-[#181a20]"
     } px-5.5 hover:text-[#eb6753]`;
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!navbarRef.current) return;
+      const isScrolled = window.scrollY > 10;
+      navbarRef.current.className = isScrolled
+        ? "sticky top-0 left-0 shadow-md bg-white z-50 w-full py-6 transition-all duration-200 ease-out "
+        : "py-6 transition-all duration-200 ";
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <nav className="py-6">
+    <nav className="py-6 transition-all duration-200" ref={navbarRef}>
       <div className="max-w-[1230px] mx-auto flex items-center justify-between font-semibold text-[15px]">
         <img
           alt="Header Logo"

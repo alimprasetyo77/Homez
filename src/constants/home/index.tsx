@@ -112,7 +112,6 @@ export const Properties: IProperties[] = [
       country: "USA",
     },
     price: 3850000,
-
     features: ["Private garden", "Brownstone facade", "Smart home system"],
     image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
@@ -120,7 +119,6 @@ export const Properties: IProperties[] = [
     id: 2,
     title: "La Jolla Oceanfront Villa",
     type: "Villa",
-
     location: {
       city: "San Diego",
       state: "CA",
@@ -141,7 +139,6 @@ export const Properties: IProperties[] = [
       country: "USA",
     },
     price: 3200000,
-
     features: ["Floor-to-ceiling windows", "Meeting rooms", "Fiber internet"],
     image: "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
@@ -169,7 +166,6 @@ export const Properties: IProperties[] = [
       country: "USA",
     },
     price: 1800000,
-
     features: ["Open floor plan", "EV charging", "Collaboration areas"],
     image: "https://images.pexels.com/photos/68631/pexels-photo-68631.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
@@ -228,5 +224,70 @@ export const Properties: IProperties[] = [
     features: ["Private beach", "Home cinema", "Wine cellar"],
     image:
       "https://images.pexels.com/photos/7061662/pexels-photo-7061662.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 10,
+    title: "Greenwich Family House",
+    type: "House",
+    location: {
+      city: "Greenwich",
+      state: "CT",
+      country: "USA",
+    },
+    price: 4500000,
+    features: ["Large backyard", "Fireplace", "Modern kitchen"],
+    image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 11,
+    title: "Suburban Dream House",
+    type: "House",
+    location: {
+      city: "Austin",
+      state: "TX",
+      country: "USA",
+    },
+    price: 1200000,
+    features: ["Swimming pool", "Two-car garage", "Open floor plan"],
+    image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 12,
+    title: "Countryside Retreat",
+    type: "House",
+    location: {
+      city: "Nashville",
+      state: "TN",
+      country: "USA",
+    },
+    price: 850000,
+    features: ["Wrap-around porch", "Wooded lot", "Fireplace"],
+    image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 13,
+    title: "Modern Suburban House",
+    type: "House",
+    location: {
+      city: "Seattle",
+      state: "WA",
+      country: "USA",
+    },
+    price: 950000,
+    features: ["Smart home system", "Energy-efficient appliances", "Two-car garage"],
+    image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 14,
+    title: "Classic Colonial House",
+    type: "House",
+    location: {
+      city: "Boston",
+      state: "MA",
+      country: "USA",
+    },
+    price: 1500000,
+    features: ["Brick exterior", "Formal dining room", "Hardwood floors"],
+    image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
 ];
