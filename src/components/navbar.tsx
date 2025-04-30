@@ -19,8 +19,8 @@ const Navbar = () => {
       if (!navbarRef.current) return;
       const isScrolled = window.scrollY > 10;
       navbarRef.current.className = isScrolled
-        ? "sticky top-0 left-0 shadow-md bg-white z-50 w-full py-6 transition-all duration-200 ease-out "
-        : "py-6 transition-all duration-200 ";
+        ? "sticky top-0 left-0 shadow-md bg-white z-50 w-full py-5 transition-all duration-200 ease-out "
+        : "py-5 transition-all duration-200 ";
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -30,7 +30,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="py-6 transition-all duration-200" ref={navbarRef}>
+    <nav className="py-5 transition-all duration-200" ref={navbarRef}>
       <div className="max-w-[1230px] mx-auto flex items-center justify-between font-semibold text-[15px]">
         <img
           alt="Header Logo"

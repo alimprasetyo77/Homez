@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { MdOutlineVilla } from "react-icons/md";
 import CityCard from "@/components/city-card";
 import { Input } from "@/components/ui/input";
-import Layout from "../../components/layout";
 import { BiSearch } from "react-icons/bi";
 import { useState } from "react";
 import {
@@ -17,13 +16,22 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [activeLinkOnSearch, setActiveLinkOnSearch] = useState<ListLinkSearch>("buy");
   const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<ITypeProperties>("House");
-
+  const navigate = useNavigate();
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget).get("search") as string;
+    if (formData) {
+      navigate(`/properties/search?q=${formData}`);
+    }
+    e.currentTarget.reset();
+  };
   return (
-    <Layout>
+    <>
       {/* Hero  */}
       <section className="flex items-center justify-center rounded-3xl rounded-br-[38px] bg-no-repeat  min-h-[660px] max-w-[1600px] w-full mx-auto overflow-hidden bg-[url('https://homez-appdir.vercel.app/_next/static/media/home-4.3e6e2403.jpg')]">
         <div className="max-w-[1230px] mx-auto w-full">
@@ -93,19 +101,23 @@ const Home = () => {
                     </li>
                   ))}
                 </ul>
-                <div className="flex gap-3 bg-white p-5 rounded-tr-xl rounded-bl-xl rounded-br-xl">
+                <form
+                  onSubmit={handleSearch}
+                  className="flex gap-3 bg-white p-5 rounded-tr-xl rounded-bl-xl rounded-br-xl"
+                >
                   <Input
                     className="outline-none bg-[#f7f7f7] border-none focus-visible:border-none focus-visible:ring-0 p-4 h-auto"
-                    placeholder="Search Products for Buy"
+                    placeholder={`Search Properties for ${activeLinkOnSearch}`}
+                    name="search"
                   />
                   <Button
-                    asChild
                     variant="default"
-                    className="bg-[#181a20] text-white font-semibold rounded-full size-14 p-4.5"
+                    type="submit"
+                    className="bg-[#181a20] text-white font-semibold rounded-full size-14 p-4.5 cursor-pointer"
                   >
                     <BiSearch />
                   </Button>
-                </div>
+                </form>
               </motion.div>
 
               <motion.div
@@ -235,21 +247,20 @@ const Home = () => {
               Discover unique properties styles that suit your lifestyle.
             </p>
           </div>
-          <div className="grid grid-cols-4 ">
-            {typeProperties.map((type, index) => (
-              <div key={index} className="flex items-center flex-col gap-2 p-10 cursor-pointer ">
-                <img
-                  src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600"
-                  alt="property"
-                  className="aspect-[1/1.5] object-cover rounded-sm"
-                />
-                <span className="text-[#181a20] text-[15px] font-normal">{type.title}</span>
+          <div className="grid grid-cols-4 gap-10">
+            {typeProperties.map((property, index) => (
+              <div
+                key={index}
+                className="flex items-center  flex-col gap-2 cursor-pointer gap-y-4 bg-white shadow rounded-md overflow-hidden pb-4"
+              >
+                <img src={property.image} alt="property" className="aspect-[1/1] object-cover rounded-sm" />
+                <span className="text-[#181a20] text-[15px] font-semibold">{property.title}</span>
               </div>
             ))}
           </div>
         </motion.div>
       </section>
-    </Layout>
+    </>
   );
 };
 

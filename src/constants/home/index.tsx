@@ -38,18 +38,28 @@ export const listLinkOnSearch: ILinkOnSearch[] = [
   },
 ];
 export type ITypeProperties = "House" | "Villa" | "Office" | "Apartments";
-export const typeProperties = [
+export const propertiesTypeOptions = ["All", "House", "Villa", "Office", "Apartments"];
+
+export const typeProperties: { title: ITypeProperties; image?: string }[] = [
   {
     title: "House",
+    image:
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8SG91c2V8ZW58MHx8MHx8fDA%3D",
   },
   {
     title: "Villa",
+    image:
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8VmlsbGF8ZW58MHx8MHx8fDA%3D",
   },
   {
     title: "Office",
+    image:
+      "https://images.unsplash.com/photo-1574958269340-fa927503f3dd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8T2ZmaWNlJTIwYnVpbGRpbmd8ZW58MHx8MHx8fDA%3D",
   },
   {
     title: "Apartments",
+    image:
+      "https://images.unsplash.com/photo-1679211934250-aa8512613468?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fEFwYXJ0ZW1lbnRzJTIwQnVpbGRpbmd8ZW58MHx8MHx8fDA%3D",
   },
 ];
 
