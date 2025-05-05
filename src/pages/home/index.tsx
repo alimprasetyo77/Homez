@@ -24,9 +24,9 @@ const Home = () => {
   const navigate = useNavigate();
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget).get("search") as string;
-    if (formData) {
-      navigate(`/properties/search?q=${formData}`);
+    const keyword = new FormData(e.currentTarget).get("search") as string;
+    if (keyword) {
+      navigate(`/properties/search?q=${keyword}`, { state: { propertyStatus: activeLinkOnSearch } });
     }
     e.currentTarget.reset();
   };
@@ -179,7 +179,10 @@ const Home = () => {
             <Carousel className="mt-10" opts={{ align: "start" }}>
               <CarouselContent>
                 {ListCities.map((city) => (
-                  <CarouselItem className="basis-1/6 p-6">
+                  <CarouselItem
+                    className="basis-1/6 p-6 cursor-pointer"
+                    onClick={() => navigate(`/properties/search?location=${city.name}`)}
+                  >
                     <CityCard key={city.id} {...city} />
                   </CarouselItem>
                 ))}
@@ -252,6 +255,7 @@ const Home = () => {
               <div
                 key={index}
                 className="flex items-center  flex-col gap-2 cursor-pointer gap-y-4 bg-white shadow rounded-md overflow-hidden pb-4"
+                onClick={() => navigate("/properties/search", { state: { propertyType: property.title } })}
               >
                 <img src={property.image} alt="property" className="aspect-[1/1] object-cover rounded-sm" />
                 <span className="text-[#181a20] text-[15px] font-semibold">{property.title}</span>

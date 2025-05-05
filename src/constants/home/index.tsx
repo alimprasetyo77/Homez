@@ -32,10 +32,6 @@ export const listLinkOnSearch: ILinkOnSearch[] = [
     id: 2,
     title: "rent",
   },
-  {
-    id: 3,
-    title: "sold",
-  },
 ];
 export type ITypeProperties = "House" | "Villa" | "Office" | "Apartments";
 export const propertiesTypeOptions = ["All", "House", "Villa", "Office", "Apartments"];
@@ -124,6 +120,7 @@ export const Properties: IProperties[] = [
     price: 3850000,
     features: ["Private garden", "Brownstone facade", "Smart home system"],
     image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 2,
@@ -138,6 +135,7 @@ export const Properties: IProperties[] = [
     features: ["Infinity pool", "Private beach access", "Rooftop terrace"],
     image:
       "https://images.pexels.com/photos/1488267/pexels-photo-1488267.png?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 3,
@@ -151,6 +149,7 @@ export const Properties: IProperties[] = [
     price: 3200000,
     features: ["Floor-to-ceiling windows", "Meeting rooms", "Fiber internet"],
     image: "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
   {
     id: 4,
@@ -165,6 +164,7 @@ export const Properties: IProperties[] = [
     features: ["City views", "Concierge service", "Sky lounge"],
     image:
       "https://images.pexels.com/photos/5825693/pexels-photo-5825693.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
   {
     id: 5,
@@ -178,6 +178,7 @@ export const Properties: IProperties[] = [
     price: 1800000,
     features: ["Open floor plan", "EV charging", "Collaboration areas"],
     image: "https://images.pexels.com/photos/68631/pexels-photo-68631.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 6,
@@ -192,6 +193,7 @@ export const Properties: IProperties[] = [
     features: ["Harbor views", "Fitness center", "24/7 security"],
     image:
       "https://images.pexels.com/photos/13203194/pexels-photo-13203194.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
   {
     id: 7,
@@ -206,6 +208,7 @@ export const Properties: IProperties[] = [
     features: ["Exposed brick", "High ceilings", "Artist studio space"],
     image:
       "https://images.pexels.com/photos/31731218/pexels-photo-31731218/free-photo-of-modern-brick-building-against-blue-sky.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 8,
@@ -220,6 +223,7 @@ export const Properties: IProperties[] = [
     features: ["Private beach", "Home cinema", "Wine cellar"],
     image:
       "https://images.pexels.com/photos/31694848/pexels-photo-31694848/free-photo-of-modern-architecture-building-with-triangular-roofs.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 9,
@@ -234,6 +238,7 @@ export const Properties: IProperties[] = [
     features: ["Private beach", "Home cinema", "Wine cellar"],
     image:
       "https://images.pexels.com/photos/7061662/pexels-photo-7061662.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 10,
@@ -247,6 +252,7 @@ export const Properties: IProperties[] = [
     price: 4500000,
     features: ["Large backyard", "Fireplace", "Modern kitchen"],
     image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
   {
     id: 11,
@@ -260,6 +266,7 @@ export const Properties: IProperties[] = [
     price: 1200000,
     features: ["Swimming pool", "Two-car garage", "Open floor plan"],
     image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 12,
@@ -273,6 +280,7 @@ export const Properties: IProperties[] = [
     price: 850000,
     features: ["Wrap-around porch", "Wooded lot", "Fireplace"],
     image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
   {
     id: 13,
@@ -286,6 +294,7 @@ export const Properties: IProperties[] = [
     price: 950000,
     features: ["Smart home system", "Energy-efficient appliances", "Two-car garage"],
     image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "buy",
   },
   {
     id: 14,
@@ -299,5 +308,6 @@ export const Properties: IProperties[] = [
     price: 1500000,
     features: ["Brick exterior", "Formal dining room", "Hardwood floors"],
     image: "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600",
+    listingStatus: "rent",
   },
 ];

@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { BiLink } from "react-icons/bi";
 import { Heart } from "lucide-react";
 import { MdAdd } from "react-icons/md";
+import { usdCurrencyFormat } from "@/lib/utils";
 
 const PropertyCard = ({ property }: { property: IProperties }) => {
   return (
@@ -33,7 +34,7 @@ const PropertyCard = ({ property }: { property: IProperties }) => {
           </span>
         </div>
         <Button variant={"outline"} className="text-[15px] text-[#181a20] font-semibold">
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(property.price)}
+          {usdCurrencyFormat(property.price)}
         </Button>
       </div>
     </div>

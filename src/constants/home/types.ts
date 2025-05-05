@@ -22,6 +22,7 @@ export interface IProperties {
   price: number
   features: string[]
   image: string
+  listingStatus: string
 }
 
 export interface Location {
