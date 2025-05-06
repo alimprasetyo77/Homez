@@ -3,6 +3,7 @@ import Home from "../pages/home";
 import About from "@/pages/about";
 import Search from "@/pages/properties/search";
 import Layout from "@/components/layout";
+import DetailProperty from "@/pages/properties/detail";
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/properties">
             <Route path="search" element={<Search />} />
-            <Route path=":pid" element={<div>Settings Page</div>} />
+            <Route path=":slug" element={<DetailProperty />} />
           </Route>
           <Route path="/about" element={<About />} />
         </Route>

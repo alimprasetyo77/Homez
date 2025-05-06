@@ -4,26 +4,35 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { ITypeProperties, ListCities, Properties, propertiesTypeOptions } from "@/constants/home";
 import { IProperties, ListLinkSearch } from "@/constants/home/types";
-import { usdCurrencyFormat } from "@/lib/utils";
+import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RxExternalLink } from "react-icons/rx";
 import { MdOutlineLibraryAdd } from "react-icons/md";
 import { CiHeart } from "react-icons/ci";
 import { Button } from "@/components/ui/button";
 import { RiArrowGoBackFill } from "react-icons/ri";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export type PropertyStatusType = "all" | "buy" | "rent";
 
 const Search = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [dataProperties, setDataProperties] = useState<IProperties[]>();
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
     min: 0,
-    max: 10000000,
+    max: 20000000,
   });
   const querySearch = searchParams.get("q") || "";
   const locationSearch = searchParams.get("location") || "";
@@ -36,6 +45,13 @@ const Search = () => {
   const [keyword, setKeyword] = useState(querySearch || "");
   const [location, setLocation] = useState(locationSearch || "All Cities");
 
+  const [page, setPage] = useState({
+    currentPage: 1,
+    totalPage: Math.ceil(Number(dataProperties?.length) / 8),
+    perpage: 8,
+    startIndex: 0,
+    endIndex: 8,
+  });
   const handleSearch = () => {
     let filteredProperties = Properties;
 
@@ -113,8 +129,54 @@ const Search = () => {
       return [...prev, type];
     });
   };
+  const handleNextPage = () => {
+    if (page.currentPage < page.totalPage) {
+      setPage((prev) => {
+        const newStartIndex = prev.currentPage * prev.perpage;
+        const newEndIndex = newStartIndex + prev.perpage;
+        return {
+          ...prev,
+          currentPage: prev.currentPage + 1,
+          startIndex: newStartIndex,
+          endIndex: newEndIndex,
+        };
+      });
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page.currentPage > 1) {
+      setPage((prev) => {
+        const newStartIndex = (prev.currentPage - 2) * prev.perpage;
+        const newEndIndex = newStartIndex + prev.perpage;
+        return {
+          ...prev,
+          currentPage: prev.currentPage - 1,
+          startIndex: newStartIndex,
+          endIndex: newEndIndex,
+        };
+      });
+    }
+  };
+
+  const handleChoosePage = (page: number) => {
+    window.scrollTo(0, 0);
+
+    setPage((prev) => {
+      const newStartIndex = (page - 1) * prev.perpage;
+      const newEndIndex = newStartIndex + prev.perpage;
+      return {
+        ...prev,
+        currentPage: page,
+        startIndex: newStartIndex,
+        endIndex: newEndIndex,
+      };
+    });
+  };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (querySearch) return setDataProperties(Properties.filter((item) => item.title.includes(querySearch)));
     if (locationSearch) {
       return setDataProperties(
@@ -127,9 +189,9 @@ const Search = () => {
     if (state?.propertyStatus) {
       return setDataProperties(Properties.filter((item) => item.listingStatus === state.propertyStatus));
     }
+
     setDataProperties(Properties);
   }, []);
-
   return (
     <div className="bg-[#f7f7f7] min-h-screen py-20">
       <div className="max-w-[1230px] mx-auto">
@@ -196,7 +258,7 @@ const Search = () => {
                       max={100}
                       step={1}
                       onValueChange={(value) =>
-                        setPriceRange({ min: value[0] * 100000, max: value[1] * 100000 })
+                        setPriceRange({ min: value[0] * 200000, max: value[1] * 200000 })
                       }
                     />
                     <div className="flex items-center gap-x-4 ">
@@ -243,7 +305,7 @@ const Search = () => {
                     <span>Search</span>
                   </Button>
                   <a
-                    className="flex items-center gap-x-1 text-sm underline underline-offset-2"
+                    className="flex items-center gap-x-1 text-sm underline underline-offset-2 cursor-pointer"
                     onClick={handleResetFilters}
                   >
                     <RiArrowGoBackFill />
@@ -252,9 +314,14 @@ const Search = () => {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 col-span-8 gap-4">
+            <div className="relative grid grid-cols-2 col-span-8 gap-4 pt-12 ">
+              <span className="absolute top-0 text-slate-800 font-sans ">
+                Showing {page.startIndex == 0 && dataProperties?.length ? 1 : page.startIndex}-
+                {page.endIndex > (dataProperties?.length as number) ? dataProperties?.length : page.endIndex}{" "}
+                of {dataProperties?.length} results
+              </span>
               {dataProperties && dataProperties.length > 0 ? (
-                dataProperties.slice(0, 8).map((property) => (
+                dataProperties.slice(page.startIndex, page.endIndex).map((property) => (
                   <div
                     key={property.id}
                     className="bg-white rounded-[12px] shadow overflow-clip aspect-square"
@@ -272,7 +339,12 @@ const Search = () => {
                     </div>
                     <div className="p-4">
                       <div className="space-y-2">
-                        <h3 className="text-[15px] text-[#181a20] font-semibold mt-2">{property.title}</h3>
+                        <h3
+                          className="text-[15px] text-[#181a20] font-semibold mt-2 hover:underline"
+                          onClick={() => navigate(`/properties/${convertToUrlSlug(property.title)}`)}
+                        >
+                          {property.title}
+                        </h3>
                         <p className="text-[#717171] text-sm">
                           {property.location.city}, {property.location.state}, {property.location.country}
                         </p>
@@ -292,8 +364,34 @@ const Search = () => {
                   </div>
                 ))
               ) : (
-                <h1 className="text-lg capitalize ">no result for "{keyword}"</h1>
+                <h1 className="text-lg capitalize ">no result {keyword ? `for "${keyword}"` : null}</h1>
               )}
+
+              <Pagination className="col-span-2">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={handlePreviousPage} />
+                  </PaginationItem>
+                  {Array.from({ length: Math.ceil((dataProperties?.length as number) / 8) }, (_, index) => (
+                    <PaginationItem key={index}>
+                      <PaginationLink
+                        onClick={() => {
+                          handleChoosePage(index + 1);
+                        }}
+                        isActive={page.currentPage === index + 1}
+                      >
+                        {index + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  {/* <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem> */}
+                  <PaginationItem>
+                    <PaginationNext onClick={handleNextPage} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           </div>
         </div>

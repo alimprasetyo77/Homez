@@ -8,3 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const usdCurrencyFormat =(value:number)=>{
   return  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value)
 }
+
+export const convertToUrlSlug=(title:string) =>{
+  return title.replace(/\s+/g, '-').toLowerCase();
+}
