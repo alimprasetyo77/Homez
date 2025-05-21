@@ -3,6 +3,7 @@ api/node_modules/
 api/dist
 api/.vercel/
 api/.env
+api/src/generated
 
 client/node_modules
 client/.env
