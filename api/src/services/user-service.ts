@@ -1,68 +1,78 @@
 import { User as IUser, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";
-import {
-  ILogin,
-  IRegister,
-  loginSchema,
-  registerSchema,
-  updateUserSchema,
-} from "../validations/user-validation";
+import { ILogin, IRegister, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+export class UserService {
+  static async register(request: IRegister): Promise<void> {
+    let registerRequest = validate(UserValidation.register, request);
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: registerRequest.email,
+      },
+    });
 
-export const registerService = async (request: IRegister): Promise<void> => {
-  let registerRequest = validate(registerSchema, request);
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: registerRequest.email,
-    },
-  });
+    if (existingUser) {
+      throw new ResponseError(400, "User already exists");
+    }
 
-  if (existingUser) {
-    throw new ResponseError(400, "User already exists");
+    registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
+
+    await prisma.user.create({
+      data: registerRequest,
+    });
   }
 
-  registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
+  static async login(request: ILogin): Promise<{ token: string }> {
+    const loginRequest = validate(UserValidation.login, request);
 
-  await prisma.user.create({
-    data: registerRequest,
-  });
-};
+    const user = await prisma.user.findUnique({ where: { email: loginRequest.email } });
+    if (!user) throw new ResponseError(404, "User not found");
 
-export const loginService = async (request: ILogin): Promise<{ token: string }> => {
-  const loginRequest = validate(loginSchema, request);
+    const isPasswordValid = await bcrypt.compare(loginRequest.password, user.password);
+    if (!isPasswordValid) throw new ResponseError(401, "Invalid password");
 
-  const user = await prisma.user.findUnique({ where: { email: loginRequest.email } });
-  if (!user) throw new ResponseError(404, "User not found");
+    user.tokens = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
 
-  const isPasswordValid = await bcrypt.compare(loginRequest.password, user.password);
-  if (!isPasswordValid) throw new ResponseError(401, "Invalid password");
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { tokens: user.tokens },
+    });
 
-  user.tokens = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
+    return {
+      token: user.tokens,
+    };
+  }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { tokens: user.tokens },
-  });
+  static async getById(id: string): Promise<IUser> {
+    const result = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    return result as IUser;
+  }
 
-  return {
-    token: user.tokens,
-  };
-};
+  static async get(user: User): Promise<IUser> {
+    if (user.role !== "AGENT") return user;
+    const result = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: { properties: true, favorites: true },
+    });
+    return result as IUser;
+  }
 
-export const getUserService = async (id: string): Promise<IUser> => {
-  const result = await prisma.user.findUnique({
-    where: {
-      id: id,
-    },
-  });
-  return result as IUser;
-};
+  static async update(id: string, request: Partial<IUser>): Promise<IUser> {
+    const updateRequest = validate(UserValidation.updateUser, request);
+    const result = await prisma.user.update({ where: { id: id }, data: updateRequest });
+    return result;
+  }
 
-export const updateUserService = async (id: string, request: Partial<IUser>): Promise<IUser> => {
-  const updateRequest = validate(updateUserSchema, request);
-  const result = await prisma.user.update({ where: { id: id }, data: updateRequest });
-  return result;
-};
+  static async delete(id: string): Promise<void> {
+    await prisma.user.delete({ where: { id: id } });
+  }
+}
