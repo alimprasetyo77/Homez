@@ -1,3 +1,4 @@
+import { SafeParseError } from "zod";
 import { User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";
@@ -43,50 +44,88 @@ export class PropertyService {
     return property;
   }
 
-  static async delete(id: string) {
+  static async delete(user: User, propertyId: string) {
     const propertyExists = await prisma.property.findUnique({
-      where: { id },
+      where: { id: propertyId },
+      include: { agent: true },
     });
-    if (!propertyExists) throw new ResponseError(404, "Property not found");
+
+    if (!propertyExists) {
+      throw new ResponseError(404, "Property not found");
+    }
+    if (propertyExists.agentId !== user.id) {
+      throw new ResponseError(403, "You are not authorized to delete this property");
+    }
 
     await prisma.property.delete({
-      where: { id },
+      where: { id: propertyId },
     });
   }
 
   static async search(request: ISearchProperty) {
-    const data = validate(PropertyValidation.searchProperty, request);
-    console.log(data);
-    const skip = data.page * data.limit;
-    let filterProperties = [];
+    const { title, price, status, type, bedrooms, bathrooms, squareFeet, location, page, limit } = validate(
+      PropertyValidation.searchProperty,
+      request
+    );
 
-    if (data.title) {
-      filterProperties.push({ title: { contains: data.title } });
+    const filterProperties: Record<string, any> = {
+      title: { contains: title, mode: "insensitive" },
+    };
+
+    if (price && (price.min !== undefined || price.max !== undefined)) {
+      filterProperties.price = {};
+      if (price.min !== undefined) {
+        filterProperties.price.gte = price.min;
+      }
+      if (price.max !== undefined) {
+        filterProperties.price.lte = price.max;
+      }
     }
 
-    if (data.type) {
-      filterProperties.push({ type: { contains: data.type } });
+    if (status) {
+      filterProperties.status = status;
     }
 
+    if (type) {
+      filterProperties.type = type;
+    }
+
+    if (bedrooms !== null && bedrooms !== undefined) {
+      filterProperties.bedrooms = bedrooms;
+    }
+
+    if (bathrooms !== null && bathrooms !== undefined) {
+      filterProperties.bathrooms = bathrooms;
+    }
+
+    if (squareFeet !== null && squareFeet !== undefined) {
+      filterProperties.squareFeet = squareFeet;
+    }
+
+    if (location) {
+      filterProperties.city = { contains: location, mode: "insensitive" };
+    }
+    console.log(filterProperties);
     const properties = await prisma.property.findMany({
-      where: {
-        title: data.title,
-        AND: filterProperties,
-      },
-      take: data.limit,
-      skip: skip,
+      where: filterProperties,
+      skip: (page - 1) * limit,
+      take: limit,
     });
-    const totalProperties = await prisma.property.count({
-      where: {
-        title: data.title,
-        AND: filterProperties,
-      },
+
+    const total = await prisma.property.count({
+      where: filterProperties,
     });
+
     return {
       data: properties,
-      current_page: data.page,
-      total_pages: Math.ceil(totalProperties / data.limit),
-      total_items: totalProperties,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
+  }
+  static async getcities() {
+    const cities = await prisma.property.findMany({ distinct: ["city"] });
+    return cities.map((property) => property.city);
   }
 }

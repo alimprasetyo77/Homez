@@ -20,8 +20,14 @@ export class PropertyValidation {
   static readonly updateProperty = PropertyValidation.createProperty.partial();
 
   static readonly searchProperty = z.object({
-    title: z.string(),
-    price: z.number().optional().nullable(),
+    title: z.string().optional(),
+    price: z
+      .object({
+        min: z.number().positive().optional().nullable(),
+        max: z.number().positive().optional().nullable(),
+      })
+      .optional()
+      .nullable(),
     status: z.enum(["buy", "rent"]).optional().nullable(),
     type: z.enum(["house", "apartment", "office", "villa"]).optional().nullable(),
     bedrooms: z.number().int().nonnegative().optional().nullable(),

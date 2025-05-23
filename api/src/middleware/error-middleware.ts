@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import e, { NextFunction, Response } from "express";
 import { ZodError } from "zod";
 import { ResponseError } from "../utils/response-error";
 

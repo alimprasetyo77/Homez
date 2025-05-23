@@ -14,9 +14,6 @@ apiRouter.put("/api/users/current", UserController.update);
 apiRouter.delete("/api/users/current", UserController.delete);
 
 // Property routes
-apiRouter.get("/api/properties/search", PropertyController.search);
-apiRouter.get("/api/properties", PropertyController.getAll);
-apiRouter.get("/api/properties/:propertyId", PropertyController.getById);
 //AGENT ONLY
 apiRouter.post("/api/properties", roleMiddleware as any, PropertyController.create);
 apiRouter.put("/api/properties/:propertyId", roleMiddleware as any, PropertyController.update);
