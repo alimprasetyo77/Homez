@@ -9,15 +9,15 @@ export const errorMiddleware = async (error: Error, _req: Request, res: Response
       errors[err.path[0]] = err.message;
     }
     res.status(400).json({
-      errors: `validation error : ${JSON.stringify(errors).replace(/"/g, "'")}`,
+      message: `validation error : ${JSON.stringify(errors).replace(/"/g, "'")}`,
     });
   } else if (error instanceof ResponseError) {
     res.status(error.status).json({
-      errors: error.message,
+      message: error.message,
     });
   } else {
     res.status(500).json({
-      errors: error.message,
+      message: error.message,
     });
   }
 };

@@ -1,3 +1,4 @@
+import { PropertyType } from "@/utils/apis/properties/types";
 import { ICity, ILinkNavbar, ILinkOnSearch, IProperties } from "./types";
 
 export const linkNavbar: ILinkNavbar[] = [
@@ -36,7 +37,7 @@ export const listLinkOnSearch: ILinkOnSearch[] = [
 export type ITypeProperties = "House" | "Villa" | "Office" | "Apartments";
 export const propertiesTypeOptions = ["All", "House", "Villa", "Office", "Apartments"];
 
-export const typeProperties: { title: ITypeProperties; image?: string }[] = [
+export const typeProperties: { title: string; image?: string }[] = [
   {
     title: "House",
     image:
@@ -53,7 +54,7 @@ export const typeProperties: { title: ITypeProperties; image?: string }[] = [
       "https://images.unsplash.com/photo-1574958269340-fa927503f3dd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8T2ZmaWNlJTIwYnVpbGRpbmd8ZW58MHx8MHx8fDA%3D",
   },
   {
-    title: "Apartments",
+    title: "Apartment",
     image:
       "https://images.unsplash.com/photo-1679211934250-aa8512613468?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fEFwYXJ0ZW1lbnRzJTIwQnVpbGRpbmd8ZW58MHx8MHx8fDA%3D",
   },

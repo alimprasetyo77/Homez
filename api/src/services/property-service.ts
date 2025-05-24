@@ -63,10 +63,18 @@ export class PropertyService {
   }
 
   static async search(request: ISearchProperty) {
-    const { title, price, status, type, bedrooms, bathrooms, squareFeet, location, page, limit } = validate(
-      PropertyValidation.searchProperty,
-      request
-    );
+    const {
+      title,
+      price,
+      status,
+      type,
+      bedrooms,
+      bathrooms,
+      squareFeet,
+      location,
+      page = 1,
+      limit = 8,
+    } = validate(PropertyValidation.searchProperty, request);
 
     const filterProperties: Record<string, any> = {
       title: { contains: title, mode: "insensitive" },
@@ -105,7 +113,7 @@ export class PropertyService {
     if (location) {
       filterProperties.city = { contains: location, mode: "insensitive" };
     }
-    console.log(filterProperties);
+
     const properties = await prisma.property.findMany({
       where: filterProperties,
       skip: (page - 1) * limit,

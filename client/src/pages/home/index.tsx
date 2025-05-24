@@ -7,7 +7,7 @@ import { MdOutlineVilla } from "react-icons/md";
 import CityCard from "@/components/city-card";
 import { Input } from "@/components/ui/input";
 import { BiSearch } from "react-icons/bi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -17,10 +17,15 @@ import {
 } from "@/components/ui/carousel";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import { IProperty, PropertyType } from "@/utils/apis/properties/types";
+import { getPopular } from "@/utils/apis/properties/api";
+import { ResponsePagination } from "@/utils/types/type";
 
 const Home = () => {
+  const [popularProperties, setPopularProperties] = useState<ResponsePagination<IProperty>>();
   const [activeLinkOnSearch, setActiveLinkOnSearch] = useState<ListLinkSearch>("buy");
-  const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<ITypeProperties>("House");
+  const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<PropertyType>("house");
+
   const navigate = useNavigate();
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +35,21 @@ const Home = () => {
     }
     e.currentTarget.reset();
   };
+
+  const getPopularProperties = async () => {
+    try {
+      const result = await getPopular(activeLinkOnProperties, 6);
+      setPopularProperties(result);
+      console.log(result);
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getPopularProperties();
+  }, [activeLinkOnProperties]);
+
   return (
     <>
       {/* Hero  */}
@@ -180,6 +200,7 @@ const Home = () => {
               <CarouselContent>
                 {ListCities.map((city) => (
                   <CarouselItem
+                    key={city.id}
                     className="basis-1/6 p-6 cursor-pointer"
                     onClick={() => navigate(`/properties/search?location=${city.name}`)}
                   >
@@ -215,10 +236,10 @@ const Home = () => {
                 <Button
                   variant={"outline"}
                   className={`${
-                    type.title === activeLinkOnProperties && "bg-black text-white"
+                    type.title.toLowerCase() === activeLinkOnProperties && "bg-black text-white"
                   } hover:bg-black hover:text-white transition-all duration-200 ease-in cursor-pointer`}
                   key={index}
-                  onClick={() => setActiveLinkOnProperties(type.title as ITypeProperties)}
+                  onClick={() => setActiveLinkOnProperties(type.title.toLowerCase() as PropertyType)}
                 >
                   {type.title}
                 </Button>
@@ -226,7 +247,7 @@ const Home = () => {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-6">
-            {Properties.map((property) =>
+            {popularProperties?.data?.map((property) =>
               property.type === activeLinkOnProperties ? (
                 <PropertyCard key={property.id} property={property} />
               ) : null
