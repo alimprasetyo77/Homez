@@ -10,6 +10,6 @@ export const getPopular = async (typeProperty: PropertyType, limit: number) => {
     });
     return result.data as ResponsePagination<IProperty>;
   } catch (error: any) {
-    throw new Error(`Error fetching properties: ${error.response?.data.message}`);
+    throw new Error(error.response?.data.message);
   }
 };
