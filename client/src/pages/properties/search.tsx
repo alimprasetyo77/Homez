@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { ListCities, propertiesTypeOptions } from "@/constants/home";
 import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RxExternalLink } from "react-icons/rx";
@@ -21,50 +21,80 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { searchOrFilterProperties } from "@/utils/apis/properties/api";
-import { IProperty, ISearchOrFilterProperties, PropertyStatus } from "@/utils/apis/properties/types";
-import { toast } from "sonner";
-import { ResponsePagination } from "@/utils/types/type";
+import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/utils/apis/properties/types";
 
 export type PropertyStatusType = "all" | "buy" | "rent";
 
 const Search = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [data, setData] = useState<ResponsePagination<IProperty>>();
+  // const [data, setData] = useState<ResponsePagination<IProperty>>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
     min: 0,
-    max: 20000000,
+    max: 5000000,
   });
   const querySearch = searchParams.get("q") || "";
   const locationSearch = searchParams.get("location") || "";
   const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | "all">(
     state?.propertyStatus ?? "all"
   );
+  const [propertyType, setPropertyType] = useState<(PropertyType | "all")[]>(["all"]);
+
   const [keyword, setKeyword] = useState(querySearch || "");
   const [location, setLocation] = useState(locationSearch || "All Cities");
+  const [filteredProperties, setFilteredProperties] = useState<ISearchOrFilterProperties>();
 
-  const mutation = useMutation({
-    mutationFn: searchOrFilterProperties,
-    onSuccess: (data) => {
-      setData(data);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "An error occurred while searching properties.");
-    },
+  const { data, refetch } = useQuery({
+    queryKey: ["searchOrFilter-properties", filteredProperties],
+    queryFn: () => searchOrFilterProperties(filteredProperties as ISearchOrFilterProperties),
+    enabled: false,
   });
-  const handleSearch = () => {
-    let filteredProperties: ISearchOrFilterProperties = {
-      limit: 8,
-      page: 1,
-      title: searchParams.get("q") ?? keyword,
-    };
-    mutation.mutate(filteredProperties);
+
+  const handlePropertyTypeChange = (type: PropertyType | "all") => {
+    setPropertyType((prev) => {
+      if (type === "all") return ["all"];
+
+      if (prev.includes("all")) return [type];
+
+      if (prev.includes(type)) {
+        const updated = prev.filter((item) => item !== type);
+        return updated.length > 0 ? updated : ["all"];
+      }
+
+      return [...prev, type];
+    });
   };
 
+  const handleSearch = () => {
+    let filter: ISearchOrFilterProperties = {
+      title: keyword.trim(),
+      price: {
+        min: priceRange.min,
+        max: priceRange.max,
+      },
+      page: 1,
+      limit: 8,
+    };
+
+    if (propertyStatus !== "all") {
+      filter.status = propertyStatus;
+    }
+    if (propertyType !== undefined && propertyType.length > 0 && !propertyType.includes("all")) {
+      filter.type = propertyType as PropertyType[];
+    }
+
+    if (location && location !== "All Cities") {
+      filter.location = location;
+    }
+    setFilteredProperties(filter);
+  };
+
+  // Handle search params
   const handleResetFilters = () => {
+    setFilteredProperties({ limit: 8, page: 1 });
     updateSearchParams("q", null);
     setSearchParams(searchParams);
   };
@@ -77,6 +107,23 @@ const Search = () => {
       searchParams.delete(key);
     }
   };
+  useEffect(() => {
+    const hasQuery = searchParams.get("q");
+    if (hasQuery) {
+      handleSearch();
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (filteredProperties) {
+      refetch();
+    } else {
+      setFilteredProperties({
+        page: 1,
+        limit: 8,
+      });
+    }
+  }, [filteredProperties]);
 
   return (
     <div className="bg-[#f7f7f7] min-h-screen py-20">
@@ -121,10 +168,15 @@ const Search = () => {
                   <div className="flex flex-col">
                     {propertiesTypeOptions.map((type, index) => (
                       <div key={index} className="flex items-center gap-x-4 text-sm ">
-                        <Checkbox id={type.toLowerCase()} />
+                        <Checkbox
+                          checked={propertyType.includes(type as PropertyType)}
+                          id={type.toLowerCase()}
+                          onCheckedChange={() => handlePropertyTypeChange(type as PropertyType)}
+                        />
+
                         <label
                           htmlFor={type.toLowerCase()}
-                          className="block font-sans text-sm  antialiased leading-relaxed text-blue-gray-900"
+                          className="block font-sans text-sm capitalize antialiased leading-relaxed text-blue-gray-900"
                         >
                           {type}
                         </label>
@@ -140,7 +192,7 @@ const Search = () => {
                       max={100}
                       step={1}
                       onValueChange={(value) =>
-                        setPriceRange({ min: value[0] * 200000, max: value[1] * 200000 })
+                        setPriceRange({ min: value[0] * 50000, max: value[1] * 50000 })
                       }
                     />
                     <div className="flex items-center gap-x-4 ">

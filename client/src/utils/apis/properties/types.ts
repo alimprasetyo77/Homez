@@ -10,7 +10,7 @@ export const searchOrFilterPropertiesSchema = z.object({
     .optional()
     .nullable(),
   status: z.enum(["buy", "rent"]).optional().nullable(),
-  type: z.enum(["house", "apartment", "office", "villa"]).optional().nullable(),
+  type: z.array(z.enum(["house", "apartment", "office", "villa"])).optional(),
   bedrooms: z.number().int().nonnegative().optional().nullable(),
   bathrooms: z.number().int().nonnegative().optional().nullable(),
   squareFeet: z.number().positive().optional().nullable(),

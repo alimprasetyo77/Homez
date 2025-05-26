@@ -95,7 +95,7 @@ export class PropertyService {
     }
 
     if (type) {
-      filterProperties.type = type;
+      filterProperties.type = { in: type };
     }
 
     if (bedrooms !== null && bedrooms !== undefined) {
