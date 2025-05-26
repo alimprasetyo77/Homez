@@ -1,7 +1,7 @@
 import { Copyright, SendIcon } from "lucide-react";
-import { Button } from "./ui/button";
 import { FaApple, FaFacebook, FaGooglePlay, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 const Footer = () => {
   return (

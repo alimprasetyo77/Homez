@@ -1,6 +1,6 @@
 import { ResponsePagination } from "@/utils/types/type";
 import axiosWithConfig from "../axios-config";
-import { IProperty, PropertyType } from "./types";
+import { IProperty, ISearchOrFilterProperties, PropertyType } from "./types";
 
 export const getPopular = async (typeProperty: PropertyType, limit: number) => {
   try {
@@ -8,6 +8,15 @@ export const getPopular = async (typeProperty: PropertyType, limit: number) => {
       type: typeProperty,
       limit,
     });
+    return result.data as ResponsePagination<IProperty>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.message);
+  }
+};
+
+export const searchOrFilterProperties = async (payload: ISearchOrFilterProperties) => {
+  try {
+    const result = await axiosWithConfig.post("/properties/search", payload);
     return result.data as ResponsePagination<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.message);

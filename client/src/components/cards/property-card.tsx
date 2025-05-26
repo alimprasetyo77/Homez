@@ -1,9 +1,9 @@
-import { Button } from "./ui/button";
 import { BiLink } from "react-icons/bi";
 import { Heart } from "lucide-react";
 import { MdAdd } from "react-icons/md";
 import { usdCurrencyFormat } from "@/lib/utils";
 import { IProperty } from "@/utils/apis/properties/types";
+import { Button } from "../ui/button";
 
 const PropertyCard = ({ property }: { property: IProperty }) => {
   return (

@@ -1,3 +1,24 @@
+import { z } from "zod";
+
+export const searchOrFilterPropertiesSchema = z.object({
+  title: z.string().optional(),
+  price: z
+    .object({
+      min: z.number().positive().optional().nullable(),
+      max: z.number().positive().optional().nullable(),
+    })
+    .optional()
+    .nullable(),
+  status: z.enum(["buy", "rent"]).optional().nullable(),
+  type: z.enum(["house", "apartment", "office", "villa"]).optional().nullable(),
+  bedrooms: z.number().int().nonnegative().optional().nullable(),
+  bathrooms: z.number().int().nonnegative().optional().nullable(),
+  squareFeet: z.number().positive().optional().nullable(),
+  location: z.string().optional().nullable(),
+  page: z.number().int().nonnegative().default(1),
+  limit: z.number().int().nonnegative().default(8),
+});
+export type ISearchOrFilterProperties = z.infer<typeof searchOrFilterPropertiesSchema>;
 export type PropertyType = "house" | "apartment" | "office" | "villa";
 export type PropertyStatus = "buy" | "rent";
 

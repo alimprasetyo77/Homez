@@ -132,8 +132,4 @@ export class PropertyService {
       totalPages: Math.ceil(total / limit),
     };
   }
-  static async getcities() {
-    const cities = await prisma.property.findMany({ distinct: ["city"] });
-    return cities.map((property) => property.city);
-  }
 }

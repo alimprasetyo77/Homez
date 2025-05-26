@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "../pages/home";
 import About from "@/pages/about";
 import Search from "@/pages/properties/search";
-import Layout from "@/components/layout";
+import Layout from "@/components/layouts/layout";
 import DetailProperty from "@/pages/properties/detail";
 
 function App() {

@@ -4,15 +4,15 @@ import { PropertyType } from "@/utils/apis/properties/types";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Button } from "./ui/button";
-import PropertyCard from "./property-card";
-import { Skeleton } from "./ui/skeleton";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
+import PropertyCard from "../cards/property-card";
 
-const PopularProperties = () => {
+const PopularProperty = () => {
   const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<PropertyType>("house");
 
   const { data: popularProperties, isLoading } = useQuery({
-    queryKey: ["popularProperties", activeLinkOnProperties],
+    queryKey: ["popularProperties", "properties", activeLinkOnProperties],
     queryFn: () => getPopular(activeLinkOnProperties, 6),
   });
 
@@ -63,4 +63,4 @@ const PopularProperties = () => {
   );
 };
 
-export default PopularProperties;
+export default PopularProperty;

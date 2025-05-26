@@ -83,13 +83,4 @@ export class PropertyController {
       next(error);
     }
   }
-
-  static async getCities(req: Request, res: Response, next: NextFunction) {
-    try {
-      const response = await PropertyService.getcities();
-      res.status(200).json(response);
-    } catch (error) {
-      next(error);
-    }
-  }
 }

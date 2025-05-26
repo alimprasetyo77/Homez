@@ -15,20 +15,18 @@ export interface ILinkNavbar {
   path: string;
 }
 export interface IProperties {
-  id: number
-  title: string
-  type: string
-  location: Location
-  price: number
-  features: string[]
-  image: string
-  listingStatus: string
+  id: number;
+  title: string;
+  type: string;
+  location: Location;
+  price: number;
+  features: string[];
+  image: string;
+  listingStatus: string;
 }
 
 export interface Location {
-  city: string
-  state: string
-  country: string
+  city: string;
+  state: string;
+  country: string;
 }
-
-

@@ -2,11 +2,10 @@ import Radio from "@/components/radio";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { ITypeProperties, ListCities, Properties, propertiesTypeOptions } from "@/constants/home";
-import { IProperties, ListLinkSearch } from "@/constants/home/types";
+import { ListCities, propertiesTypeOptions } from "@/constants/home";
 import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RxExternalLink } from "react-icons/rx";
@@ -22,90 +21,52 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useMutation } from "@tanstack/react-query";
+import { searchOrFilterProperties } from "@/utils/apis/properties/api";
+import { IProperty, ISearchOrFilterProperties, PropertyStatus } from "@/utils/apis/properties/types";
+import { toast } from "sonner";
+import { ResponsePagination } from "@/utils/types/type";
 
 export type PropertyStatusType = "all" | "buy" | "rent";
 
 const Search = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [data, setData] = useState<ResponsePagination<IProperty>>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [dataProperties, setDataProperties] = useState<IProperties[]>();
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
     min: 0,
     max: 20000000,
   });
   const querySearch = searchParams.get("q") || "";
   const locationSearch = searchParams.get("location") || "";
-  const [propertyStatus, setPropertyStatus] = useState<ListLinkSearch | "all">(
+  const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | "all">(
     state?.propertyStatus ?? "all"
-  );
-  const [propertyType, setPropertyType] = useState<(ITypeProperties | "All")[]>(
-    state?.propertyType ?? ["All"]
   );
   const [keyword, setKeyword] = useState(querySearch || "");
   const [location, setLocation] = useState(locationSearch || "All Cities");
 
-  const [page, setPage] = useState({
-    currentPage: 1,
-    totalPage: Math.ceil(Number(dataProperties?.length) / 8),
-    perpage: 8,
-    startIndex: 0,
-    endIndex: 8,
+  const mutation = useMutation({
+    mutationFn: searchOrFilterProperties,
+    onSuccess: (data) => {
+      setData(data);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "An error occurred while searching properties.");
+    },
   });
   const handleSearch = () => {
-    let filteredProperties = Properties;
-
-    // Property Search
-    if (keyword.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        property.title.toLowerCase().includes(keyword.toLowerCase())
-      );
-      updateSearchParams("q", keyword);
-    } else {
-      updateSearchParams("q", null);
-    }
-
-    // Property Status Filter
-    if (propertyStatus !== "all") {
-      filteredProperties = filteredProperties.filter((property) => property.listingStatus === propertyStatus);
-    }
-
-    // Property Type Filter
-    if (!propertyType.includes("All")) {
-      filteredProperties = filteredProperties.filter((property) =>
-        propertyType.includes(property.type as ITypeProperties)
-      );
-    }
-
-    // Property Price Range Filter
-    filteredProperties = filteredProperties.filter(
-      (item) => item.price >= priceRange.min && item.price <= priceRange.max
-    );
-
-    // Property Location Filter
-    if (location.trim() && location !== "All Cities") {
-      filteredProperties = filteredProperties.filter(
-        (item) => item.location.city.toLowerCase() == location.toLowerCase()
-      );
-      updateSearchParams("location", location);
-    } else {
-      updateSearchParams("location", null);
-    }
-
-    setSearchParams(searchParams);
-    setDataProperties(filteredProperties);
+    let filteredProperties: ISearchOrFilterProperties = {
+      limit: 8,
+      page: 1,
+      title: searchParams.get("q") ?? keyword,
+    };
+    mutation.mutate(filteredProperties);
   };
 
   const handleResetFilters = () => {
-    setPriceRange({ min: 0, max: 10000000 });
-    setPropertyStatus("all");
-    setPropertyType(["All"]);
-    setKeyword("");
-    setLocation("All Cities");
     updateSearchParams("q", null);
-    updateSearchParams("location", null);
     setSearchParams(searchParams);
-    setDataProperties(Properties);
   };
 
   // Fn update search param
@@ -117,81 +78,6 @@ const Search = () => {
     }
   };
 
-  const handlePropertyTypeChange = (type: ITypeProperties | "All") => {
-    if (type === "All") return setPropertyType(["All"]);
-
-    setPropertyType((prev) => {
-      if (prev.includes("All")) return [type];
-      if (prev.includes(type)) {
-        const result = prev.filter((item) => item !== type);
-        return result.length > 0 ? result : ["All"];
-      }
-      return [...prev, type];
-    });
-  };
-  const handleNextPage = () => {
-    if (page.currentPage < page.totalPage) {
-      setPage((prev) => {
-        const newStartIndex = prev.currentPage * prev.perpage;
-        const newEndIndex = newStartIndex + prev.perpage;
-        return {
-          ...prev,
-          currentPage: prev.currentPage + 1,
-          startIndex: newStartIndex,
-          endIndex: newEndIndex,
-        };
-      });
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (page.currentPage > 1) {
-      setPage((prev) => {
-        const newStartIndex = (prev.currentPage - 2) * prev.perpage;
-        const newEndIndex = newStartIndex + prev.perpage;
-        return {
-          ...prev,
-          currentPage: prev.currentPage - 1,
-          startIndex: newStartIndex,
-          endIndex: newEndIndex,
-        };
-      });
-    }
-  };
-
-  const handleChoosePage = (page: number) => {
-    window.scrollTo(0, 0);
-
-    setPage((prev) => {
-      const newStartIndex = (page - 1) * prev.perpage;
-      const newEndIndex = newStartIndex + prev.perpage;
-      return {
-        ...prev,
-        currentPage: page,
-        startIndex: newStartIndex,
-        endIndex: newEndIndex,
-      };
-    });
-  };
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-
-    if (querySearch) return setDataProperties(Properties.filter((item) => item.title.includes(querySearch)));
-    if (locationSearch) {
-      return setDataProperties(
-        Properties.filter((item) => item.location.city.toLowerCase() === locationSearch.toLowerCase())
-      );
-    }
-    if (state?.propertyType) {
-      return setDataProperties(Properties.filter((item) => item.type === state.propertyType));
-    }
-    if (state?.propertyStatus) {
-      return setDataProperties(Properties.filter((item) => item.listingStatus === state.propertyStatus));
-    }
-
-    setDataProperties(Properties);
-  }, []);
   return (
     <div className="bg-[#f7f7f7] min-h-screen py-20">
       <div className="max-w-[1230px] mx-auto">
@@ -235,11 +121,7 @@ const Search = () => {
                   <div className="flex flex-col">
                     {propertiesTypeOptions.map((type, index) => (
                       <div key={index} className="flex items-center gap-x-4 text-sm ">
-                        <Checkbox
-                          id={type.toLowerCase()}
-                          checked={propertyType.includes(type as ITypeProperties)}
-                          onClick={() => handlePropertyTypeChange(type as ITypeProperties)}
-                        />
+                        <Checkbox id={type.toLowerCase()} />
                         <label
                           htmlFor={type.toLowerCase()}
                           className="block font-sans text-sm  antialiased leading-relaxed text-blue-gray-900"
@@ -276,6 +158,7 @@ const Search = () => {
                     </div>
                   </div>
                 </div>
+                {/* Location */}
                 <div className="space-y-2">
                   <h2 className="font-medium">Location</h2>
                   <Select
@@ -296,6 +179,7 @@ const Search = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                {/* Submit */}
                 <div className="space-y-4">
                   <Button
                     className="bg-[#ee4c34] hover:bg-[#ee4c34]/70 cursor-pointer w-full"
@@ -315,26 +199,22 @@ const Search = () => {
               </div>
             </div>
             <div className="relative grid grid-cols-2 col-span-8 gap-4 pt-12 ">
-              <span className="absolute top-0 text-slate-800 font-sans ">
-                Showing {page.startIndex == 0 && dataProperties?.length ? 1 : page.startIndex}-
-                {page.endIndex > (dataProperties?.length as number) ? dataProperties?.length : page.endIndex}{" "}
-                of {dataProperties?.length} results
-              </span>
-              {dataProperties && dataProperties.length > 0 ? (
-                dataProperties.slice(page.startIndex, page.endIndex).map((property) => (
+              <span className="absolute top-0 text-slate-800 font-sans ">Showing 1- 8 of20 results</span>
+              {data && data.data.length > 0 ? (
+                data.data.map((property) => (
                   <div
                     key={property.id}
                     className="bg-white rounded-[12px] shadow overflow-clip aspect-square"
                   >
                     <div className="relative">
                       <img
-                        src={property.image}
+                        src={property.images[0]}
                         alt={property.title}
                         className="w-full h-[248px] object-cover "
                       />
                       <span className="absolute bottom-3 left-3 bg-white p-2 rounded-sm text-sm font-medium">
                         {usdCurrencyFormat(property.price) +
-                          `${property.listingStatus === "rent" ? " / Month" : ""}`}
+                          `${property.status === "rent" ? " / Month" : ""}`}
                       </span>
                     </div>
                     <div className="p-4">
@@ -346,14 +226,12 @@ const Search = () => {
                           {property.title}
                         </h3>
                         <p className="text-[#717171] text-sm">
-                          {property.location.city}, {property.location.state}, {property.location.country}
+                          {property.city}, {property.state}, {property.country}
                         </p>
                       </div>
                       <hr className="my-2" />
                       <div className="flex items-center justify-between ">
-                        <span className="text-[13px] capitalize text-[#181a20] ">
-                          for {property.listingStatus}
-                        </span>
+                        <span className="text-[13px] capitalize text-[#181a20] ">for {property.status}</span>
                         <div className="flex items-center gap-x-4 text-[#454545]">
                           <RxExternalLink />
                           <MdOutlineLibraryAdd />
@@ -370,25 +248,18 @@ const Search = () => {
               <Pagination className="col-span-2">
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious onClick={handlePreviousPage} />
+                    <PaginationPrevious />
                   </PaginationItem>
-                  {Array.from({ length: Math.ceil((dataProperties?.length as number) / 8) }, (_, index) => (
+                  {Array.from({ length: Number(data?.totalPages) }, (_, index) => (
                     <PaginationItem key={index}>
-                      <PaginationLink
-                        onClick={() => {
-                          handleChoosePage(index + 1);
-                        }}
-                        isActive={page.currentPage === index + 1}
-                      >
-                        {index + 1}
-                      </PaginationLink>
+                      <PaginationLink>{index + 1}</PaginationLink>
                     </PaginationItem>
                   ))}
                   {/* <PaginationItem>
                     <PaginationEllipsis />
                   </PaginationItem> */}
                   <PaginationItem>
-                    <PaginationNext onClick={handleNextPage} />
+                    <PaginationNext />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>

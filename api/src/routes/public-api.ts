@@ -9,6 +9,5 @@ publicRouter.post("/api/users/register", UserController.register);
 
 // Property routes
 publicRouter.post("/api/properties/search", PropertyController.search);
-publicRouter.get("/api/properties/cities", PropertyController.getCities);
 publicRouter.get("/api/properties", PropertyController.getAll);
 publicRouter.get("/api/properties/:propertyId", PropertyController.getById);
