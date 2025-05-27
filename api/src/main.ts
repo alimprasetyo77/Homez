@@ -4,15 +4,19 @@ import { apiRouter } from "./routes/api";
 import { errorMiddleware } from "./middleware/error-middleware";
 import { publicRouter } from "./routes/public-api";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+dotenv.config();
+
 const app = express();
 export const prisma = new PrismaClient();
 
 app.use(express.json());
+app.use(cookieParser());
+
 // app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     origin: "http://localhost:5173", // Adjust this to your frontend URL
     credentials: true, // Allow credentials if needed
   })

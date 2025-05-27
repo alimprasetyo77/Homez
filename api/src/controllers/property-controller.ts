@@ -83,4 +83,13 @@ export class PropertyController {
       next(error);
     }
   }
+
+  static async getLocation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await PropertyService.location();
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

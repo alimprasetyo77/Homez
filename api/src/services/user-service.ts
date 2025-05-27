@@ -1,10 +1,12 @@
 import { User as IUser, User } from "../generated/prisma";
 import { prisma } from "../main";
+import { GenerateToken } from "../utils/generateToken";
 import { ResponseError } from "../utils/response-error";
 import { ILogin, IRegister, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { JwtPayload } from "jsonwebtoken";
+
 export class UserService {
   static async register(request: IRegister): Promise<void> {
     let registerRequest = validate(UserValidation.register, request);
@@ -25,7 +27,7 @@ export class UserService {
     });
   }
 
-  static async login(request: ILogin): Promise<{ token: string }> {
+  static async login(request: ILogin): Promise<{ accessToken: string; refreshToken: string }> {
     const loginRequest = validate(UserValidation.login, request);
 
     const user = await prisma.user.findUnique({ where: { email: loginRequest.email } });
@@ -34,16 +36,61 @@ export class UserService {
     const isPasswordValid = await bcrypt.compare(loginRequest.password, user.password);
     if (!isPasswordValid) throw new ResponseError(401, "Invalid password");
 
-    user.tokens = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
+    const accessToken = GenerateToken.access(user.id);
+    const refreshToken = GenerateToken.refresh(user.id);
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { tokens: user.tokens },
+      data: { tokens: refreshToken },
     });
 
     return {
-      token: user.tokens,
+      accessToken,
+      refreshToken,
     };
+  }
+
+  static async refreshToken(
+    user: User,
+    refreshToken: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    if (!refreshToken) throw new ResponseError(401, "Refresh token is required");
+
+    let decoded: JwtPayload & { userId: string };
+    try {
+      decoded = GenerateToken.verifyRefresh(refreshToken) as JwtPayload & { userId: string };
+    } catch (error) {
+      throw new ResponseError(401, "decoded token is invalid");
+    }
+    if (user.tokens !== refreshToken) {
+      throw new ResponseError(401, "Invalid refresh token");
+    }
+
+    const accessToken = GenerateToken.access(user.id);
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  static async logout(user: User, refreshToken: string): Promise<void> {
+    if (!refreshToken) throw new ResponseError(401, "Refresh token is required");
+
+    let decoded: JwtPayload & { userId: string };
+    try {
+      decoded = GenerateToken.verifyRefresh(refreshToken) as JwtPayload & { userId: string };
+    } catch (error) {
+      throw new ResponseError(401, "decoded token is invalid");
+    }
+
+    if (user.tokens !== refreshToken) {
+      throw new ResponseError(401, "Invalid refresh token");
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { tokens: null },
+    });
   }
 
   static async getById(id: string): Promise<IUser> {

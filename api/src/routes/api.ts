@@ -7,6 +7,10 @@ import { roleMiddleware } from "../middleware/role-middleware";
 export const apiRouter = Router();
 apiRouter.use(authMiddleware as any);
 
+// Authentication routes
+apiRouter.post("/api/users/refresh-token", UserController.refreshToken);
+apiRouter.post("/api/users/logout", UserController.logout);
+
 // User routes
 apiRouter.get("/api/users/current", UserController.get);
 apiRouter.get("/api/users/:id", UserController.getById);

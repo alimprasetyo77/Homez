@@ -132,4 +132,16 @@ export class PropertyService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  static async location() {
+    const properties = await prisma.property.findMany({
+      distinct: ["city"],
+      select: {
+        city: true,
+      },
+    });
+    return {
+      data: properties,
+    };
+  }
 }

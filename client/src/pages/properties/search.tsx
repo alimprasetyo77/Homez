@@ -2,7 +2,7 @@ import Radio from "@/components/radio";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { ListCities, propertiesTypeOptions } from "@/constants/home";
+import { propertiesTypeOptions } from "@/constants/home";
 import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,28 +22,27 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useQuery } from "@tanstack/react-query";
-import { searchOrFilterProperties } from "@/utils/apis/properties/api";
+import { getLocation, searchOrFilterProperties } from "@/utils/apis/properties/api";
 import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/utils/apis/properties/types";
-
-export type PropertyStatusType = "all" | "buy" | "rent";
 
 const Search = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  // const [data, setData] = useState<ResponsePagination<IProperty>>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
-    min: 0,
-    max: 5000000,
-  });
+
+  // Get query params from URL
   const querySearch = searchParams.get("q") || "";
   const locationSearch = searchParams.get("location") || "";
+
+  const [keyword, setKeyword] = useState(querySearch || "");
   const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | "all">(
     state?.propertyStatus ?? "all"
   );
   const [propertyType, setPropertyType] = useState<(PropertyType | "all")[]>(["all"]);
-
-  const [keyword, setKeyword] = useState(querySearch || "");
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
+    min: 0,
+    max: 5000000,
+  });
   const [location, setLocation] = useState(locationSearch || "All Cities");
   const [filteredProperties, setFilteredProperties] = useState<ISearchOrFilterProperties>();
 
@@ -51,6 +50,11 @@ const Search = () => {
     queryKey: ["searchOrFilter-properties", filteredProperties],
     queryFn: () => searchOrFilterProperties(filteredProperties as ISearchOrFilterProperties),
     enabled: false,
+  });
+
+  const { data: locationProperties } = useQuery({
+    queryKey: ["location-properties", filteredProperties],
+    queryFn: () => getLocation(),
   });
 
   const handlePropertyTypeChange = (type: PropertyType | "all") => {
@@ -94,9 +98,14 @@ const Search = () => {
 
   // Handle search params
   const handleResetFilters = () => {
-    setFilteredProperties({ limit: 8, page: 1 });
+    setKeyword("");
+    setPropertyStatus("all");
+    setPropertyType(["all"]);
+    setPriceRange({ min: 0, max: 5000000 });
+    setLocation("All Cities");
     updateSearchParams("q", null);
     setSearchParams(searchParams);
+    setFilteredProperties({ limit: 8, page: 1 });
   };
 
   // Fn update search param
@@ -223,9 +232,9 @@ const Search = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All Cities">All Cities</SelectItem>
-                      {ListCities.slice(0, 6).map((city) => (
-                        <SelectItem key={city.id} value={city.name}>
-                          {city.name}
+                      {locationProperties?.data.map((item, index) => (
+                        <SelectItem key={index} value={item.city}>
+                          {item.city}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -251,7 +260,12 @@ const Search = () => {
               </div>
             </div>
             <div className="relative grid grid-cols-2 col-span-8 gap-4 pt-12 ">
-              <span className="absolute top-0 text-slate-800 font-sans ">Showing 1- 8 of20 results</span>
+              {data ? (
+                <span className="absolute top-0 text-slate-800 font-sans ">
+                  Showing {Math.max(1, (data.page - 1) * data.limit)} -{" "}
+                  {Math.min((data.page - 1) * data.limit + data.limit, data.total)} of {data.total} results
+                </span>
+              ) : null}
               {data && data.data.length > 0 ? (
                 data.data.map((property) => (
                   <div
@@ -299,18 +313,47 @@ const Search = () => {
 
               <Pagination className="col-span-2">
                 <PaginationContent>
-                  <PaginationItem>
+                  <PaginationItem
+                    onClick={() =>
+                      setFilteredProperties((prev) => {
+                        if (prev && prev.page > 1) {
+                          return { ...prev, page: prev.page - 1 };
+                        }
+                        return prev;
+                      })
+                    }
+                  >
                     <PaginationPrevious />
                   </PaginationItem>
                   {Array.from({ length: Number(data?.totalPages) }, (_, index) => (
                     <PaginationItem key={index}>
-                      <PaginationLink>{index + 1}</PaginationLink>
+                      <PaginationLink
+                        onClick={() =>
+                          setFilteredProperties((prev) => {
+                            if (prev) {
+                              return { ...prev, page: index + 1 };
+                            }
+                          })
+                        }
+                        isActive={data?.page === index + 1}
+                      >
+                        {index + 1}
+                      </PaginationLink>
                     </PaginationItem>
                   ))}
                   {/* <PaginationItem>
                     <PaginationEllipsis />
                   </PaginationItem> */}
-                  <PaginationItem>
+                  <PaginationItem
+                    onClick={() =>
+                      setFilteredProperties((prev) => {
+                        if (prev && data && prev.page < data.totalPages) {
+                          return { ...prev, page: prev.page + 1 };
+                        }
+                        return prev;
+                      })
+                    }
+                  >
                     <PaginationNext />
                   </PaginationItem>
                 </PaginationContent>

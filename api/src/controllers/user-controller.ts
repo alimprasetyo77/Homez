@@ -18,12 +18,43 @@ export class UserController {
     try {
       const request: ILogin = req.body;
       const response = await UserService.login(request);
-      res.status(200).json({ message: "Login successfully", token: response.token });
+      res.cookie("refreshToken", response.refreshToken, {
+        httpOnly: true,
+        secure: false, // set true for HTTPS
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({ message: "Login successfully", token: response.accessToken });
     } catch (err) {
       next(err);
     }
   }
 
+  static async refreshToken(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      const response = await UserService.refreshToken(req.user as User, refreshToken);
+      res.cookie("refreshToken", response.refreshToken, {
+        httpOnly: true,
+        secure: false, // set true for HTTPS
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({ accessToken: response.accessToken });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async logout(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      await UserService.logout(req.user as User, refreshToken);
+      res.clearCookie("refreshToken");
+      res.status(200).json({ message: "Logout successfully" });
+    } catch (err) {
+      next(err);
+    }
+  }
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const request = req.params as { id: string };
