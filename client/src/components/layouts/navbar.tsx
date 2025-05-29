@@ -1,10 +1,14 @@
 import { linkNavbar } from "@/constants/home";
+import { useAuthStore } from "@/stores/auth-store";
 import { useEffect, useRef } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ProfileMenu from "../profile-menu";
 
 const Navbar = () => {
   const location = useLocation();
+  const { isLogin } = useAuthStore();
   const currentPath = location.pathname.split("/")[1];
   const navbarRef = useRef<HTMLDivElement>(null);
 
@@ -49,9 +53,18 @@ const Navbar = () => {
             </Link>
           ))}
         </div>
-        <div className="flex items-center gap-x-2">
-          <FaRegUserCircle className="size-4.5" /> <span>Login / Register</span>
-        </div>
+        {isLogin ? (
+          <ProfileMenu>
+            <Avatar className="size-9">
+              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </ProfileMenu>
+        ) : (
+          <Link to={"/login"} className="flex items-center gap-x-2 cursor">
+            <FaRegUserCircle className="size-4.5" /> <span>Login / Register</span>
+          </Link>
+        )}
       </div>
     </nav>
   );

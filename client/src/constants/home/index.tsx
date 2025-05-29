@@ -1,5 +1,7 @@
+import { MdDashboard } from "react-icons/md";
 import { ICity, ILinkNavbar, ILinkOnSearch } from "./types";
-
+import { FolderHeart, HouseIcon, HousePlusIcon, UserCog } from "lucide-react";
+import { RiProfileLine } from "react-icons/ri";
 export const linkNavbar: ILinkNavbar[] = [
   {
     id: 1,
@@ -22,7 +24,29 @@ export const linkNavbar: ILinkNavbar[] = [
     path: "/blog",
   },
 ];
-
+export const linkProfile: (ILinkNavbar & { icon: () => any })[] = [
+  { id: 1, path: "/dashboard", title: "Dashboard", icon: () => <MdDashboard className="size-4" /> },
+  {
+    id: 2,
+    path: "/dashboard/add-property",
+    title: "Add New Property",
+    icon: () => <HousePlusIcon className="size-4" />,
+  },
+  { id: 3, path: "/dashboard/property", title: "My Property", icon: () => <HouseIcon className="size-4" /> },
+  {
+    id: 4,
+    path: "/dashboard/favorite",
+    title: "My Favorite",
+    icon: () => <FolderHeart className="size-4" />,
+  },
+  {
+    id: 5,
+    path: "/dashboard/profile",
+    title: "My Profile",
+    icon: () => <UserCog className="size-4" />,
+  },
+  // {id:6, path:"/dashboard/profile",title:"My Profile"},
+];
 export const listLinkOnSearch: ILinkOnSearch[] = [
   {
     id: 1,

@@ -24,16 +24,16 @@ export class UserController {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      res.status(200).json({ message: "Login successfully", token: response.accessToken });
+      res.status(200).json({ message: "Login successfully", data: { token: response.accessToken } });
     } catch (err) {
       next(err);
     }
   }
 
-  static async refreshToken(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
+  static async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshToken = req.cookies.refreshToken;
-      const response = await UserService.refreshToken(req.user as User, refreshToken);
+      const response = await UserService.refreshToken(refreshToken);
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
         secure: false, // set true for HTTPS
@@ -45,10 +45,10 @@ export class UserController {
       next(err);
     }
   }
-  static async logout(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
+  static async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshToken = req.cookies.refreshToken;
-      await UserService.logout(req.user as User, refreshToken);
+      await UserService.logout(refreshToken);
       res.clearCookie("refreshToken");
       res.status(200).json({ message: "Logout successfully" });
     } catch (err) {
@@ -69,7 +69,7 @@ export class UserController {
     try {
       const user = req.user as User;
       const response = await UserService.get(user);
-      res.status(200).json({ data: response });
+      res.status(200).json({ message: "Get user successfuly", data: response });
     } catch (err) {
       next(err);
     }

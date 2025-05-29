@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import App from "./routes/App.tsx";
-import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 // Buat instance QueryClient
@@ -13,14 +13,6 @@ const queryClient = new QueryClient({
       const isValidShape = toast.error(err.message); // the shape of the errors should be as errors DTO: [key : string]
       if (typeof isValidShape !== "undefined") {
         toast.error(err.message); // shows API validation messages as a toast
-      }
-    },
-  }),
-  mutationCache: new MutationCache({
-    onError: (err) => {
-      const isValidShape = toast.error(err.message);
-      if (typeof isValidShape !== "undefined") {
-        toast.error(err.message);
       }
     },
   }),

@@ -1,6 +1,6 @@
 import { typeProperties } from "@/constants/home";
-import { getPopular } from "@/utils/apis/properties/api";
-import { PropertyType } from "@/utils/apis/properties/types";
+import { getPopular } from "@/services/properties/api";
+import { PropertyType } from "@/services/properties/types";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useState } from "react";
@@ -15,7 +15,6 @@ const PopularProperty = () => {
     queryKey: ["popularProperties", "properties", activeLinkOnProperties],
     queryFn: () => getPopular(activeLinkOnProperties),
   });
-
   return (
     <section className="py-[120px] px-20 ">
       <motion.div

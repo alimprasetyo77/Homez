@@ -1,10 +1,10 @@
 export interface Response<T = any> {
   message: string;
-  data: T[];
+  data: T;
 }
 
 export interface ResponsePagination<T = any> {
-  data: T[];
+  data: T;
   total: number;
   page: number;
   limit: number;

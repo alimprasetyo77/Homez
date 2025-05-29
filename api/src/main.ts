@@ -21,8 +21,10 @@ app.use(
     credentials: true, // Allow credentials if needed
   })
 );
+
 app.use(publicRouter);
 app.use(apiRouter);
+
 app.use(errorMiddleware as any);
 
 app.listen(3000, () => console.log("Listening on port 3000"));

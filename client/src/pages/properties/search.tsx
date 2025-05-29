@@ -22,8 +22,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useQuery } from "@tanstack/react-query";
-import { getLocation, searchOrFilterProperties } from "@/utils/apis/properties/api";
-import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/utils/apis/properties/types";
+import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/services/properties/types";
+import { getLocation, searchOrFilterProperties } from "@/services/properties/api";
 
 const Search = () => {
   const navigate = useNavigate();
@@ -74,15 +74,15 @@ const Search = () => {
 
   const handleSearch = () => {
     let filter: ISearchOrFilterProperties = {
-      title: keyword.trim(),
-      price: {
-        min: priceRange.min,
-        max: priceRange.max,
-      },
       page: 1,
       limit: 8,
     };
-
+    if (keyword) {
+      filter.title = keyword.trim();
+    }
+    if (priceRange.min > 0 && priceRange.max < 5000000) {
+      filter.price = { min: priceRange.min, max: priceRange.max };
+    }
     if (propertyStatus !== "all") {
       filter.status = propertyStatus;
     }
@@ -117,11 +117,10 @@ const Search = () => {
     }
   };
   useEffect(() => {
-    const hasQuery = searchParams.get("q");
-    if (hasQuery) {
+    if (querySearch || locationSearch) {
       handleSearch();
     }
-  }, [searchParams]);
+  }, [searchParams, locationSearch]);
 
   useEffect(() => {
     if (filteredProperties) {

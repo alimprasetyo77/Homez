@@ -4,9 +4,10 @@ import { PropertyController } from "../controllers/property-controller";
 
 export const publicRouter = express.Router();
 
+// Authentication routes
 publicRouter.post("/api/users/login", UserController.login);
 publicRouter.post("/api/users/register", UserController.register);
-
+publicRouter.post("/api/users/refresh-token", UserController.refreshToken);
 // Property routes
 publicRouter.post("/api/properties/search", PropertyController.search);
 publicRouter.get("/api/properties/location", PropertyController.getLocation);

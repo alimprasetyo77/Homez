@@ -120,3 +120,27 @@
     @apply bg-background text-foreground font-primary;
   }
 }
+
+@layer components {
+  .btn-hover-animate {
+    @apply relative overflow-hidden z-0 cursor-pointer bg-[#eb6753];
+  }
+
+  .btn-hover-animate::before {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    top: -6rem;
+    width: 0rem;
+    /* width: 35rem; */
+    height: 16rem;
+    background-color: #ef4f4f;
+    transform: rotate(-20deg);
+    transition: width 0.5s ease;
+    z-index: -1;
+  }
+
+  .btn-hover-animate:hover::before {
+    width: 35rem;
+  }
+}
