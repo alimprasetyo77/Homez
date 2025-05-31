@@ -7,8 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { ILoginType, loginSchema } from "@/services/auth/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ import { login } from "@/services/auth/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDialogStore } from "@/stores/dialog-store";
-import InputPassword from "../input-password";
 import FormSignIn from "../forms/auth/sign-in";
 
 const SignIn = () => {
@@ -45,8 +43,15 @@ const SignIn = () => {
       password: "",
     },
   });
+
+  const handleCloseDialog = () => {
+    if (form.formState.isDirty) {
+      form.reset();
+    }
+    closeDialog();
+  };
   return (
-    <Dialog open={activeDialog === "signIn"} onOpenChange={(open) => !open && closeDialog()}>
+    <Dialog open={activeDialog === "signIn"} onOpenChange={(open) => !open && handleCloseDialog()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex flex-col gap-y-4 items-center justify-center py-4 font-semibold text-2xl">
@@ -63,7 +68,12 @@ const SignIn = () => {
               <span className="text-sm flex justify-end hover:underline underline-offset-2 cursor-pointer">
                 Lost your password?
               </span>
-              <Button className="w-full px-[30px] py-[13px] h-auto" variant={"animate"}>
+              <Button
+                className="w-full px-[30px] py-[13px] h-auto"
+                variant={"animate"}
+                disabled={form.formState.isSubmitting}
+                aria-disabled={form.formState.isSubmitting}
+              >
                 <span>{mutation.isPending ? "Logging in..." : "Sign In"}</span>
                 <ArrowUpRight />
               </Button>
@@ -75,7 +85,10 @@ const SignIn = () => {
             Not signed up?{" "}
             <span
               className="cursor-pointer font-medium hover:text-[#ef4f4f] duration-300"
-              onClick={() => openDialog("signUp")}
+              onClick={() => {
+                form.reset();
+                openDialog("signUp");
+              }}
             >
               Create an account.
             </span>

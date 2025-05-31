@@ -36,7 +36,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="py-5 transition-all duration-200" ref={navbarRef}>
+    <nav className="py-5 h-[85px] transition-all duration-200" ref={navbarRef}>
       <div className="max-w-[1230px] mx-auto flex items-center justify-between font-semibold text-[15px]">
         <img
           alt="Header Logo"

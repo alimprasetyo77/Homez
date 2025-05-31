@@ -2,16 +2,18 @@ import SignIn from "../modals/sign-in";
 import SignUp from "../modals/sign-up";
 import Footer from "./footer";
 import Navbar from "./navbar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const Layout = () => {
+  const { pathname } = useLocation();
   return (
     <div className="min-h-screen">
       <Navbar />
       <SignIn />
       <SignUp />
       <Outlet />
-      <Footer />
+
+      {!pathname.startsWith("/dashboard") ? <Footer /> : null}
     </div>
   );
 };

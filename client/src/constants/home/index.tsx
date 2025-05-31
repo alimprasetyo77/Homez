@@ -1,7 +1,6 @@
 import { MdDashboard } from "react-icons/md";
 import { ICity, ILinkNavbar, ILinkOnSearch } from "./types";
 import { FolderHeart, HouseIcon, HousePlusIcon, UserCog } from "lucide-react";
-import { RiProfileLine } from "react-icons/ri";
 export const linkNavbar: ILinkNavbar[] = [
   {
     id: 1,
@@ -45,7 +44,6 @@ export const linkProfile: (ILinkNavbar & { icon: () => any })[] = [
     title: "My Profile",
     icon: () => <UserCog className="size-4" />,
   },
-  // {id:6, path:"/dashboard/profile",title:"My Profile"},
 ];
 export const listLinkOnSearch: ILinkOnSearch[] = [
   {

@@ -31,6 +31,7 @@ const SignUp = () => {
       toast.success(message);
       closeDialog();
       form.reset();
+      setStep(1);
     },
     onError: (error) => {
       toast.error(`${error}`);
@@ -46,6 +47,7 @@ const SignUp = () => {
       password: "",
       role: undefined,
     },
+    shouldFocusError: true,
   });
 
   const handleNextStep = async () => {
@@ -53,7 +55,9 @@ const SignUp = () => {
     if (isValid) setStep(2);
   };
   const handleCloseDialog = () => {
-    form.reset();
+    if (form.formState.isDirty) {
+      form.reset();
+    }
     closeDialog();
   };
 
@@ -104,7 +108,13 @@ const SignUp = () => {
                   <ArrowRight />
                 </button>
               ) : (
-                <Button className="w-full px-[30px] py-[13px] h-auto" variant="animate" type="submit">
+                <Button
+                  className="w-full px-[30px] py-[13px] h-auto"
+                  variant="animate"
+                  type="submit"
+                  disabled={form.formState.isSubmitting || !form.formState.dirtyFields.role}
+                  aria-disabled={form.formState.isSubmitting || !form.formState.dirtyFields.role}
+                >
                   <span>{mutation.isPending ? "Signing Up..." : "Sign Up"}</span>
                   <ArrowUpRight />
                 </Button>
