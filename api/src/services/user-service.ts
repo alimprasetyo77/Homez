@@ -5,7 +5,6 @@ import { ResponseError } from "../utils/response-error";
 import { ILogin, IRegister, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
-import { JwtPayload } from "jsonwebtoken";
 
 export class UserService {
   static async register(request: IRegister): Promise<void> {
@@ -17,7 +16,7 @@ export class UserService {
     });
 
     if (existingUser) {
-      throw new ResponseError(400, "User already exists");
+      throw new ResponseError(400, "Email already registered");
     }
 
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
@@ -31,7 +30,7 @@ export class UserService {
     const loginRequest = validate(UserValidation.login, request);
 
     const user = await prisma.user.findUnique({ where: { email: loginRequest.email } });
-    if (!user) throw new ResponseError(404, "User not found");
+    if (!user) throw new ResponseError(404, "Email not registered");
 
     const isPasswordValid = await bcrypt.compare(loginRequest.password, user.password);
     if (!isPasswordValid) throw new ResponseError(400, "Invalid password");

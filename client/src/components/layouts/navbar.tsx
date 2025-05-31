@@ -5,13 +5,15 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfileMenu from "../profile-menu";
+import { useDialogStore } from "@/stores/dialog-store";
 
 const Navbar = () => {
   const location = useLocation();
   const { isLogin } = useAuthStore();
+  const { openDialog } = useDialogStore();
+
   const currentPath = location.pathname.split("/")[1];
   const navbarRef = useRef<HTMLDivElement>(null);
-
   const isActive = (path: string) => {
     return `${
       currentPath === path.split("/")[1] ? "text-[#eb6753]" : "text-[#181a20]"
@@ -53,6 +55,7 @@ const Navbar = () => {
             </Link>
           ))}
         </div>
+
         {isLogin ? (
           <ProfileMenu>
             <Avatar className="size-9">
@@ -61,9 +64,14 @@ const Navbar = () => {
             </Avatar>
           </ProfileMenu>
         ) : (
-          <Link to={"/login"} className="flex items-center gap-x-2 cursor">
+          <button
+            className="cursor-pointer flex items-center gap-x-2"
+            onClick={() => {
+              openDialog("signIn");
+            }}
+          >
             <FaRegUserCircle className="size-4.5" /> <span>Login / Register</span>
-          </Link>
+          </button>
         )}
       </div>
     </nav>

@@ -13,6 +13,7 @@ interface IAuthStore {
 }
 
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
+  isOpenModalAuth: { signIn: false, signUp: false },
   isLogin: false,
   user: null,
   token: null,

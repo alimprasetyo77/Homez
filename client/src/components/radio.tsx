@@ -1,13 +1,14 @@
-import { PropertyStatusType } from "@/pages/properties/search";
+import { PropertyStatus } from "@/services/properties/types";
 
 interface CheckboxProps {
   label: string;
   isChecked: boolean;
-  onChange: (pStatusType: PropertyStatusType) => void;
+  onChange: (pStatusType: PropertyStatus) => void;
 }
-const Radio = ({ label, isChecked, onChange }: CheckboxProps) => {
+const Radio = (props: CheckboxProps) => {
+  const { label, isChecked, onChange } = props;
   return (
-    <div role="button" onClick={() => onChange(label.toLowerCase() as PropertyStatusType)}>
+    <div role="button" onClick={() => onChange(label.toLowerCase() as PropertyStatus)}>
       <label
         htmlFor={`${label.split(" ").join("")}`}
         className="flex items-center w-full py-1 px-2 cursor-pointer"
