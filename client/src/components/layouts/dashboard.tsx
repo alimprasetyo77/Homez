@@ -4,8 +4,8 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 const LayoutDashboard = () => {
   const { pathname } = useLocation();
   return (
-    <div className="h-[calc(100vh-85px)]  grid grid-cols-12 ">
-      <aside className="col-span-2 border grid px-8 py-10">
+    <div className="h-[calc(100vh-85px)] flex">
+      <aside className="border grid px-8 py-10 shrink">
         <ul className="flex flex-col space-y-4">
           {linkProfile.map((link) => (
             <Link to={link.path}>
@@ -21,7 +21,7 @@ const LayoutDashboard = () => {
           ))}
         </ul>
       </aside>
-      <main className="col-span-10 bg-gray-100 p-10 overflow-hidden">
+      <main className=" bg-zinc-100 p-10 overflow-y-scroll grow">
         <Outlet />
       </main>
     </div>

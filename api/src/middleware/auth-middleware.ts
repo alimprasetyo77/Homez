@@ -30,7 +30,7 @@ export const authMiddleware = async (req: AuthenticatedRequest, res: Response, n
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      include: { favorites: true },
+      include: { favorites: { include: { property: true }, omit: { propertyId: true, userId: true } } },
     });
 
     if (user && user.tokens !== refreshToken) {

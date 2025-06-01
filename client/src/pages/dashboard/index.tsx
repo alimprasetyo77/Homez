@@ -2,9 +2,9 @@ import { ClockArrowDown, FileHeart, HouseIcon, MessageSquareQuote } from "lucide
 
 const MainDashboard = () => {
   return (
-    <div className="grid">
-      <div className="grid grid-cols-4 gap-x-10">
-        <div className="py-4 flex items-center justify-start gap-x-4 bg-white rounded-xl px-4">
+    <div className="space-y-16 ">
+      <div className="grid grid-cols-4 gap-x-10 *:py-4 *:flex *:items-center *:justify-start *:gap-x-4 *:bg-white *:rounded-xl *:px-4">
+        <div>
           <div className="p-3 bg-[#ef4f4f] rounded-full text-white">
             <HouseIcon className="size-8" />
           </div>
@@ -15,7 +15,7 @@ const MainDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="py-4 flex items-center justify-start gap-x-4 bg-white rounded-xl px-4">
+        <div>
           <div className="p-3 bg-[#ef4f4f] rounded-full text-white">
             <ClockArrowDown className="size-8" />
           </div>
@@ -24,7 +24,7 @@ const MainDashboard = () => {
             <span className="text-3xl text-black">02 </span>
           </div>
         </div>
-        <div className="py-4 flex items-center justify-start gap-x-4 bg-white rounded-xl px-4">
+        <div>
           <div className="p-3 bg-[#ef4f4f] rounded-full text-white">
             <FileHeart className="size-8" />
           </div>
@@ -33,7 +33,7 @@ const MainDashboard = () => {
             <span className="text-3xl text-black">20 </span>
           </div>
         </div>
-        <div className="py-4 flex items-center justify-start gap-x-4 bg-white rounded-xl px-4">
+        <div>
           <div className="p-3 bg-[#ef4f4f] rounded-full text-white">
             <MessageSquareQuote className="size-8" />
           </div>
@@ -41,6 +41,14 @@ const MainDashboard = () => {
             <span className="font-medium text-sm">Reviews</span>
             <span className="text-3xl text-black">1.322 </span>
           </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-x-16">
+        <div className="bg-white rounded-xl min-h-screen grow p-5">
+          <h2 className="text-2xl font-semibold">My Favorites</h2>
+        </div>
+        <div className="bg-white rounded-xl min-h-screen min-w-96 p-5">
+          <h2 className="text-2xl font-semibold">Reviews</h2>
         </div>
       </div>
     </div>
