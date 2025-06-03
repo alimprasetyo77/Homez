@@ -12,6 +12,9 @@ export const errorMiddleware = async (error: Error, _req: Request, res: Response
       message: `validation error : ${JSON.stringify(errors).replace(/"/g, "'")}`,
     });
   } else if (error instanceof ResponseError) {
+    if (error.message.includes("refreshToken") || error.message.includes("logout")) {
+      res.clearCookie("refreshToken");
+    }
     res.status(error.status).json({
       message: error.message,
     });

@@ -15,20 +15,24 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  email    String   @unique
-  password String
-  role     UserRole @default(USER) // ROLE: USER atau AGENT
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String       @unique
+  password    String
+  role        UserRole     @default(USER) // ROLE: USER atau AGENT
   // field opsional untuk agent
-  title    String? // misal "Senior Realtor"
-  phone    String?
-  photoUrl String?
-
+  position    String? // misal "Senior Realtor"
+  phone       String?
+  photoUrl    String?
+  address     AddressInfo?
+  postalCode  String?
+  taxId       String?
+  bio         String?
+  socialMedia SocialMedia?
   // relasi
-  properties Property[] @relation("AgentProperties")
-  favorites  Favorite[]
-  tokens     String?
+  properties  Property[]   @relation("AgentProperties")
+  favorites   Favorite[]
+  tokens      String?
 }
 
 model Property {
@@ -80,4 +84,17 @@ enum PropertyType {
 enum PropertyStatus {
   buy
   rent
+}
+
+type AddressInfo {
+  city    String
+  state   String
+  country String
+}
+
+type SocialMedia {
+  facebook  String
+  x         String
+  linkedIn  String
+  instagram String
 }

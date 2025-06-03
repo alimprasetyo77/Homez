@@ -5,6 +5,7 @@ import { ResponseError } from "../utils/response-error";
 import { ILogin, IRegister, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
+import { Response } from "express";
 
 export class UserService {
   static async register(request: IRegister): Promise<void> {
@@ -57,7 +58,10 @@ export class UserService {
     try {
       decoded = Token.verifyRefresh(refreshToken);
     } catch (error: any) {
-      throw new ResponseError(401, error.message || "Invalid refresh token format");
+      if (error.name === "TokenExpiredError") {
+        throw new ResponseError(401, "refreshToken " + error.message);
+      }
+      throw new ResponseError(401, "Invalid refresh token");
     }
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
@@ -79,7 +83,10 @@ export class UserService {
     try {
       decoded = Token.verifyRefresh(refreshToken);
     } catch (error: any) {
-      throw new ResponseError(401, error.message || "Invalid refresh token format");
+      if (error.name === "TokenExpiredError") {
+        throw new ResponseError(401, "logout " + error.message);
+      }
+      throw new ResponseError(401, "Invalid refresh token");
     }
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
 
@@ -116,6 +123,9 @@ export class UserService {
 
   static async update(id: string, request: Partial<IUser>): Promise<IUser> {
     const updateRequest = validate(UserValidation.updateUser, request);
+    if (Object.keys(updateRequest).length === 0) {
+      throw new ResponseError(400, "At least one field must be provided");
+    }
     const result = await prisma.user.update({ where: { id: id }, data: updateRequest });
     return result;
   }

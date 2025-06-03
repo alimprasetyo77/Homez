@@ -36,11 +36,3 @@ export const logout = async () => {
     throw new Error(error.response?.data.message);
   }
 };
-export const getUser = async () => {
-  try {
-    const response = await axiosWithConfig.get("/users/current");
-    return response.data as Response;
-  } catch (error: any) {
-    throw new Error(error.response?.data.message);
-  }
-};

@@ -1,5 +1,6 @@
-import { getUser, logout } from "@/services/auth/api";
-import { IUser } from "@/services/auth/types";
+import { logout } from "@/services/auth/api";
+import { getUser } from "@/services/user/api";
+import { IUser } from "@/services/user/types";
 import { toast } from "sonner";
 import { create } from "zustand";
 

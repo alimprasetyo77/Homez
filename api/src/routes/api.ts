@@ -8,9 +8,6 @@ import { FavoriteController } from "../controllers/favorite-controller";
 export const apiRouter = Router();
 apiRouter.use(authMiddleware as any);
 
-// auth route
-apiRouter.post("/api/users/logout", UserController.logout);
-
 // User routes
 apiRouter.get("/api/users/current", UserController.get);
 apiRouter.get("/api/users/:id", UserController.getById);

@@ -1,18 +1,7 @@
 import { z } from "zod";
+import { registerSchema } from "../auth/types";
 
-const registerSchema = z.object({
-  name: z.string().min(2).max(50),
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-  role: z.enum(["USER", "AGENT"]).default("USER"),
-});
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-});
-
-const updateUserSchema = registerSchema
+export const updateUserSchema = registerSchema
   .omit({ role: true })
   .extend({
     position: z.string({ required_error: "invalid position" }),
@@ -35,12 +24,6 @@ const updateUserSchema = registerSchema
   })
   .partial();
 
-export const UserValidation = {
-  register: registerSchema,
-  login: loginSchema,
-  updateUser: updateUserSchema,
-};
+export type IUpdateUserType = z.infer<typeof updateUserSchema>;
 
-export type IRegister = z.infer<typeof registerSchema>;
-export type ILogin = z.infer<typeof loginSchema>;
-export type IUpdateUserSchema = z.infer<typeof updateUserSchema>;
+export interface IUser extends IUpdateUserType {}

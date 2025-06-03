@@ -16,9 +16,3 @@ export const registerSchema = z.object({
 
 export type ILoginType = z.infer<typeof loginSchema>;
 export type IRegisterType = z.infer<typeof registerSchema>;
-
-export interface IUser extends IRegisterType {
-  title: string;
-  phone: string;
-  photoUrl: string;
-}

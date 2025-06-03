@@ -26,8 +26,7 @@ axiosWithConfig.interceptors.response.use(
     if (err.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const { data, status } = await refreshToken();
-        if (status === 204) return Promise.reject(err);
+        const { data } = await refreshToken();
         const newAccessToken = data.accessToken;
 
         useAuthStore.getState().setToken(newAccessToken);

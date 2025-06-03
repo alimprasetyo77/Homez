@@ -8,6 +8,8 @@ export const publicRouter = express.Router();
 publicRouter.post("/api/users/login", UserController.login);
 publicRouter.post("/api/users/register", UserController.register);
 publicRouter.post("/api/users/refresh-token", UserController.refreshToken);
+publicRouter.post("/api/users/logout", UserController.logout);
+
 // Property routes
 publicRouter.post("/api/properties/search", PropertyController.search);
 publicRouter.get("/api/properties/location", PropertyController.getLocation);

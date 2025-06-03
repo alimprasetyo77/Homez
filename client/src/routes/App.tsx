@@ -5,7 +5,7 @@ import Search from "@/pages/properties/search";
 import Layout from "@/components/layouts/layout";
 import DetailProperty from "@/pages/properties/detail";
 import Login from "@/pages/auth/login";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { refreshToken } from "@/services/auth/api";
 import { toast } from "sonner";
@@ -20,7 +20,8 @@ import LayoutDashboard from "@/components/layouts/dashboard";
 
 function App() {
   const { token, fetchUser, setToken, logout } = useAuthStore();
-  const init = useCallback(async () => {
+
+  const init = async () => {
     try {
       const response = await refreshToken();
       if (response.status === 204) return;
@@ -29,10 +30,11 @@ function App() {
       toast("Session expired please login again");
       logout();
     }
-  }, [setToken, logout]);
+  };
+
   useEffect(() => {
     init();
-  }, [init]);
+  }, []);
 
   useEffect(() => {
     if (token) fetchUser();
