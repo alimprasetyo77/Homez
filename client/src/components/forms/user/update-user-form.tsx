@@ -1,14 +1,74 @@
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { IUpdateUserType } from "@/services/user/types";
+import { useAuthStore } from "@/stores/auth-store";
+import { Trash, UploadCloud } from "lucide-react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 const UpdateUserForm = () => {
   const { control } = useFormContext<IUpdateUserType>();
+  const [previewImage, setPreviewImage] = useState<string>("");
+
+  const { user } = useAuthStore();
 
   return (
-    <div className="grid grid-cols-2 gap-8 overflow-y-scroll max-h-[500px]">
+    <div className="grid grid-cols-2 gap-8 overflow-y-scroll max-h-[500px] p-3">
+      <FormField
+        control={control}
+        name="photoUrl"
+        render={({ field }) => (
+          <FormItem className="col-span-2 flex  items-center gap-x-4 ">
+            <FormControl>
+              <Input
+                className="hidden"
+                type="file"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const file = e.target.files[0];
+                    setPreviewImage(URL.createObjectURL(file));
+                    field.onChange(file);
+                  }
+                }}
+              />
+            </FormControl>
+
+            <Avatar className="size-24 relative group">
+              {user?.photoUrl || previewImage ? (
+                <div
+                  className="absolute hidden cursor-pointer group-hover:block top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 bg-gray-200 p-1 rounded-full"
+                  onClick={() => setPreviewImage("")}
+                >
+                  <Trash className="text-red-500 " />
+                </div>
+              ) : null}
+              <AvatarImage src={user?.photoUrl ?? previewImage} alt="@shadcn" />
+              <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <Button type="button" variant={"outline"} className="p-0 ">
+                <FormLabel className="text-xs cursor-pointer h-9 px-4 py-2">
+                  <UploadCloud /> <span>Upload File</span>
+                </FormLabel>
+              </Button>
+              <FormDescription className="text-xs">
+                Photo must be JPEG or PNG format and at least 80x80
+              </FormDescription>
+              <FormMessage />
+            </div>
+          </FormItem>
+        )}
+      />
       <FormField
         control={control}
         name="name"

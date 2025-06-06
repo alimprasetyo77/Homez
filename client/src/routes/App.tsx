@@ -5,7 +5,7 @@ import Search from "@/pages/properties/search";
 import Layout from "@/components/layouts/layout";
 import DetailProperty from "@/pages/properties/detail";
 import Login from "@/pages/auth/login";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { refreshToken } from "@/services/auth/api";
 import { toast } from "sonner";
@@ -20,8 +20,9 @@ import LayoutDashboard from "@/components/layouts/dashboard";
 
 function App() {
   const { token, fetchUser, setToken, logout } = useAuthStore();
-
+  const [isLoading, setIsLoading] = useState(false);
   const init = async () => {
+    setIsLoading(true);
     try {
       const response = await refreshToken();
       if (response.status === 204) return;
@@ -29,6 +30,8 @@ function App() {
     } catch (error) {
       toast("Session expired please login again");
       logout();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,7 +46,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<ProtectedRoute />}>
+        <Route element={isLoading ? "Loading..." : <ProtectedRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<Layout />}>

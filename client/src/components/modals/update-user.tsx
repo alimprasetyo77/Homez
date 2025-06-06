@@ -17,13 +17,18 @@ import { ReactNode } from "react";
 import UpdateUserForm from "../forms/user/update-user-form";
 import { IUpdateUserType, updateUserSchema } from "@/services/user/types";
 import { updateUser } from "@/services/user/api";
+import { useDialogStore } from "@/stores/dialog-store";
+import { useAuthStore } from "@/stores/auth-store";
 
-const UpdateUser = ({ children }: { children: ReactNode }) => {
+const UpdateUser = ({ children }: { children?: ReactNode }) => {
+  const { fetchUser } = useAuthStore();
+  const { activeDialog, closeDialog } = useDialogStore();
   const mutation = useMutation({
     mutationFn: updateUser,
     onSuccess: ({ message }) => {
+      fetchUser();
+      handleCloseDialog();
       toast.success(message);
-      form.reset();
     },
     onError: (error) => {
       toast.error(`${error}`);
@@ -32,11 +37,17 @@ const UpdateUser = ({ children }: { children: ReactNode }) => {
 
   const form = useForm<IUpdateUserType>({
     resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      photoUrl: new File([], ""),
+    },
     shouldFocusError: true,
   });
-
+  const handleCloseDialog = () => {
+    form.reset();
+    closeDialog();
+  };
   return (
-    <Dialog>
+    <Dialog open={activeDialog === "updateUser"} onOpenChange={(open) => !open && handleCloseDialog()}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-5xl! w-full">
         <DialogHeader>
@@ -50,15 +61,20 @@ const UpdateUser = ({ children }: { children: ReactNode }) => {
             <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-8">
               <UpdateUserForm />
 
-              <Button
-                className="w-full px-[30px] py-[13px] h-auto bg-[#ef4f4f]/90 hover:bg-[#ef4f4f] cursor-pointer"
-                type="submit"
-                disabled={form.formState.isSubmitting || !form.formState.isDirty}
-                aria-disabled={form.formState.isSubmitting}
-              >
-                <span>{mutation.isPending ? "Saved..." : "Save Changes"}</span>
-                <ArrowRight />
-              </Button>
+              <div className="flex items-center gap-x-4 justify-end">
+                <Button type="button" variant={"outline"} onClick={handleCloseDialog}>
+                  Cancel
+                </Button>
+                <Button
+                  className=" bg-[#ef4f4f]/90 hover:bg-[#ef4f4f] cursor-pointer"
+                  type="submit"
+                  disabled={form.formState.isSubmitting || !form.formState.isDirty}
+                  aria-disabled={form.formState.isSubmitting}
+                >
+                  <span>{mutation.isPending ? "Saved..." : "Save Changes"}</span>
+                  <ArrowRight />
+                </Button>
+              </div>
             </form>
           </Form>
         </div>

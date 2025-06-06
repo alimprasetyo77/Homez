@@ -9,7 +9,7 @@ import { useDialogStore } from "@/stores/dialog-store";
 
 const Navbar = () => {
   const location = useLocation();
-  const { isLogin } = useAuthStore();
+  const { user, isLogin } = useAuthStore();
   const { openDialog } = useDialogStore();
 
   const currentPath = location.pathname.split("/")[1];
@@ -59,8 +59,8 @@ const Navbar = () => {
         {isLogin ? (
           <ProfileMenu>
             <Avatar className="size-9">
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src={user?.photoUrl} alt="@shadcn" />
+              <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
           </ProfileMenu>
         ) : (

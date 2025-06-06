@@ -10,17 +10,14 @@ import { useMutation } from "@tanstack/react-query";
 import { login } from "@/services/auth/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const navigate = useNavigate();
   const { setToken } = useAuthStore();
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: ({ message, data }) => {
       setToken(data.token);
       toast.success(message);
-      navigate("/");
     },
     onError: (error) => {
       toast.error(`${error}`);

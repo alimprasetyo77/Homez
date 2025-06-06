@@ -11,10 +11,10 @@ interface IAuthStore {
   setToken: (token: string) => void;
   fetchUser: () => void;
   logout: () => void;
+  clearState: () => void;
 }
 
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
-  isOpenModalAuth: { signIn: false, signUp: false },
   isLogin: false,
   user: null,
   token: null,
@@ -22,7 +22,9 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
   setToken(token: string | null) {
     set({ token, isLogin: true });
   },
-
+  clearState() {
+    set({ isLogin: false, user: null, token: null });
+  },
   async fetchUser() {
     try {
       const { data } = await getUser();

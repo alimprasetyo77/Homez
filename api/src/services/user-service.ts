@@ -2,7 +2,7 @@ import { User as IUser, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { Token } from "../utils/token";
 import { ResponseError } from "../utils/response-error";
-import { ILogin, IRegister, UserValidation } from "../validations/user-validation";
+import { ILogin, IRegister, IUpdateUserSchema, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
 import { Response } from "express";
@@ -121,13 +121,17 @@ export class UserService {
     return result as IUser;
   }
 
-  static async update(id: string, request: Partial<IUser>): Promise<IUser> {
+  static async update(id: string, request: IUpdateUserSchema): Promise<IUpdateUserSchema> {
     const updateRequest = validate(UserValidation.updateUser, request);
     if (Object.keys(updateRequest).length === 0) {
       throw new ResponseError(400, "At least one field must be provided");
     }
-    const result = await prisma.user.update({ where: { id: id }, data: updateRequest });
-    return result;
+
+    const result = await prisma.user.update({
+      where: { id: id },
+      data: updateRequest as IUser,
+    });
+    return result as IUpdateUserSchema;
   }
 
   static async delete(id: string): Promise<void> {

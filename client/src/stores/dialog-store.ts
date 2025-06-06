@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type dialogType = "signIn" | "signUp";
+type dialogType = "signIn" | "signUp" | "updateUser";
 // store/dialogStore.ts
 interface DialogStore {
   activeDialog: dialogType | null;
