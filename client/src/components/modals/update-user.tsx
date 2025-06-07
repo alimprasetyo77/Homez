@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import UpdateUserForm from "../forms/user/update-user-form";
 import { IUpdateUserType, updateUserSchema } from "@/services/user/types";
 import { updateUser } from "@/services/user/api";
@@ -21,7 +21,7 @@ import { useDialogStore } from "@/stores/dialog-store";
 import { useAuthStore } from "@/stores/auth-store";
 
 const UpdateUser = ({ children }: { children?: ReactNode }) => {
-  const { fetchUser } = useAuthStore();
+  const { user, fetchUser } = useAuthStore();
   const { activeDialog, closeDialog } = useDialogStore();
   const mutation = useMutation({
     mutationFn: updateUser,
@@ -37,15 +37,38 @@ const UpdateUser = ({ children }: { children?: ReactNode }) => {
 
   const form = useForm<IUpdateUserType>({
     resolver: zodResolver(updateUserSchema),
-    defaultValues: {
-      photoUrl: new File([], ""),
-    },
     shouldFocusError: true,
   });
   const handleCloseDialog = () => {
     form.reset();
     closeDialog();
   };
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name ?? "",
+        email: user.email ?? "",
+        phone: user.phone ?? "",
+        bio: user.bio ?? "",
+        position: user.position ?? "",
+        postalCode: user.postalCode ?? 0,
+        taxId: user.taxId ?? "",
+        address: {
+          city: user.address?.city ?? "",
+          state: user.address?.state ?? "",
+          country: user.address?.country ?? "",
+        },
+        socialMedia: {
+          facebook: user.socialMedia?.facebook ?? "",
+          x: user.socialMedia?.x ?? "",
+          instagram: user.socialMedia?.instagram ?? "",
+          linkedIn: user.socialMedia?.linkedIn ?? "",
+        },
+        photoUrl: undefined, // jangan isi default dengan File kosong
+      });
+    }
+  }, [user, form.reset]);
   return (
     <Dialog open={activeDialog === "updateUser"} onOpenChange={(open) => !open && handleCloseDialog()}>
       <DialogTrigger asChild>{children}</DialogTrigger>

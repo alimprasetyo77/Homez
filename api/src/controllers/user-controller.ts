@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/user-service";
 import { ILogin, IRegister, IUpdateUserSchema } from "../validations/user-validation";
 import { User } from "../generated/prisma";
+import formidable from "formidable";
+import { parseFormData } from "../utils/parse-form-data";
 
 export class UserController {
   static async register(req: Request, res: Response, next: NextFunction) {
@@ -78,7 +80,7 @@ export class UserController {
   static async update(req: Request & { user?: User }, res: Response, next: NextFunction) {
     try {
       const userId = (req.user as User).id;
-      const request: IUpdateUserSchema = req.body;
+      const request = await parseFormData(req);
       const response = await UserService.update(userId, request);
       res.status(200).json({ message: "Update successfuly", data: response });
     } catch (err) {

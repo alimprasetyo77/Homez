@@ -6,21 +6,30 @@ import { publicRouter } from "./routes/public-api";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import { v2 as cloudinary } from "cloudinary";
+
 dotenv.config();
 
 const app = express();
 export const prisma = new PrismaClient();
 
-app.use(express.json());
-app.use(cookieParser());
+// Configuration
+cloudinary.config({
+  cloud_name: "dcwbezcru",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
+});
 
-// app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "http://localhost:5173", // Adjust this to your frontend URL
     credentials: true, // Allow credentials if needed
   })
 );
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // To parse form data in the req.body
+app.use(cookieParser());
 
 app.use(publicRouter);
 app.use(apiRouter);

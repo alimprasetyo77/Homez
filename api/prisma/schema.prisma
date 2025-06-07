@@ -25,7 +25,7 @@ model User {
   phone       String?
   photoUrl    String?
   address     AddressInfo?
-  postalCode  String?
+  postalCode  Int?
   taxId       String?
   bio         String?
   socialMedia SocialMedia?

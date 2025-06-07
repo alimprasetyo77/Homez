@@ -5,7 +5,9 @@ import { ResponseError } from "../utils/response-error";
 import { ILogin, IRegister, IUpdateUserSchema, UserValidation } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
-import { Response } from "express";
+import { v2 as cloudinary } from "cloudinary";
+import formidable from "formidable";
+import { IParseFormData } from "../utils/parse-form-data";
 
 export class UserService {
   static async register(request: IRegister): Promise<void> {
@@ -121,15 +123,23 @@ export class UserService {
     return result as IUser;
   }
 
-  static async update(id: string, request: IUpdateUserSchema): Promise<IUpdateUserSchema> {
-    const updateRequest = validate(UserValidation.updateUser, request);
+  static async update(id: string, request: IParseFormData): Promise<IUpdateUserSchema> {
+    const updateRequest = validate(UserValidation.updateUser, request.fields);
+    const fileRequest = request.files.photoUrl![0] as any;
+    const payload = { ...updateRequest, photoUrl: fileRequest } as IUpdateUserSchema;
     if (Object.keys(updateRequest).length === 0) {
       throw new ResponseError(400, "At least one field must be provided");
     }
 
+    if (fileRequest) {
+      const result = await cloudinary.uploader.upload(fileRequest.filepath, {
+        folder: "homez_file",
+      });
+      payload["photoUrl"] = result.secure_url;
+    }
     const result = await prisma.user.update({
       where: { id: id },
-      data: updateRequest as IUser,
+      data: payload as IUser,
     });
     return result as IUpdateUserSchema;
   }
