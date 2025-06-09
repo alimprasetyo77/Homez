@@ -1,13 +1,9 @@
-import { Request, Response, NextFunction } from "express";
-import { JwtPayload } from "jsonwebtoken";
+import { Response, NextFunction } from "express";
 import { prisma } from "../main";
 import { Token } from "../utils/token";
+import { RequestWithUser } from "../types/user-request";
 
-interface AuthenticatedRequest extends Request {
-  user?: Awaited<ReturnType<typeof prisma.user.findFirst>>;
-}
-
-export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -24,17 +20,14 @@ export const authMiddleware = async (req: AuthenticatedRequest, res: Response, n
 
     const decoded = Token.verifyAccess(token);
 
-    // if (!decoded.userId) {
-    //   return res.status(401).json({ message: "Invalid token payload" });
-    // }
-
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { id: decoded.userId },
       include: { favorites: { include: { property: true }, omit: { propertyId: true, userId: true } } },
+      omit: { password: true, tokens: true },
     });
 
-    if (user && user.tokens !== refreshToken) {
-      return res.status(401).json({ message: "Unauthorized" });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
 
     req.user = user;

@@ -27,7 +27,8 @@ export const updateUser = async (body: IUpdateUserType) => {
   }
   try {
     const response = await axiosWithConfig.put("/users/current", formData);
-    return response.data as Response;
+    console.log(response.data);
+    return response.data as Response<IUser>;
   } catch (error: any) {
     throw new Error(error.response?.data.message);
   }

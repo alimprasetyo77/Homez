@@ -7,6 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
+import path from "path";
 
 dotenv.config();
 

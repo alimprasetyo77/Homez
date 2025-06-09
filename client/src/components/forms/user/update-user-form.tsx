@@ -44,7 +44,7 @@ const UpdateUserForm = () => {
             </FormControl>
 
             <Avatar className="size-24 relative group">
-              {user?.photoUrl || previewImage ? (
+              {previewImage || user?.photoUrl ? (
                 <div
                   className="absolute hidden cursor-pointer group-hover:block top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 bg-gray-200 p-1 rounded-full"
                   onClick={() => setPreviewImage("")}
@@ -52,7 +52,7 @@ const UpdateUserForm = () => {
                   <Trash className="text-red-500 " />
                 </div>
               ) : null}
-              <AvatarImage src={user?.photoUrl ?? previewImage} alt="@shadcn" />
+              <AvatarImage src={previewImage !== "" ? previewImage : user?.photoUrl} alt="@shadcn" />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="space-y-2">

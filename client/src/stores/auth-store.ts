@@ -7,6 +7,7 @@ import { create } from "zustand";
 interface IAuthStore {
   isLogin: boolean;
   user: IUser | null;
+  resetUser: (payload: IUser) => void;
   token: string | null;
   setToken: (token: string) => void;
   fetchUser: () => void;
@@ -18,6 +19,10 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
   isLogin: false,
   user: null,
   token: null,
+
+  resetUser(payload) {
+    set({ user: payload });
+  },
 
   setToken(token: string | null) {
     set({ token, isLogin: true });

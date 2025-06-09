@@ -6,8 +6,8 @@ import { ILogin, IRegister, IUpdateUserSchema, UserValidation } from "../validat
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
-import formidable from "formidable";
-import { IParseFormData } from "../utils/parse-form-data";
+import { getPublicId, IParseFormData } from "../utils/parse-form-data";
+import { IPublicUser } from "../types/user-request";
 
 export class UserService {
   static async register(request: IRegister): Promise<void> {
@@ -111,7 +111,7 @@ export class UserService {
     return result as IUser;
   }
 
-  static async get(user: User): Promise<IUser> {
+  static async get(user: IPublicUser): Promise<IPublicUser> {
     if (user.role !== "AGENT") return user;
 
     const result = await prisma.user.findUnique({
@@ -119,27 +119,36 @@ export class UserService {
         id: user.id,
       },
       include: { favorites: true },
+      omit: { password: true, tokens: true },
     });
-    return result as IUser;
+    return result as IPublicUser;
   }
 
-  static async update(id: string, request: IParseFormData): Promise<IUpdateUserSchema> {
+  static async update(user: User, request: IParseFormData): Promise<IUpdateUserSchema> {
     const updateRequest = validate(UserValidation.updateUser, request.fields);
-    const fileRequest = request.files.photoUrl![0] as any;
+    let fileRequest = request.files.photoUrl?.[0];
     const payload = { ...updateRequest, photoUrl: fileRequest } as IUpdateUserSchema;
+
     if (Object.keys(updateRequest).length === 0) {
       throw new ResponseError(400, "At least one field must be provided");
     }
 
     if (fileRequest) {
+      if (user.photoUrl) {
+        const publicId = getPublicId(user.photoUrl);
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId);
+        }
+      }
       const result = await cloudinary.uploader.upload(fileRequest.filepath, {
         folder: "homez_file",
       });
       payload["photoUrl"] = result.secure_url;
     }
     const result = await prisma.user.update({
-      where: { id: id },
+      where: { id: user.id },
       data: payload as IUser,
+      omit: { password: true, tokens: true },
     });
     return result as IUpdateUserSchema;
   }

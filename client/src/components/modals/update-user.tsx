@@ -21,12 +21,12 @@ import { useDialogStore } from "@/stores/dialog-store";
 import { useAuthStore } from "@/stores/auth-store";
 
 const UpdateUser = ({ children }: { children?: ReactNode }) => {
-  const { user, fetchUser } = useAuthStore();
+  const { user, resetUser } = useAuthStore();
   const { activeDialog, closeDialog } = useDialogStore();
   const mutation = useMutation({
     mutationFn: updateUser,
-    onSuccess: ({ message }) => {
-      fetchUser();
+    onSuccess: ({ message, data }) => {
+      resetUser(data);
       handleCloseDialog();
       toast.success(message);
     },
@@ -69,6 +69,7 @@ const UpdateUser = ({ children }: { children?: ReactNode }) => {
       });
     }
   }, [user, form.reset]);
+
   return (
     <Dialog open={activeDialog === "updateUser"} onOpenChange={(open) => !open && handleCloseDialog()}>
       <DialogTrigger asChild>{children}</DialogTrigger>

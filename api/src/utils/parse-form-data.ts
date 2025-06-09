@@ -1,7 +1,6 @@
 import { Request } from "express";
 import formidable from "formidable";
-import { IUpdateUserSchema } from "../validations/user-validation";
-
+import path from "path";
 export interface IParseFormData {
   fields: formidable.Fields;
   files: formidable.Files;
@@ -39,3 +38,11 @@ function normalizeFields(fields: formidable.Fields) {
   }
   return result;
 }
+
+export const getPublicId = (imageURL: string): string => {
+  const fileName = imageURL.split("upload/")[1].split("/");
+  fileName.shift();
+
+  const result = path.parse(fileName.join("/") || "");
+  return `${result.dir}/${result.name}`;
+};

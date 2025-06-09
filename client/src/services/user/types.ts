@@ -40,6 +40,6 @@ export const updateUserSchema = z.object({
 
 export type IUpdateUserType = z.infer<typeof updateUserSchema>;
 
-export interface IUser extends Omit<IUpdateUserType, "photoUrl"> {
+export interface IUser extends Omit<IUpdateUserType, "photoUrl" | "password"> {
   photoUrl: string;
 }

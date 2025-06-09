@@ -4,6 +4,7 @@ import { ILogin, IRegister, IUpdateUserSchema } from "../validations/user-valida
 import { User } from "../generated/prisma";
 import formidable from "formidable";
 import { parseFormData } from "../utils/parse-form-data";
+import { IPublicUser, RequestWithUser } from "../types/user-request";
 
 export class UserController {
   static async register(req: Request, res: Response, next: NextFunction) {
@@ -67,9 +68,9 @@ export class UserController {
     }
   }
 
-  static async get(req: Request & { user?: User }, res: Response, next: NextFunction) {
+  static async get(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
-      const user = req.user as User;
+      const user = req.user as IPublicUser;
       const response = await UserService.get(user);
       res.status(200).json({ message: "Get user successfuly", data: response });
     } catch (err) {
@@ -79,9 +80,9 @@ export class UserController {
 
   static async update(req: Request & { user?: User }, res: Response, next: NextFunction) {
     try {
-      const userId = (req.user as User).id;
+      const user = req.user as User;
       const request = await parseFormData(req);
-      const response = await UserService.update(userId, request);
+      const response = await UserService.update(user, request);
       res.status(200).json({ message: "Update successfuly", data: response });
     } catch (err) {
       next(err);
