@@ -28,8 +28,8 @@ export const updateUserSchema = z.object({
       (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Only .jpg, .jpeg, and .png formats are supported"
     )
-    .or(z.string())
-    .optional(),
+    .optional()
+    .or(z.string()),
   bio: z.string({ required_error: "invalid bio " }).optional(),
   address: z.object({
     city: z.string({ required_error: "invalid city" }).optional(),
@@ -46,12 +46,19 @@ export const updateUserSchema = z.object({
   }),
 });
 
+const changePasswordSchema = z.object({
+  current_password: z.string().min(8).max(100),
+  new_password: z.string().min(8).max(100),
+});
+
 export const UserValidation = {
   register: registerSchema,
   login: loginSchema,
   updateUser: updateUserSchema,
+  changePassword: changePasswordSchema,
 };
 
 export type IRegister = z.infer<typeof registerSchema>;
 export type ILogin = z.infer<typeof loginSchema>;
 export type IUpdateUserSchema = z.infer<typeof updateUserSchema>;
+export type IChangePassword = z.infer<typeof changePasswordSchema>;

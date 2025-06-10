@@ -9,7 +9,15 @@ export const roleMiddleware = async (
 ) => {
   const user = req.user as User;
   if (user.role !== "AGENT") {
-    return res.status(403).json({ errors: "Access is denied" }).end();
+    return res
+      .status(403)
+      .json({
+        errors: {
+          code: "FORBIDDEN",
+          message: "You do not have permission to access this resource.",
+        },
+      })
+      .end();
   }
   next();
 };

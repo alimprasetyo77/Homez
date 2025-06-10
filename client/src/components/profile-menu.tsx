@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 const ProfileMenu = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
+  console.log(user);
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>

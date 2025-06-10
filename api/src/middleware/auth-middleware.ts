@@ -5,22 +5,17 @@ import { RequestWithUser } from "../types/user-request";
 
 export const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = req.headers.authorization?.split(" ")[1];
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Access token is missing or malformed" });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) {
-      return res.status(401).json({ message: "Refresh token is missing" });
+    if (!token) {
+      return res
+        .status(401)
+        .json({ errors: { code: "TOKEN_MISSING", message: "Access token is required." } });
     }
 
     const decoded = Token.verifyAccess(token);
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: { favorites: { include: { property: true }, omit: { propertyId: true, userId: true } } },
       omit: { password: true, tokens: true },
@@ -34,10 +29,10 @@ export const authMiddleware = async (req: RequestWithUser, res: Response, next: 
     next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token has expired" });
+      return res.status(401).json({ errors: { code: "TOKEN_EXPIRED", message: "Token has expired." } });
     }
     if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid token" });
+      return res.status(401).json({ errors: { code: "TOKEN_INVALID", message: "Invalid Token Error." } });
     }
     next(error);
   }

@@ -7,7 +7,7 @@ export const login = async (body: ILoginType) => {
     const response = await axiosWithConfig.post("/users/login", body);
     return response.data as Response<{ token: string }>;
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };
 
@@ -16,7 +16,7 @@ export const register = async (body: IRegisterType) => {
     const response = await axiosWithConfig.post("/users/register", body);
     return response.data as { message: string };
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };
 
@@ -25,7 +25,7 @@ export const refreshToken = async () => {
     const { data, status } = await axiosWithConfig.post("/users/refresh-token", {});
     return { data, status } as { data: { accessToken: string }; status: number };
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };
 export const logout = async () => {
@@ -33,6 +33,6 @@ export const logout = async () => {
     const response = await axiosWithConfig.post("/users/logout", {});
     return response.data as { message: string };
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };

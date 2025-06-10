@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/user-service";
-import { ILogin, IRegister, IUpdateUserSchema } from "../validations/user-validation";
+import { IChangePassword, ILogin, IRegister, IUpdateUserSchema } from "../validations/user-validation";
 import { User } from "../generated/prisma";
 import formidable from "formidable";
 import { parseFormData } from "../utils/parse-form-data";
@@ -48,9 +48,9 @@ export class UserController {
       next(err);
     }
   }
-  static async logout(req: Request, res: Response, next: NextFunction) {
+  static async logout(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies["refreshToken"];
       await UserService.logout(refreshToken);
       res.clearCookie("refreshToken");
       res.status(200).json({ message: "Logout successfully" });
@@ -89,11 +89,22 @@ export class UserController {
     }
   }
 
-  static async delete(req: Request & { user?: User }, res: Response, next: NextFunction) {
+  static async delete(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
-      const userId = (req.user as User).id;
-      await UserService.delete(userId);
+      const user = req.user as IPublicUser;
+      await UserService.delete(user);
+      res.clearCookie("refreshToken");
       res.status(200).json({ message: "Delete successfuly" });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async changePassword(req: RequestWithUser, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id as string;
+      const request = req.body as IChangePassword;
+      await UserService.changePassword(userId, request);
+      res.status(200).json({ message: "Change Password successfuly" });
     } catch (err) {
       next(err);
     }

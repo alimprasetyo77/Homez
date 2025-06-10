@@ -2,7 +2,13 @@ import { User as IUser, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { Token } from "../utils/token";
 import { ResponseError } from "../utils/response-error";
-import { ILogin, IRegister, IUpdateUserSchema, UserValidation } from "../validations/user-validation";
+import {
+  IChangePassword,
+  ILogin,
+  IRegister,
+  IUpdateUserSchema,
+  UserValidation,
+} from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
@@ -53,7 +59,9 @@ export class UserService {
   }
 
   static async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    if (!refreshToken) throw new ResponseError(204, "Refresh token is required");
+    if (!refreshToken) {
+      throw new ResponseError(400, "Refresh token is required", "REFRESH_TOKEN_MISSING");
+    }
 
     let decoded;
 
@@ -61,14 +69,14 @@ export class UserService {
       decoded = Token.verifyRefresh(refreshToken);
     } catch (error: any) {
       if (error.name === "TokenExpiredError") {
-        throw new ResponseError(401, "refreshToken " + error.message);
+        throw new ResponseError(401, "The session has ended", "REFRESH_TOKEN_EXPIRED");
       }
-      throw new ResponseError(401, "Invalid refresh token");
+      throw new ResponseError(401, "Invalid refresh token", "REFRESH_TOKEN_INVALID");
     }
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user || user.tokens !== refreshToken) {
-      throw new ResponseError(401, "Invalid refresh token");
+      throw new ResponseError(401, "Invalid refresh token", "REFRESH_TOKEN_INVALID");
     }
 
     const accessToken = Token.generateAccess(decoded.userId);
@@ -79,25 +87,12 @@ export class UserService {
   }
 
   static async logout(refreshToken: string): Promise<void> {
-    if (!refreshToken) throw new ResponseError(204, "Refresh token is required");
-
-    let decoded;
-    try {
-      decoded = Token.verifyRefresh(refreshToken);
-    } catch (error: any) {
-      if (error.name === "TokenExpiredError") {
-        throw new ResponseError(401, "logout " + error.message);
-      }
-      throw new ResponseError(401, "Invalid refresh token");
-    }
-    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
-
-    if (!user || user.tokens !== refreshToken) {
-      throw new ResponseError(401, "Invalid refresh token");
+    if (!refreshToken) {
+      throw new ResponseError(400, "No refresh token found.", "MISSING_REFRESH_TOKEN");
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
+    await prisma.user.updateMany({
+      where: { tokens: refreshToken },
       data: { tokens: null },
     });
   }
@@ -153,7 +148,35 @@ export class UserService {
     return result as IUpdateUserSchema;
   }
 
-  static async delete(id: string): Promise<void> {
-    await prisma.user.delete({ where: { id: id } });
+  static async delete(user: IPublicUser): Promise<void> {
+    const transactionQueries = [];
+
+    transactionQueries.push(prisma.favorite.deleteMany({ where: { userId: user.id } }));
+
+    if (user.role === "AGENT") {
+      transactionQueries.push(prisma.property.deleteMany({ where: { agentId: user.id } }));
+    }
+
+    transactionQueries.push(prisma.user.deleteMany({ where: { id: user.id } }));
+
+    await prisma.$transaction(transactionQueries);
+  }
+
+  static async changePassword(id: string, body: IChangePassword): Promise<void> {
+    const request = validate(UserValidation.changePassword, body);
+    const user = await prisma.user.findFirst({ where: { id } });
+    if (!user) throw new ResponseError(404, "User Not Found");
+
+    const isPasswordMatch = await bcrypt.compare(request.current_password, user.password);
+    if (!isPasswordMatch) throw new ResponseError(400, "Current Password Wrong");
+
+    const hashedNewPassword = await bcrypt.hash(request.new_password, 10);
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        password: hashedNewPassword,
+      },
+    });
   }
 }

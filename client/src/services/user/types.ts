@@ -8,8 +8,8 @@ export const updateUserSchema = z.object({
   name: z.string().min(1).max(50).optional(),
   email: z.string().min(1, { message: "Email is required" }).email("Invalid email").optional(),
   password: z.string().min(8, { message: "Too short — use at least 8 characters." }).max(100).optional(),
-  position: z.string({ required_error: "invalid position" }).optional(),
-  phone: z.string().min(10, { message: "Invalid Phone Number" }).optional(),
+  position: z.string({ required_error: "invalid position" }).optional().nullable(),
+  phone: z.string().min(10, { message: "Invalid phone" }).optional().nullable(),
   photoUrl: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
@@ -17,8 +17,9 @@ export const updateUserSchema = z.object({
       (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Only .jpg, .jpeg, and .png formats are supported"
     )
-    .optional(),
-  bio: z.string({ required_error: "invalid bio " }).optional(),
+    .optional()
+    .nullable(),
+  bio: z.string({ required_error: "invalid bio " }).optional().nullable(),
   address: z
     .object({
       city: z.string({ required_error: "invalid city" }).optional(),
@@ -27,7 +28,7 @@ export const updateUserSchema = z.object({
     })
     .optional(),
   postalCode: z.number({ required_error: "invalid postal code" }).optional(),
-  taxId: z.string({ required_error: "invalid tax id" }).optional(),
+  taxId: z.string({ required_error: "invalid tax id" }).optional().nullable(),
   socialMedia: z
     .object({
       facebook: z.string({ required_error: "invalid Facebook url" }).optional(),
@@ -38,8 +39,21 @@ export const updateUserSchema = z.object({
     .optional(),
 });
 
+export const changePasswordSchema = z
+  .object({
+    current_password: z.string().min(8).max(100),
+    new_password: z.string().min(8).max(100),
+    confirm_new_password: z.string().min(8).max(100),
+  })
+  .refine((v) => v.new_password === v.confirm_new_password, {
+    message: "Password don't match",
+    path: ["confirm_new_password"],
+  });
+
+export type IChangePassword = z.infer<typeof changePasswordSchema>;
 export type IUpdateUserType = z.infer<typeof updateUserSchema>;
 
 export interface IUser extends Omit<IUpdateUserType, "photoUrl" | "password"> {
   photoUrl: string;
+  role: "USER" | "AGENT";
 }

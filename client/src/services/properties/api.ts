@@ -7,7 +7,7 @@ export const getLocation = async () => {
     const result = await axiosWithConfig.get("/properties/location");
     return result.data as Response<{ city: string }[]>;
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };
 
@@ -20,7 +20,7 @@ export const getPopular = async (typeProperty: PropertyType) => {
     });
     return result.data as ResponsePagination<IProperty[]>;
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };
 
@@ -29,6 +29,6 @@ export const searchOrFilterProperties = async (payload: ISearchOrFilterPropertie
     const result = await axiosWithConfig.post("/properties/search", payload);
     return result.data as ResponsePagination<IProperty[]>;
   } catch (error: any) {
-    throw new Error(error.response?.data.message);
+    throw new Error(error.response?.data.errors.message);
   }
 };

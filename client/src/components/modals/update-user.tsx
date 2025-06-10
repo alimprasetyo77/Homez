@@ -13,16 +13,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ReactNode, useEffect } from "react";
+import { useEffect, useState } from "react";
 import UpdateUserForm from "../forms/user/update-user-form";
 import { IUpdateUserType, updateUserSchema } from "@/services/user/types";
 import { updateUser } from "@/services/user/api";
-import { useDialogStore } from "@/stores/dialog-store";
 import { useAuthStore } from "@/stores/auth-store";
 
-const UpdateUser = ({ children }: { children?: ReactNode }) => {
+const UpdateUser = () => {
   const { user, resetUser } = useAuthStore();
-  const { activeDialog, closeDialog } = useDialogStore();
+  const [open, setOpen] = useState(false);
+
   const mutation = useMutation({
     mutationFn: updateUser,
     onSuccess: ({ message, data }) => {
@@ -38,41 +38,35 @@ const UpdateUser = ({ children }: { children?: ReactNode }) => {
   const form = useForm<IUpdateUserType>({
     resolver: zodResolver(updateUserSchema),
     shouldFocusError: true,
+    defaultValues: {
+      phone: "",
+      position: "",
+      taxId: "",
+      bio: "",
+    },
   });
   const handleCloseDialog = () => {
     form.reset();
-    closeDialog();
+    setOpen(false);
   };
 
   useEffect(() => {
     if (user) {
       form.reset({
-        name: user.name ?? "",
-        email: user.email ?? "",
-        phone: user.phone ?? "",
-        bio: user.bio ?? "",
-        position: user.position ?? "",
-        postalCode: user.postalCode ?? 0,
-        taxId: user.taxId ?? "",
-        address: {
-          city: user.address?.city ?? "",
-          state: user.address?.state ?? "",
-          country: user.address?.country ?? "",
-        },
-        socialMedia: {
-          facebook: user.socialMedia?.facebook ?? "",
-          x: user.socialMedia?.x ?? "",
-          instagram: user.socialMedia?.instagram ?? "",
-          linkedIn: user.socialMedia?.linkedIn ?? "",
-        },
-        photoUrl: undefined, // jangan isi default dengan File kosong
+        ...user,
+        photoUrl: undefined,
       });
     }
-  }, [user, form.reset]);
-
+  }, [user]);
+  console.log("LOG FORM EDIT PERSONAL INFO : ", form.getValues());
+  console.log(user);
   return (
-    <Dialog open={activeDialog === "updateUser"} onOpenChange={(open) => !open && handleCloseDialog()}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant={"outline"} className="cursor-pointer">
+          Edit
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-5xl! w-full">
         <DialogHeader>
           <DialogTitle>Edit Personal Information</DialogTitle>

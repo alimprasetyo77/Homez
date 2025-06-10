@@ -5,10 +5,8 @@ import Search from "@/pages/properties/search";
 import Layout from "@/components/layouts/layout";
 import DetailProperty from "@/pages/properties/detail";
 import Login from "@/pages/auth/login";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
-import { refreshToken } from "@/services/auth/api";
-import { toast } from "sonner";
 import ProtectedRoute from "./protected-route";
 import Register from "@/pages/auth/register";
 import MainDashboard from "@/pages/dashboard";
@@ -17,36 +15,29 @@ import Property from "@/pages/dashboard/property";
 import Favorite from "@/pages/dashboard/favorite";
 import Profile from "@/pages/dashboard/profile";
 import LayoutDashboard from "@/components/layouts/dashboard";
+import { FaSpinner } from "react-icons/fa";
 
 function App() {
-  const { token, fetchUser, setToken, logout } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
-  const init = async () => {
-    setIsLoading(true);
-    try {
-      const response = await refreshToken();
-      if (response.status === 204) return;
-      setToken(response.data.accessToken);
-    } catch (error) {
-      toast("Session expired please login again");
-      logout();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const { token, fetchUser, isLoading } = useAuthStore();
   useEffect(() => {
-    init();
-  }, []);
-
-  useEffect(() => {
-    if (token) fetchUser();
+    if (token === null) return;
+    fetchUser();
   }, [token]);
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={isLoading ? "Loading..." : <ProtectedRoute />}>
+        <Route
+          element={
+            isLoading ? (
+              <div className="absolute top-1/2 right-1/2 translate-y-1/2 translate-x-1/2 ">
+                <FaSpinner className="animate-spin size-6" />
+              </div>
+            ) : (
+              <ProtectedRoute />
+            )
+          }
+        >
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<Layout />}>

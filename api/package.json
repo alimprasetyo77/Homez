@@ -19,9 +19,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
+    "winston": "^3.17.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
@@ -31,6 +33,7 @@
     "@types/express": "^5.0.1",
     "@types/formidable": "^3.4.5",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/winston": "^2.4.4",
     "prisma": "^6.9.0",
     "typescript": "^5.8.3"
   }

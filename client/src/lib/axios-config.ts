@@ -22,12 +22,11 @@ axiosWithConfig.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
-    if (err.response?.message == "Refresh token is missing") {
-      useAuthStore.getState().clearState();
-      return;
+    if (err.response.data.errors.code === "REFRESH_TOKEN_EXPIRED") {
+      return useAuthStore.getState().logout();
     }
 
-    if (err.response?.status === 401 && !originalRequest._retry) {
+    if (err.response.data.errors.code === "TOKEN_EXPIRED" && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const { data } = await refreshToken();

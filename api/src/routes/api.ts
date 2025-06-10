@@ -12,6 +12,7 @@ apiRouter.use(authMiddleware as any);
 apiRouter.get("/api/users/current", UserController.get);
 apiRouter.get("/api/users/:id", UserController.getById);
 apiRouter.put("/api/users/current", UserController.update);
+apiRouter.put("/api/users/change-password", UserController.changePassword);
 apiRouter.delete("/api/users/current", UserController.delete);
 
 // Property routes

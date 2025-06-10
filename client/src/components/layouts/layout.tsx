@@ -13,7 +13,6 @@ const Layout = () => {
       <Navbar />
       <SignIn />
       <SignUp />
-      <UpdateUser />
       <Outlet />
 
       {!pathname.startsWith("/dashboard") ? <Footer /> : null}

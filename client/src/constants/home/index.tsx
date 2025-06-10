@@ -23,6 +23,7 @@ export const linkNavbar: ILinkNavbar[] = [
     path: "/blog",
   },
 ];
+
 export const linkProfile: (ILinkNavbar & { icon: () => any })[] = [
   { id: 1, path: "/dashboard", title: "Dashboard", icon: () => <MdDashboard className="size-4" /> },
   {
@@ -45,6 +46,7 @@ export const linkProfile: (ILinkNavbar & { icon: () => any })[] = [
     icon: () => <UserCog className="size-4" />,
   },
 ];
+
 export const listLinkOnSearch: ILinkOnSearch[] = [
   {
     id: 1,

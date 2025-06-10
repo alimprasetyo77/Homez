@@ -7,7 +7,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
-import path from "path";
+import { requestLogger } from "./middleware/requestLogger";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -21,12 +22,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
 });
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 100, // Maksimal 100 request per IP dalam 15 menit
+  message: {
+    error: "RATE_LIMIT_EXCEEDED",
+    message: "Too many requests. Please try again later.",
+  },
+  headers: true, // Menampilkan informasi rate limit di response header
+});
+
+app.use(limiter);
 app.use(
   cors({
     origin: "http://localhost:5173", // Adjust this to your frontend URL
     credentials: true, // Allow credentials if needed
   })
 );
+app.use(requestLogger);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse form data in the req.body
