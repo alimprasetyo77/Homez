@@ -2,7 +2,7 @@ import Radio from "@/components/radio";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { propertiesTypeOptions } from "@/constants/home";
+import { propertiesTypeOptions } from "@/constants/property";
 import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,8 +22,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useQuery } from "@tanstack/react-query";
-import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/services/properties/types";
-import { getLocation, searchOrFilterProperties } from "@/services/properties/api";
+import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/types/property-type";
+import { getLocation, searchOrFilterProperties } from "@/services/property-service";
 
 const Search = () => {
   const navigate = useNavigate();

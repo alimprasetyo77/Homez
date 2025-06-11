@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { IUpdateUserType } from "@/services/user/types";
+import { IUpdateUserType } from "@/types/user-type";
 import { useAuthStore } from "@/stores/auth-store";
 import { Trash, UploadCloud } from "lucide-react";
 import { useState } from "react";
@@ -102,7 +102,12 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Phone</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Number Phone" className="h-[45px]" {...field} />
+              <Input
+                placeholder="Enter Number Phone"
+                className="h-[45px]"
+                {...field}
+                value={field.value ?? ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -115,7 +120,7 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Position</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Position" className="h-[45px]" {...field} />
+              <Input placeholder="Enter Position" className="h-[45px]" {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -129,7 +134,12 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Postal Code</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Postal Code" className="h-[45px]" {...field} />
+              <Input
+                placeholder="Enter Postal Code"
+                className="h-[45px]"
+                {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -142,7 +152,7 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Tax ID</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Tax ID" className="h-[45px]" {...field} />
+              <Input placeholder="Enter Tax ID" className="h-[45px]" {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -156,7 +166,11 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">Bio</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tell us a little bit about yourself" className="" {...field} />
+                <Textarea
+                  placeholder="Tell us a little bit about yourself"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,6 +1,5 @@
-import SignIn from "../modals/sign-in";
-import SignUp from "../modals/sign-up";
-import UpdateUser from "../modals/update-user";
+import SignIn from "../modals/sign-in-modal";
+import SignUp from "../modals/sign-up-modal";
 import Footer from "./footer";
 import Navbar from "./navbar";
 import { Outlet, useLocation } from "react-router-dom";

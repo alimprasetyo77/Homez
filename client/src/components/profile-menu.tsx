@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { linkProfile } from "@/constants/home";
+import { linkProfile } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { ChevronDown, LogOut } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { createElement, ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 
 const ProfileMenu = ({ children }: { children: ReactNode }) => {
@@ -28,7 +28,7 @@ const ProfileMenu = ({ children }: { children: ReactNode }) => {
               return (
                 <Link to={link.path} key={link.id} onClick={() => setIsOpen(false)}>
                   <div className="py-3 px-4 hover:bg-[#181a20] hover:text-white rounded-xl flex items-center gap-x-6 font-medium transition-all duration-200">
-                    {link.icon()}
+                    {createElement(link.icon, { className: "size-4" })}
                     {link.title}
                   </div>
                 </Link>

@@ -1,6 +1,6 @@
-import ChangePassword from "@/components/modals/change-password";
-import DeleteUser from "@/components/modals/delete-user";
-import UpdateUser from "@/components/modals/update-user";
+import ChangePassword from "@/components/modals/change-password-modal";
+import DeleteUser from "@/components/modals/delete-user-modal";
+import UpdateUser from "@/components/modals/update-user-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth-store";
 import { Info } from "lucide-react";

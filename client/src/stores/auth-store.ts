@@ -1,6 +1,6 @@
-import { logout } from "@/services/auth/api";
-import { getUser } from "@/services/user/api";
-import { IUser } from "@/services/user/types";
+import { logout } from "@/services/auth-service";
+import { getUser } from "@/services/user-service";
+import { IUser } from "@/types/user-type";
 import { toast } from "sonner";
 import { create } from "zustand";
 
@@ -13,10 +13,9 @@ interface IAuthStore {
   setToken: (token: string) => void;
   fetchUser: () => void;
   logout: () => void;
-  clearState: () => void;
 }
 
-export const useAuthStore = create<IAuthStore>((set, get) => ({
+export const useAuthStore = create<IAuthStore>((set, _get) => ({
   isLogin: false,
   isLoading: false,
   user: null,
@@ -30,9 +29,7 @@ export const useAuthStore = create<IAuthStore>((set, get) => ({
     sessionStorage.setItem("token", token);
     set({ token, isLogin: true });
   },
-  clearState() {
-    set({ isLogin: false, user: null, token: null });
-  },
+
   async fetchUser() {
     set({ isLoading: true });
     try {
@@ -51,7 +48,7 @@ export const useAuthStore = create<IAuthStore>((set, get) => ({
       if (tokenInSessionStorage) {
         sessionStorage.removeItem("token");
       }
-      get().clearState();
+      set({ isLogin: false, user: null, token: null });
       toast.success(`${message}`);
     } catch (error) {
       toast.error(`${error}`);

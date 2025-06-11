@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
 import { ZodError } from "zod";
 import { ResponseError } from "../utils/response-error";
 
@@ -17,6 +17,7 @@ export const errorMiddleware = async (error: Error, _req: Request, res: Response
   } else if (error instanceof ResponseError) {
     res.status(error.status).json({ errors: { code: error.code, message: error.message } });
   } else {
+    console.log(error);
     res.status(500).json({ errors: { code: "INTERNAL_SERVER_ERROR", message: "Something went wrong." } });
   }
 };

@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { deleteUser } from "@/services/user/api";
+import { deleteUser } from "@/services/user-service";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 const DeleteUser = () => {

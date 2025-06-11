@@ -1,6 +1,11 @@
-import { refreshToken } from "@/services/auth/api";
+import { refreshToken } from "@/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { toast } from "sonner";
+
+interface IErrorResponse {
+  errors: { code: string; message: string };
+}
 
 const axiosWithConfig = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -20,13 +25,14 @@ axiosWithConfig.interceptors.request.use(
 
 axiosWithConfig.interceptors.response.use(
   (res) => res,
-  async (err) => {
-    const originalRequest = err.config;
-    if (err.response.data.errors.code === "REFRESH_TOKEN_EXPIRED") {
-      return useAuthStore.getState().logout();
+  async (err: AxiosError<IErrorResponse>) => {
+    const originalRequest = err.config as any;
+    if (err.response?.status === 429) {
+      const message = err.response.data.errors.message || "Rate limit exceeded.";
+      toast.error(message); // atau alert(message)
     }
 
-    if (err.response.data.errors.code === "TOKEN_EXPIRED" && !originalRequest._retry) {
+    if (err.response?.data.errors.code === "TOKEN_EXPIRED" && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const { data } = await refreshToken();

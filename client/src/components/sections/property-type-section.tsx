@@ -1,4 +1,4 @@
-import { typeProperties } from "@/constants/home";
+import { typeProperties } from "@/constants/property";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 

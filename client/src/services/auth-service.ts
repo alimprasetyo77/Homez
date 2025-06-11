@@ -1,5 +1,5 @@
 import { Response } from "@/types/type";
-import { ILoginType, IRegisterType } from "./types";
+import { ILoginType, IRegisterType } from "../types/auth-type";
 import axiosWithConfig from "@/lib/axios-config";
 
 export const login = async (body: ILoginType) => {

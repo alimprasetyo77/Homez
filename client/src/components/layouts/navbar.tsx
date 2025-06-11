@@ -1,4 +1,4 @@
-import { linkNavbar } from "@/constants/home";
+import { linkNavbar } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useEffect, useRef } from "react";
 import { FaRegUserCircle } from "react-icons/fa";

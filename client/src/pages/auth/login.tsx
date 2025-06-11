@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import image from "../../../public/images/real-estate.jpeg";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ILoginType, loginSchema } from "@/services/auth/types";
+import { ILoginType, loginSchema } from "@/types/auth-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/services/auth/api";
+import { login } from "@/services/auth-service";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 

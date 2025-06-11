@@ -8,16 +8,16 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import { ILoginType, loginSchema } from "@/services/auth/types";
+import { ILoginType, loginSchema } from "@/types/auth-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/services/auth/api";
+import { login } from "@/services/auth-service";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDialogStore } from "@/stores/dialog-store";
-import FormSignIn from "../forms/auth/sign-in";
+import FormSignIn from "../forms/auth/sign-in-form";
 
 const SignIn = () => {
   const { setToken } = useAuthStore();

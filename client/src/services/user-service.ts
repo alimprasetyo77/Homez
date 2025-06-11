@@ -1,6 +1,6 @@
 import axiosWithConfig from "@/lib/axios-config";
 import { Response } from "@/types/type";
-import { IChangePassword, IUpdateUserType, IUser } from "./types";
+import { IChangePassword, IUpdateUserType, IUser } from "../types/user-type";
 import { checkProperty } from "@/lib/utils";
 export const getUser = async () => {
   try {

@@ -7,11 +7,11 @@ import { ArrowUpRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useState } from "react";
-import FormChangePassword from "../forms/user/change-password";
+import FormChangePassword from "../forms/user/change-password-form";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { PiWarning } from "react-icons/pi";
-import { changePassword } from "@/services/user/api";
-import { changePasswordSchema, IChangePassword } from "@/services/user/types";
+import { changePassword } from "@/services/user-service";
+import { changePasswordSchema, IChangePassword } from "@/types/user-type";
 
 const ChangePassword = () => {
   const [open, setOpen] = useState(false);

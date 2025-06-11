@@ -1,4 +1,4 @@
-import { PropertyStatus } from "@/services/properties/types";
+import { PropertyStatus } from "@/types/property-type";
 
 interface CheckboxProps {
   label: string;

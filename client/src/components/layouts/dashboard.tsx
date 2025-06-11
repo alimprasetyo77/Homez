@@ -1,4 +1,4 @@
-import { linkProfile } from "@/constants/home";
+import { linkProfile } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
@@ -19,7 +19,7 @@ const LayoutDashboard = () => {
                     pathname === link.path ? "bg-[#181a20] text-white" : "bg-transparent"
                   }`}
                 >
-                  {link.icon()}
+                  {<link.icon className="size-4" />}
                   {link.title}
                 </li>
               </Link>

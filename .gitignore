@@ -4,6 +4,7 @@ api/dist
 api/.vercel/
 api/.env
 api/src/generated
+api/logs
 
 client/node_modules
 client/.env

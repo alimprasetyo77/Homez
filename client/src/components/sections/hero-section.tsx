@@ -1,5 +1,5 @@
-import { listLinkOnSearch } from "@/constants/home";
-import { ListLinkSearch } from "@/constants/home/types";
+import { listLinkOnSearch } from "@/constants/property";
+import { ListLinkSearch } from "@/constants/types";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

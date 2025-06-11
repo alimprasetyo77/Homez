@@ -15,8 +15,8 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import UpdateUserForm from "../forms/user/update-user-form";
-import { IUpdateUserType, updateUserSchema } from "@/services/user/types";
-import { updateUser } from "@/services/user/api";
+import { IUpdateUserType, updateUserSchema } from "@/types/user-type";
+import { updateUser } from "@/services/user-service";
 import { useAuthStore } from "@/stores/auth-store";
 
 const UpdateUser = () => {
@@ -59,7 +59,6 @@ const UpdateUser = () => {
     }
   }, [user]);
   console.log("LOG FORM EDIT PERSONAL INFO : ", form.getValues());
-  console.log(user);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

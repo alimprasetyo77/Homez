@@ -8,17 +8,17 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import { IRegisterType, registerSchema } from "@/services/auth/types";
+import { IRegisterType, registerSchema } from "@/types/auth-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight, ArrowUpRight, ChevronLeft } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { register } from "@/services/auth/api";
+import { register } from "@/services/auth-service";
 import { toast } from "sonner";
 import { useDialogStore } from "@/stores/dialog-store";
 import { useState } from "react";
-import FormSignUpStep1 from "../forms/auth/sign-up/step-1";
-import FormSignUpStep2 from "../forms/auth/sign-up/step-2";
+import FormSignUpStep1 from "../forms/auth/sign-up-form/step-1";
+import FormSignUpStep2 from "../forms/auth/sign-up-form/step-2";
 import { cn } from "@/lib/utils";
 
 const SignUp = () => {

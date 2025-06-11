@@ -7,7 +7,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useNavigate } from "react-router-dom";
-import { ListCities } from "@/constants/home";
+import { ListCities } from "@/constants/property";
 import CityCard from "../cards/city-card";
 
 const PropertyByCity = () => {
