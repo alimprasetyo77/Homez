@@ -31,14 +31,17 @@ const Profile = () => {
             <p className="flex items-center text-muted-foreground text-xs ">
               {user?.position ? (
                 <>
-                  <span>{user?.position ?? "-"}</span> <span className="mx-1">|</span>
+                  <span>{user?.position ?? "-"}</span>
                 </>
               ) : null}
               {user?.address?.city ? (
-                <span className="capitalize">
-                  {user.address.city}
-                  {" , "}
-                </span>
+                <>
+                  <span className="mx-1">|</span>
+                  <span className="capitalize">
+                    {user.address.city}
+                    {" , "}
+                  </span>
+                </>
               ) : null}
               {user?.address?.state ? <span className="capitalize ml-1">{user.address?.state}</span> : null}
             </p>

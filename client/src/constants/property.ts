@@ -82,3 +82,26 @@ export const ListCities: ICity[] = [
     image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-3.png&w=384&q=75",
   },
 ];
+
+export const StepAddNewProperty = [
+  {
+    id: 1,
+    name: "Verfiy",
+  },
+  {
+    id: 2,
+    name: "Details",
+  },
+  {
+    id: 3,
+    name: "Pricing",
+  },
+  {
+    id: 4,
+    name: "Photos",
+  },
+  {
+    id: 5,
+    name: "Reviews",
+  },
+];

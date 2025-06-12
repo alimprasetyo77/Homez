@@ -5,8 +5,10 @@ interface CheckboxProps {
   isChecked: boolean;
   onChange: (pStatusType: PropertyStatus) => void;
 }
+
 const Radio = (props: CheckboxProps) => {
   const { label, isChecked, onChange } = props;
+
   return (
     <div role="button" onClick={() => onChange(label.toLowerCase() as PropertyStatus)}>
       <label
@@ -24,7 +26,9 @@ const Radio = (props: CheckboxProps) => {
                 type="radio"
                 checked={isChecked}
                 value={label}
-                className=" h-4 w-4 cursor-pointer appearance-none rounded-full border border-black/30 transition-all checked:border-black checked:border-[3px]"
+                className={
+                  "h-4 w-4  rounded-full cursor-pointer appearance-none border border-black/30 transition-all checked:border-black checked:border-[3px]"
+                }
               />
             </label>
           </div>

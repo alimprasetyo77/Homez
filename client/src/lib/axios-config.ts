@@ -29,7 +29,7 @@ axiosWithConfig.interceptors.response.use(
     const originalRequest = err.config as any;
     if (err.response?.status === 429) {
       const message = err.response.data.errors.message || "Rate limit exceeded.";
-      toast.error(message); // atau alert(message)
+      toast.error(message);
     }
 
     if (err.response?.data.errors.code === "TOKEN_EXPIRED" && !originalRequest._retry) {
@@ -43,6 +43,7 @@ axiosWithConfig.interceptors.response.use(
         return axiosWithConfig(originalRequest);
       } catch (error) {
         useAuthStore.getState().logout();
+        toast.info("You have succesfully log out.");
         return Promise.reject(error);
       }
     }

@@ -166,9 +166,21 @@ const Search = () => {
                 <div className="space-y-2">
                   <h2 className="font-medium ">Property Status</h2>
                   <div className="flex flex-col">
-                    <Radio label="All" isChecked={propertyStatus === "all"} onChange={setPropertyStatus} />
-                    <Radio label="Buy" isChecked={propertyStatus === "buy"} onChange={setPropertyStatus} />
-                    <Radio label="Rent" isChecked={propertyStatus === "rent"} onChange={setPropertyStatus} />
+                    <Radio
+                      label="All"
+                      isChecked={propertyStatus === "all"}
+                      onChange={() => setPropertyStatus("all")}
+                    />
+                    <Radio
+                      label="Buy"
+                      isChecked={propertyStatus === "buy"}
+                      onChange={() => setPropertyStatus("buy")}
+                    />
+                    <Radio
+                      label="Rent"
+                      isChecked={propertyStatus === "rent"}
+                      onChange={() => setPropertyStatus("rent")}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
