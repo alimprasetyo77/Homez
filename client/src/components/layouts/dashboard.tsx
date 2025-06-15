@@ -7,7 +7,7 @@ const LayoutDashboard = () => {
   const { pathname } = useLocation();
   return (
     <div className="h-[calc(100vh-85px)] flex">
-      <aside className="border grid px-8 py-10 min-w-[300px]">
+      <aside className="border-r grid px-8 py-10 min-w-[300px]">
         <ul className="flex flex-col space-y-4">
           {linkProfile.map((link) => {
             const linkValidForAgent = [1, 2, 3];
@@ -15,12 +15,12 @@ const LayoutDashboard = () => {
             return (
               <Link to={link.path}>
                 <li
-                  className={`py-3 px-5 hover:bg-[#181a20] hover:text-white rounded-xl flex items-center gap-x-6 font-medium transition-all duration-200 cursor-pointer text-nowrap ${
+                  className={`py-3 px-5 hover:bg-[#181a20] hover:text-white rounded-lg flex items-center gap-x-6 font-medium transition-all duration-200 cursor-pointer text-nowrap ${
                     pathname === link.path ? "bg-[#181a20] text-white" : "bg-transparent"
                   }`}
                 >
                   {<link.icon className="size-4" />}
-                  {link.title}
+                  <span className="text-sm">{link.title}</span>
                 </li>
               </Link>
             );
