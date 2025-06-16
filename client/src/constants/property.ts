@@ -1,3 +1,4 @@
+import { Camera, Check, DollarSign, Home, Star } from "lucide-react";
 import { ICity, ILinkOnSearch } from "./types";
 
 export const listLinkOnSearch: ILinkOnSearch[] = [
@@ -82,26 +83,23 @@ export const ListCities: ICity[] = [
     image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-3.png&w=384&q=75",
   },
 ];
+export const Steps = [
+  { id: "verify", label: "Verifikasi", icon: Check },
+  { id: "details", label: "Detail", icon: Home },
+  { id: "pricing", label: "Harga", icon: DollarSign },
+  { id: "photos", label: "Foto", icon: Camera },
+  { id: "reviews", label: "Ulasan", icon: Star },
+];
 
-export const StepAddNewProperty = [
-  {
-    id: 1,
-    name: "Verfiy",
-  },
-  {
-    id: 2,
-    name: "Details",
-  },
-  {
-    id: 3,
-    name: "Pricing",
-  },
-  {
-    id: 4,
-    name: "Photos",
-  },
-  {
-    id: 5,
-    name: "Reviews",
-  },
+export const AmenitiesList = [
+  "AC",
+  "Kolam Renang",
+  "Gym",
+  "Parkir",
+  "Keamanan 24 Jam",
+  "Taman",
+  "Balkon",
+  "Furnished",
+  "Internet",
+  "Laundry",
 ];

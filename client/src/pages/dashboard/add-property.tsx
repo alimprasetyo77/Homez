@@ -1,598 +1,575 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Upload,
-  MapPin,
+  ChevronRight,
   Home,
-  DollarSign,
+  MapPin,
   Camera,
-  Star,
+  DollarSign,
+  FileText,
   Check,
-  AlertCircle,
+  ArrowLeft,
+  Upload,
+  Eye,
+  Edit3,
 } from "lucide-react";
-type FormDataType = {
-  propertyType: string;
-  ownership: string;
-  documents: any[];
-  title: string;
-  description: string;
-  address: string;
-  bedrooms: string;
-  bathrooms: string;
-  area: string;
-  yearBuilt: string;
-  amenities: string[];
-  listingType: string;
-  price: string;
-  pricePerSqft: string;
-  photos: any[];
-  allowReviews: boolean;
-};
 
-const PropertyListingFlow = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const [formData, setFormData] = useState<FormDataType>({
-    // Verification data
+const PropertyFlow = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
     propertyType: "",
-    ownership: "",
-    documents: [],
-
-    // Details data
-    title: "",
-    description: "",
-    address: "",
-    bedrooms: "",
-    bathrooms: "",
-    area: "",
-    yearBuilt: "",
-    amenities: [],
-
-    // Pricing data
-    listingType: "sale",
-    price: "",
-    pricePerSqft: "",
-
-    // Photos data
+    location: "",
+    basicInfo: {},
     photos: [],
-
-    // Reviews data
-    allowReviews: true,
+    pricing: {},
+    description: "",
   });
 
   const steps = [
-    { id: "verify", label: "Verifikasi", icon: Check },
-    { id: "details", label: "Detail", icon: Home },
-    { id: "pricing", label: "Harga", icon: DollarSign },
-    { id: "photos", label: "Foto", icon: Camera },
-    { id: "reviews", label: "Ulasan", icon: Star },
+    { id: 1, title: "Pilih Tipe Properti", icon: Home, color: "bg-blue-500" },
+    { id: 2, title: "Informasi Lokasi", icon: MapPin, color: "bg-green-500" },
+    { id: 3, title: "Detail Properti", icon: FileText, color: "bg-purple-500" },
+    { id: 4, title: "Upload Foto", icon: Camera, color: "bg-orange-500" },
+    { id: 5, title: "Harga & Biaya", icon: DollarSign, color: "bg-red-500" },
+    { id: 6, title: "Review & Publish", icon: Check, color: "bg-teal-500" },
   ];
 
-  const amenitiesList = [
-    "AC",
-    "Kolam Renang",
-    "Gym",
-    "Parkir",
-    "Keamanan 24 Jam",
-    "Taman",
-    "Balkon",
-    "Furnished",
-    "Internet",
-    "Laundry",
+  const propertyTypes = [
+    { type: "rumah", label: "Rumah", desc: "Rumah tinggal, villa, townhouse" },
+    { type: "apartemen", label: "Apartemen", desc: "Apartemen, kondominium, studio" },
+    { type: "ruko", label: "Ruko", desc: "Ruko, shophouse, commercial space" },
+    { type: "tanah", label: "Tanah", desc: "Tanah kosong, kavling, lahan" },
+    { type: "warehouse", label: "Gudang", desc: "Gudang, warehouse, pabrik" },
+    { type: "office", label: "Kantor", desc: "Ruang kantor, coworking space" },
   ];
 
-  const handleInputChange = (field: any, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleArrayToggle = (field: any, item: any) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [field]: prev[field].includes(item)
-        ? prev[field].filter((i: any) => i !== item)
-        : [...prev[field], item],
-    }));
-  };
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const StepIndicator = () => (
-    <div className="flex justify-center mb-8">
-      <div className="flex items-center space-x-4">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const isActive = index === currentStep;
-          const isCompleted = index < currentStep;
-
-          return (
-            <div key={step.id} className="flex items-center">
+  const renderStepIndicator = () => (
+    <div className="bg-white border-b px-6 py-4">
+      <div className="flex items-center justify-between max-w-4xl mx-auto">
+        {steps.map((step, index) => (
+          <div key={step.id} className="flex items-center">
+            <div className="flex flex-col items-center">
               <div
-                className={`
-                flex items-center justify-center size-12 rounded-full border-2 transition-all
-                ${
-                  isActive
-                    ? "bg-red-500 border-red-500 text-white"
-                    : isCompleted
-                    ? "bg-green-500 border-green-500 text-white"
-                    : "bg-gray-100 border-gray-200 text-gray-400"
-                }
-              `}
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  currentStep >= step.id ? step.color : "bg-gray-200"
+                } transition-colors duration-300`}
               >
-                <Icon size={20} />
+                <step.icon className={`w-5 h-5 ${currentStep >= step.id ? "text-white" : "text-gray-400"}`} />
               </div>
-              <span className={`ml-2 text-sm font-medium ${isActive ? "text-red-500" : "text-gray-500"}`}>
-                {step.label}
+              <span
+                className={`text-xs mt-1 ${
+                  currentStep >= step.id ? "text-gray-900 font-medium" : "text-gray-400"
+                }`}
+              >
+                {step.title}
               </span>
-              {index < steps.length - 1 && (
-                <div className={`w-12 h-0.5 ml-4 ${isCompleted ? "bg-green-500" : "bg-gray-300"}`} />
-              )}
             </div>
-          );
-        })}
+            {index < steps.length - 1 && (
+              <ChevronRight
+                className={`w-4 h-4 mx-4 ${currentStep > step.id ? "text-gray-400" : "text-gray-300"}`}
+              />
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 
-  const VerifyStep = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-lg p-8 shadow-sm border">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-red-500 font-bold text-lg">1</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Verifikasi Properti</h2>
-            <p className="text-gray-600">Mari verifikasi kepemilikan dan detail properti Anda</p>
-          </div>
-        </div>
+  const renderStep1 = () => (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Pilih Tipe Properti</h2>
+        <p className="text-gray-600">Tentukan jenis properti yang ingin Anda tambahkan</p>
+      </div>
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Jenis Properti</label>
-            <select
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              value={formData.propertyType}
-              onChange={(e) => handleInputChange("propertyType", e.target.value)}
-            >
-              <option value="">Pilih jenis properti</option>
-              <option value="house">Rumah</option>
-              <option value="apartment">Apartemen</option>
-              <option value="villa">Villa</option>
-              <option value="townhouse">Townhouse</option>
-              <option value="land">Tanah</option>
-            </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {propertyTypes.map((property) => (
+          <div
+            key={property.type}
+            onClick={() => setFormData({ ...formData, propertyType: property.type })}
+            className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
+              formData.propertyType === property.type
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{property.label}</h3>
+            <p className="text-gray-600 text-sm">{property.desc}</p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status Kepemilikan</label>
-            <div className="grid grid-cols-2 gap-4">
-              {["Pemilik", "Agen"].map((type) => (
-                <button
-                  key={type}
-                  className={`p-4 border-2 rounded-lg text-center transition-all ${
-                    formData.ownership === type.toLowerCase()
-                      ? "border-red-500 bg-red-50 text-red-700"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
-                  onClick={() => handleInputChange("ownership", type.toLowerCase())}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Dokumen</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-16 text-center hover:border-gray-400 transition-colors">
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 mb-2">Sertifikat, IMB, atau dokumen kepemilikan lainnya</p>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
-                Pilih File
-              </button>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 
-  const DetailsStep = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-lg p-8 shadow-sm border">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-red-500 font-bold text-lg">2</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Detail Properti</h2>
-            <p className="text-gray-600">Lengkapi informasi detail tentang properti Anda</p>
-          </div>
-        </div>
+  const renderStep2 = () => (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Informasi Lokasi</h2>
+        <p className="text-gray-600">Masukkan detail lokasi properti Anda</p>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Judul Listing</label>
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              placeholder="Contoh: Rumah Modern 3 Kamar di Jakarta Selatan"
-              value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-            <textarea
-              rows={4}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              placeholder="Deskripsikan properti Anda dengan detail..."
-              value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={3}
+              placeholder="Masukkan alamat lengkap properti..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Provinsi</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>Pilih Provinsi</option>
+                <option>DKI Jakarta</option>
+                <option>Jawa Barat</option>
+                <option>Jawa Tengah</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kota/Kabupaten</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>Pilih Kota</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kecamatan</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>Pilih Kecamatan</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kode Pos</label>
               <input
                 type="text"
-                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="Masukkan alamat lengkap"
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="12345"
               />
             </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <MapPin className="w-12 h-12 mx-auto mb-2" />
+            <p>Peta akan muncul di sini</p>
+            <p className="text-sm">untuk konfirmasi lokasi</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Detail Properti</h2>
+        <p className="text-gray-600">Lengkapi informasi detail tentang properti</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Nama/Judul Properti</label>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Contoh: Rumah Modern 2 Lantai di Jakarta Selatan"
+            />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Kamar Tidur</label>
-              <input
-                type="number"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                value={formData.bedrooms}
-                onChange={(e) => handleInputChange("bedrooms", e.target.value)}
-              />
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5+</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Kamar Mandi</label>
-              <input
-                type="number"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                value={formData.bathrooms}
-                onChange={(e) => handleInputChange("bathrooms", e.target.value)}
-              />
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5+</option>
+              </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Luas (m²)</label>
-              <input
-                type="number"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                value={formData.area}
-                onChange={(e) => handleInputChange("area", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Fasilitas</label>
-            <div className="grid grid-cols-2 gap-2">
-              {amenitiesList.map((amenity) => (
-                <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-red-500 focus:ring-red-500"
-                    checked={formData.amenities.includes(amenity)}
-                    onChange={() => handleArrayToggle("amenities", amenity)}
-                  />
-                  <span className="text-sm text-gray-700">{amenity}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const PricingStep = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-lg p-8 shadow-sm border">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-red-500 font-bold text-lg">3</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Penetapan Harga</h2>
-            <p className="text-gray-600">Tentukan harga yang kompetitif untuk properti Anda</p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tipe Listing</label>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { value: "sale", label: "Dijual" },
-                { value: "rent", label: "Disewakan" },
-              ].map((type) => (
-                <button
-                  key={type.value}
-                  className={`p-4 border-2 rounded-lg text-center transition-all ${
-                    formData.listingType === type.value
-                      ? "border-red-500 bg-red-50 text-red-700"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
-                  onClick={() => handleInputChange("listingType", type.value)}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Harga {formData.listingType === "rent" ? "Sewa (per bulan)" : "Jual"}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-3 text-gray-500">Rp</span>
-              <input
-                type="text"
-                className="w-full pl-8 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="0"
-                value={formData.price}
-                onChange={(e) => handleInputChange("price", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-start">
-              <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 mr-2" />
-              <div>
-                <h4 className="text-sm font-medium text-blue-800">Tips Penetapan Harga</h4>
-                <p className="text-sm text-blue-700 mt-1">
-                  Riset harga pasar di area sekitar untuk mendapatkan harga yang kompetitif. Harga yang
-                  realistis akan mempercepat proses transaksi.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {formData.area && formData.price && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">
-                Harga per m²:{" "}
-                <span className="font-medium text-gray-900">
-                  Rp{" "}
-                  {Math.round(
-                    parseInt(formData.price.replace(/\D/g, "")) / parseInt(formData.area)
-                  ).toLocaleString()}
-                </span>
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const PhotosStep = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-lg p-8 shadow-sm border">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-red-500 font-bold text-lg">4</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Foto Properti</h2>
-            <p className="text-gray-600">Upload foto berkualitas tinggi untuk menarik minat pembeli</p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400 transition-colors">
-            <Camera className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Foto Properti</h3>
-            <p className="text-gray-600 mb-4">
-              Drag & drop foto atau klik untuk memilih file
-              <br />
-              <span className="text-sm">Format: JPG, PNG (Max 5MB per file)</span>
-            </p>
-            <button className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors">
-              Pilih Foto
-            </button>
-          </div>
-
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <div className="flex items-start">
-              <Camera className="h-5 w-5 text-yellow-600 mt-0.5 mr-2" />
-              <div>
-                <h4 className="text-sm font-medium text-yellow-800">Tips Foto Terbaik</h4>
-                <ul className="text-sm text-yellow-700 mt-1 space-y-1">
-                  <li>• Ambil foto di siang hari dengan cahaya alami</li>
-                  <li>• Sertakan foto eksterior, interior, dan area sekitar</li>
-                  <li>• Pastikan ruangan terlihat rapi dan bersih</li>
-                  <li>• Upload minimal 5 foto untuk hasil terbaik</li>
-                </ul>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Lantai</label>
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4+</option>
+              </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center"
-              >
-                <div className="text-center">
-                  <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-500">Foto {i}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const ReviewsStep = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-lg p-8 shadow-sm border">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-red-500 font-bold text-lg">5</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Pengaturan Ulasan</h2>
-            <p className="text-gray-600">Konfigurasi sistem ulasan dan review untuk listing Anda</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Luas Tanah (m²)</label>
+              <input
+                type="number"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="120"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Luas Bangunan (m²)</label>
+              <input
+                type="number"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="90"
+              />
+            </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-green-50 p-6 rounded-lg">
-            <div className="flex items-start">
-              <Check className="h-6 w-6 text-green-600 mt-1 mr-3" />
-              <div>
-                <h3 className="text-lg font-medium text-green-800 mb-2">Listing Siap Dipublikasi!</h3>
-                <p className="text-green-700">
-                  Properti Anda telah lengkap dan siap untuk dipublikasikan. Setelah review tim kami (1-2 hari
-                  kerja), listing akan tampil di platform.
-                </p>
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Fasilitas</label>
+            <div className="grid grid-cols-2 gap-3">
+              {["AC", "Parkir", "Security", "Swimming Pool", "Gym", "Taman"].map((facility) => (
+                <label key={facility} className="flex items-center space-x-2">
+                  <input type="checkbox" className="rounded border-gray-300" />
+                  <span className="text-sm text-gray-700">{facility}</span>
+                </label>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 text-red-500 focus:ring-red-500"
-                checked={formData.allowReviews}
-                onChange={(e) => handleInputChange("allowReviews", e.target.checked)}
-              />
-              <span className="text-gray-700">Izinkan pengunjung memberikan ulasan</span>
-            </label>
-
-            <label className="flex items-center space-x-3">
-              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
-              <span className="text-gray-700">Terima notifikasi email untuk inquiry baru</span>
-            </label>
-
-            <label className="flex items-center space-x-3">
-              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
-              <span className="text-gray-700">Tampilkan nomor kontak di listing</span>
-            </label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Kondisi Properti</label>
+            <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option>Baru</option>
+              <option>Renovasi</option>
+              <option>Terawat</option>
+              <option>Perlu Renovasi</option>
+            </select>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">Ringkasan Listing</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Jenis:</span>
-                <span className="ml-2 text-gray-900 capitalize">{formData.propertyType || "-"}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Harga:</span>
-                <span className="ml-2 text-gray-900">Rp {formData.price || "-"}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Kamar:</span>
-                <span className="ml-2 text-gray-900">
-                  {formData.bedrooms || "-"} KT, {formData.bathrooms || "-"} KM
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Luas:</span>
-                <span className="ml-2 text-gray-900">{formData.area || "-"} m²</span>
-              </div>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikat</label>
+            <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option>SHM (Sertifikat Hak Milik)</option>
+              <option>SHGB (Sertifikat Hak Guna Bangunan)</option>
+              <option>AJB (Akta Jual Beli)</option>
+              <option>Girik</option>
+            </select>
           </div>
-
-          <button className="w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg">
-            Publikasikan Listing
-          </button>
         </div>
       </div>
     </div>
   );
 
-  const renderStep = () => {
+  const renderStep4 = () => (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Foto Properti</h2>
+        <p className="text-gray-600">Tambahkan foto-foto menarik untuk menarik perhatian pembeli</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-lg font-medium text-gray-700 mb-2">Drop foto di sini atau klik untuk upload</p>
+          <p className="text-gray-500 mb-4">Maksimal 20 foto, format JPG/PNG, ukuran max 5MB per foto</p>
+          <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+            Pilih Foto
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((index) => (
+            <div key={index} className="relative group">
+              <div className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                <Camera className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                <button className="p-2 bg-white rounded-full">
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button className="p-2 bg-white rounded-full">
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Tips Foto yang Baik:</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Gunakan pencahayaan alami yang cukup</li>
+            <li>• Foto dari berbagai sudut (depan, samping, belakang)</li>
+            <li>• Sertakan foto interior dan eksterior</li>
+            <li>• Pastikan foto tidak blur dan berkualitas tinggi</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Harga & Biaya</h2>
+        <p className="text-gray-600">Tentukan harga dan informasi keuangan lainnya</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tipe Transaksi</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button className="p-4 border-2 border-blue-500 bg-blue-50 rounded-lg text-center">
+                <p className="font-medium text-blue-900">Dijual</p>
+              </button>
+              <button className="p-4 border-2 border-gray-300 rounded-lg text-center hover:border-gray-400">
+                <p className="font-medium text-gray-700">Disewa</p>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Harga Jual</label>
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-gray-500">Rp</span>
+              <input
+                type="text"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="1.500.000.000"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Harga per m²</label>
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-gray-500">Rp</span>
+              <input
+                type="text"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
+                placeholder="12.500.000"
+                readOnly
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Dihitung otomatis berdasarkan luas bangunan</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Biaya Tambahan</label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-700">Biaya Notaris</span>
+                <input
+                  type="text"
+                  className="w-24 p-1 text-right border border-gray-300 rounded text-sm"
+                  placeholder="1%"
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-700">PPN</span>
+                <input
+                  type="text"
+                  className="w-24 p-1 text-right border border-gray-300 rounded text-sm"
+                  placeholder="11%"
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-700">BPHTB</span>
+                <input
+                  type="text"
+                  className="w-24 p-1 text-right border border-gray-300 rounded text-sm"
+                  placeholder="5%"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h4 className="font-medium text-green-900 mb-2">Estimasi Total Biaya:</h4>
+            <div className="space-y-1 text-sm text-green-800">
+              <div className="flex justify-between">
+                <span>Harga Properti:</span>
+                <span>Rp 1.500.000.000</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Biaya Tambahan:</span>
+                <span>Rp 255.000.000</span>
+              </div>
+              <div className="border-t border-green-200 pt-1 mt-2">
+                <div className="flex justify-between font-medium">
+                  <span>Total:</span>
+                  <span>Rp 1.755.000.000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep6 = () => (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Review & Publish</h2>
+        <p className="text-gray-600">Periksa kembali semua informasi sebelum mempublikasikan</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-900 mb-4">Ringkasan Properti</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Tipe:</span>
+                <span className="font-medium">Rumah</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Lokasi:</span>
+                <span className="font-medium">Jakarta Selatan</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Kamar Tidur:</span>
+                <span className="font-medium">3</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Kamar Mandi:</span>
+                <span className="font-medium">2</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Luas:</span>
+                <span className="font-medium">120/90 m²</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Harga:</span>
+                <span className="font-medium text-green-600">Rp 1.5 M</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi Properti</label>
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              rows={6}
+              placeholder="Tulis deskripsi menarik tentang properti Anda..."
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-900 mb-4">Opsi Publikasi</h3>
+            <div className="space-y-4">
+              <label className="flex items-center space-x-3">
+                <input type="radio" name="publish" className="text-blue-500" defaultChecked />
+                <div>
+                  <p className="font-medium">Publish Sekarang</p>
+                  <p className="text-sm text-gray-600">Properti akan langsung tampil di listing</p>
+                </div>
+              </label>
+              <label className="flex items-center space-x-3">
+                <input type="radio" name="publish" className="text-blue-500" />
+                <div>
+                  <p className="font-medium">Simpan sebagai Draft</p>
+                  <p className="text-sm text-gray-600">Simpan untuk diedit nanti</p>
+                </div>
+              </label>
+              <label className="flex items-center space-x-3">
+                <input type="radio" name="publish" className="text-blue-500" />
+                <div>
+                  <p className="font-medium">Jadwalkan Publikasi</p>
+                  <p className="text-sm text-gray-600">Tentukan waktu untuk dipublikasikan</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Sebelum Publish:</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>✓ Pastikan semua foto sudah terupload</li>
+              <li>✓ Periksa kembali harga dan detail</li>
+              <li>✓ Verifikasi informasi kontak</li>
+              <li>✓ Baca syarat dan ketentuan</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCurrentStep = () => {
     switch (currentStep) {
-      case 0:
-        return <VerifyStep />;
       case 1:
-        return <DetailsStep />;
+        return renderStep1();
       case 2:
-        return <PricingStep />;
+        return renderStep2();
       case 3:
-        return <PhotosStep />;
+        return renderStep3();
       case 4:
-        return <ReviewsStep />;
+        return renderStep4();
+      case 5:
+        return renderStep5();
+      case 6:
+        return renderStep6();
       default:
-        return <VerifyStep />;
+        return renderStep1();
     }
   };
 
   return (
-    <div className="min-h-screen font-sans">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Listing Properti Anda</h1>
-          <p className="text-gray-800 ">
-            Lengkapi langkah-langkah berikut untuk mempublikasikan properti Anda.
-          </p>
-        </div>
+    <div className=" bg-gray-50">
+      {renderStepIndicator()}
 
-        <StepIndicator />
+      <div className="py-8 *:min-h-[35rem] ">{renderCurrentStep()}</div>
 
-        <div className="mb-8">{renderStep()}</div>
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center max-w-5xl mx-auto">
+      <div className="bg-white border-t px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <button
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              currentStep === 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
-            }`}
+            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+            disabled={currentStep === 1}
+            className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Kembali
+            <ArrowLeft className="w-4 h-4" />
+            <span>Sebelumnya</span>
           </button>
 
-          <button
-            onClick={nextStep}
-            disabled={currentStep === steps.length - 1}
-            className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              currentStep === steps.length - 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "bg-red-500 text-white hover:bg-red-600"
-            }`}
-          >
-            Lanjutkan ke {steps[currentStep + 1]?.label}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </button>
+          <div className="flex space-x-3">
+            {currentStep < 6 ? (
+              <button
+                onClick={() => setCurrentStep(Math.min(6, currentStep + 1))}
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+              >
+                <span>Lanjutkan</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2">
+                <Check className="w-4 h-4" />
+                <span>Publish Properti</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default PropertyListingFlow;
+export default PropertyFlow;

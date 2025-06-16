@@ -9,7 +9,6 @@ import { useDialogStore } from "@/stores/dialog-store";
 
 const Navbar = () => {
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith("/dashboard");
   const { user, isLogin } = useAuthStore();
   const { openDialog } = useDialogStore();
 
@@ -35,14 +34,9 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
   return (
     <nav className="py-4 h-[80px] transition-all duration-200" ref={navbarRef}>
-      <div
-        className={`${
-          isDashboard ? "px-12" : "max-w-[1230px]"
-        } mx-auto flex items-center justify-between font-semibold text-[15px]`}
-      >
+      <div className={`max-w-[1230px] mx-auto flex items-center justify-between font-semibold text-[15px]`}>
         <img
           alt="Header Logo"
           loading="lazy"

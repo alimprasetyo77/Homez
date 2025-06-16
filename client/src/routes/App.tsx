@@ -14,7 +14,7 @@ import AddProperty from "@/pages/dashboard/add-property";
 import Property from "@/pages/dashboard/property";
 import Favorite from "@/pages/dashboard/favorite";
 import Profile from "@/pages/dashboard/profile";
-import LayoutDashboard from "@/components/layouts/dashboard";
+import LayoutDashboard from "@/components/layouts/layout-dashboard";
 import { FaSpinner } from "react-icons/fa";
 
 function App() {
@@ -45,13 +45,13 @@ function App() {
             <Route path="/properties/search" element={<Search />} />
             <Route path="/properties/:slug" element={<DetailProperty />} />
             <Route path="/about" element={<About />} />
-            <Route element={<LayoutDashboard />}>
-              <Route path="/dashboard" element={<MainDashboard />} />
-              <Route path="/dashboard/add-property" element={<AddProperty />} />
-              <Route path="/dashboard/property" element={<Property />} />
-              <Route path="/dashboard/favorite" element={<Favorite />} />
-              <Route path="/dashboard/profile" element={<Profile />} />
-            </Route>
+          </Route>
+          <Route element={<LayoutDashboard />}>
+            <Route path="/dashboard" element={<MainDashboard />} />
+            <Route path="/dashboard/add-property" element={<AddProperty />} />
+            <Route path="/dashboard/property" element={<Property />} />
+            <Route path="/dashboard/favorite" element={<Favorite />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
           </Route>
         </Route>
       </Routes>
