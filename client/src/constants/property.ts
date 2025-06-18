@@ -84,11 +84,11 @@ export const ListCities: ICity[] = [
   },
 ];
 export const Steps = [
-  { id: "verify", label: "Verifikasi", icon: Check },
-  { id: "details", label: "Detail", icon: Home },
-  { id: "pricing", label: "Harga", icon: DollarSign },
-  { id: "photos", label: "Foto", icon: Camera },
-  { id: "reviews", label: "Ulasan", icon: Star },
+  { id: "verify", label: "Verify", icon: Check },
+  { id: "details", label: "Details", icon: Home },
+  { id: "pricing", label: "Pricing", icon: DollarSign },
+  { id: "photos", label: "Photos", icon: Camera },
+  { id: "reviews", label: "Reviews", icon: Star },
 ];
 
 export const AmenitiesList = [

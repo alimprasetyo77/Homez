@@ -5,4 +5,4 @@ export interface RequestWithUser extends Request {
   user?: IPublicUser;
 }
 
-export type IPublicUser = Omit<User, "password" | "tokens">;
+export type IPublicUser = Omit<User, "password" | "token">;

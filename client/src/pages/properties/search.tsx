@@ -243,9 +243,9 @@ const Search = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All Cities">All Cities</SelectItem>
-                      {locationProperties?.data.map((item, index) => (
-                        <SelectItem key={index} value={item.city}>
-                          {item.city}
+                      {locationProperties?.data?.map((location, index) => (
+                        <SelectItem key={index} value={location}>
+                          {location}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -285,13 +285,13 @@ const Search = () => {
                   >
                     <div className="relative">
                       <img
-                        src={property.images[0]}
+                        src={property.photos.main_photo}
                         alt={property.title}
                         className="w-full h-[248px] object-cover "
                       />
                       <span className="absolute bottom-3 left-3 bg-white p-2 rounded-sm text-sm font-medium">
                         {usdCurrencyFormat(property.price) +
-                          `${property.status === "rent" ? " / Month" : ""}`}
+                          `${property.listingType === "rent" ? " / Month" : ""}`}
                       </span>
                     </div>
                     <div className="p-4">
@@ -303,7 +303,7 @@ const Search = () => {
                           {property.title}
                         </h3>
                         <p className="text-[#717171] text-sm">
-                          {property.city}, {property.state}, {property.country}
+                          {property.location.city}, {property.location.state}, {property.location.country}
                         </p>
                       </div>
                       <hr className="my-2" />

@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
 import { User } from "../generated/prisma";
+import { RequestWithUser } from "../types/user-request";
 
-export const roleMiddleware = async (
-  req: Request & Partial<{ user: User }>,
-  res: Response,
-  next: NextFunction
-) => {
+export const roleMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   const user = req.user as User;
-  if (user.role !== "AGENT") {
+  if (user.role !== "OWNER") {
     return res
       .status(403)
       .json({

@@ -16,8 +16,8 @@ const DetailForm = ({ formData, handleInputChange, handleArrayToggle }: IDetailF
             <span className="text-red-500 font-bold text-lg">2</span>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Detail Properti</h2>
-            <p className="text-gray-600">Lengkapi informasi detail tentang properti Anda</p>
+            <h2 className="text-xl font-semibold text-gray-900">Property Details</h2>
+            <p className="text-gray-600">Lengkapi informasi detail tentang properti Anda </p>
           </div>
         </div>
 

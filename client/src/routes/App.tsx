@@ -31,7 +31,7 @@ function App() {
           element={
             isLoading ? (
               <div className="absolute top-1/2 right-1/2 translate-y-1/2 translate-x-1/2 ">
-                <FaSpinner className="animate-spin size-6" />
+                <FaSpinner className="animate-spin size-8" />
               </div>
             ) : (
               <ProtectedRoute />

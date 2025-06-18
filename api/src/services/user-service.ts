@@ -49,7 +49,7 @@ export class UserService {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { tokens: refreshToken },
+      data: { token: refreshToken },
     });
 
     return {
@@ -75,7 +75,7 @@ export class UserService {
     }
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
-    if (!user || user.tokens !== refreshToken) {
+    if (!user || user.token !== refreshToken) {
       throw new ResponseError(401, "Invalid refresh token", "REFRESH_TOKEN_INVALID");
     }
 
@@ -92,8 +92,8 @@ export class UserService {
     }
 
     await prisma.user.updateMany({
-      where: { tokens: refreshToken },
-      data: { tokens: null },
+      where: { token: refreshToken },
+      data: { token: null },
     });
   }
 
@@ -107,30 +107,30 @@ export class UserService {
   }
 
   static async get(user: IPublicUser): Promise<IPublicUser> {
-    if (user.role !== "AGENT") return user;
+    if (user.role !== "OWNER" && user.role !== "ADMIN") return user;
 
     const result = await prisma.user.findUnique({
       where: {
         id: user.id,
       },
-      include: { favorites: true },
-      omit: { password: true, tokens: true },
+      include: { favorites: true, properties: true },
+      omit: { password: true, token: true },
     });
     return result as IPublicUser;
   }
 
   static async update(user: User, request: IParseFormData): Promise<IUpdateUserSchema> {
     const updateRequest = validate(UserValidation.updateUser, request.fields);
-    let fileRequest = request.files.photoUrl?.[0];
-    const payload = { ...updateRequest, photoUrl: fileRequest } as IUpdateUserSchema;
+    let fileRequest = request.files.photoProfile?.[0];
+    const payload = { ...updateRequest, photoProfile: fileRequest } as IUpdateUserSchema;
 
     if (Object.keys(updateRequest).length === 0) {
       throw new ResponseError(400, "At least one field must be provided");
     }
 
     if (fileRequest) {
-      if (user.photoUrl) {
-        const publicId = getPublicId(user.photoUrl);
+      if (user.photoProfile) {
+        const publicId = getPublicId(user.photoProfile);
         if (publicId) {
           await cloudinary.uploader.destroy(publicId);
         }
@@ -138,12 +138,12 @@ export class UserService {
       const result = await cloudinary.uploader.upload(fileRequest.filepath, {
         folder: "homez_file",
       });
-      payload["photoUrl"] = result.secure_url;
+      payload["photoProfile"] = result.secure_url;
     }
     const result = await prisma.user.update({
       where: { id: user.id },
       data: payload as IUser,
-      omit: { password: true, tokens: true },
+      omit: { password: true, token: true },
     });
     return result as IUpdateUserSchema;
   }
@@ -153,8 +153,8 @@ export class UserService {
 
     transactionQueries.push(prisma.favorite.deleteMany({ where: { userId: user.id } }));
 
-    if (user.role === "AGENT") {
-      transactionQueries.push(prisma.property.deleteMany({ where: { agentId: user.id } }));
+    if (user.role === "OWNER") {
+      transactionQueries.push(prisma.property.deleteMany({ where: { ownerId: user.id } }));
     }
 
     transactionQueries.push(prisma.user.deleteMany({ where: { id: user.id } }));

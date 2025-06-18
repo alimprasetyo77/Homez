@@ -2,8 +2,8 @@ import { BiLink } from "react-icons/bi";
 import { Heart } from "lucide-react";
 import { MdAdd } from "react-icons/md";
 import { usdCurrencyFormat } from "@/lib/utils";
-import { IProperty } from "@/utils/apis/properties/types";
 import { Button } from "../ui/button";
+import { IProperty } from "@/types/property-type";
 
 const PropertyCard = ({ property }: { property: IProperty }) => {
   return (
@@ -12,7 +12,7 @@ const PropertyCard = ({ property }: { property: IProperty }) => {
         alt="Logo"
         loading="lazy"
         decoding="async"
-        src={property.images[0]}
+        src={property.photos.main_photo}
         className="aspect-[1.3/1] object-cover group-hover:scale-105 group-hover:-rotate-1  transition-all duration-300 ease-in"
       />
       <div className="absolute inset-y-0 group-hover:right-0 -right-32 px-2 py-4 duration-500 ease-in-out flex flex-col gap-y-2">
@@ -30,7 +30,7 @@ const PropertyCard = ({ property }: { property: IProperty }) => {
         <div className="flex flex-col">
           <h3 className="text-[15px] font-semibold text-[#181a20]">{property.title}</h3>
           <span className="text-xs text-[#717171]">
-            {property.city}, {property.state}, {property.country}
+            {property.location.city}, {property.location.state}, {property.location.country}
           </span>
         </div>
         <Button variant={"outline"} className="text-[15px] text-[#181a20] font-semibold">

@@ -26,7 +26,7 @@ const UpdateUserForm = () => {
     <div className="grid grid-cols-2 gap-8 overflow-y-scroll max-h-[500px] p-3">
       <FormField
         control={control}
-        name="photoUrl"
+        name="photoProfile"
         render={({ field }) => (
           <FormItem className="col-span-2 flex  items-center gap-x-4 ">
             <FormControl>
@@ -113,23 +113,10 @@ const UpdateUserForm = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="position"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-xs">Position</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter Position" className="h-[45px]" {...field} value={field.value ?? ""} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
 
       <FormField
         control={control}
-        name="postalCode"
+        name="location.postalCode"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-xs">Postal Code</FormLabel>
@@ -145,19 +132,7 @@ const UpdateUserForm = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="taxId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-xs">Tax ID</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter Tax ID" className="h-[45px]" {...field} value={field.value ?? ""} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+
       <div className="col-span-2">
         <FormField
           control={control}
@@ -182,7 +157,7 @@ const UpdateUserForm = () => {
       <div className="col-span-2 gap-4 grid grid-cols-2">
         <FormField
           control={control}
-          name="address.city"
+          name="location.city"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-xs">City</FormLabel>
@@ -195,7 +170,7 @@ const UpdateUserForm = () => {
         />
         <FormField
           control={control}
-          name="address.country"
+          name="location.country"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-xs">Country</FormLabel>
@@ -208,7 +183,7 @@ const UpdateUserForm = () => {
         />
         <FormField
           control={control}
-          name="address.state"
+          name="location.state"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-xs">State</FormLabel>

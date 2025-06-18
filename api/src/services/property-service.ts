@@ -9,6 +9,7 @@ import {
   PropertyValidation,
 } from "../validations/property-validation";
 import { validate } from "../validations/validation";
+
 export class PropertyService {
   static async getById(id: string) {
     const property = await prisma.property.findFirst({ where: { id } });
@@ -24,7 +25,7 @@ export class PropertyService {
   static async create(user: User, request: ICreateProperty) {
     const data = validate(PropertyValidation.createProperty, request);
     const property = await prisma.property.create({
-      data: { ...data, agentId: user.id },
+      data: { ...data, ownerId: user.id },
     });
     return property;
   }
@@ -47,13 +48,13 @@ export class PropertyService {
   static async delete(user: User, propertyId: string) {
     const propertyExists = await prisma.property.findUnique({
       where: { id: propertyId },
-      include: { agent: true },
+      include: { owner: true },
     });
 
     if (!propertyExists) {
       throw new ResponseError(404, "Property not found");
     }
-    if (propertyExists.agentId !== user.id) {
+    if (propertyExists.ownerId !== user.id) {
       throw new ResponseError(403, "You are not authorized to delete this property");
     }
 
@@ -66,7 +67,7 @@ export class PropertyService {
     const {
       title,
       price,
-      status,
+      status: listingType,
       type,
       bedrooms,
       bathrooms,
@@ -90,8 +91,8 @@ export class PropertyService {
       }
     }
 
-    if (status) {
-      filterProperties.status = status;
+    if (listingType) {
+      filterProperties.listingType = listingType;
     }
 
     if (type) {
@@ -111,7 +112,7 @@ export class PropertyService {
     }
 
     if (location) {
-      filterProperties.city = { contains: location, mode: "insensitive" };
+      filterProperties.location.city = { contains: location, mode: "insensitive" };
     }
 
     const properties = await prisma.property.findMany({
@@ -134,14 +135,8 @@ export class PropertyService {
   }
 
   static async location() {
-    const properties = await prisma.property.findMany({
-      distinct: ["city"],
-      select: {
-        city: true,
-      },
-    });
-    return {
-      data: properties,
-    };
+    const locations = await prisma.property.findMany();
+    const uniqueCities = Array.from(new Set(locations.map((property) => property.location.city)));
+    return { data: uniqueCities };
   }
 }

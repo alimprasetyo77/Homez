@@ -58,13 +58,11 @@ app.listen(3000, () => console.log("Listening on port 3000"));
 
 // async function seedDatabase() {
 //   try {
-//     await prisma.property.createMany({
-//       data: properties as any, // Type assertion to match Prisma's expected type
-//     });
-//     console.log("Database seeded successfully.");
+
 //   } catch (error) {
 //     console.error("Error seeding database:", error);
 //   } finally {
 //     await prisma.$disconnect();
 //   }
 // }
+// seedDatabase();

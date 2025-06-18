@@ -40,8 +40,6 @@ const UpdateUser = () => {
     shouldFocusError: true,
     defaultValues: {
       phone: "",
-      position: "",
-      taxId: "",
       bio: "",
     },
   });
@@ -54,7 +52,7 @@ const UpdateUser = () => {
     if (user) {
       form.reset({
         ...user,
-        photoUrl: undefined,
+        photoProfile: "undefined",
       });
     }
   }, [user]);

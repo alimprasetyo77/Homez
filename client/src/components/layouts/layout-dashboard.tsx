@@ -1,7 +1,6 @@
 import { linkProfile } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import ProfileMenu from "../profile-menu";
 
@@ -26,8 +25,9 @@ const LayoutDashboard = () => {
         </Link>
         <ul className="flex flex-col space-y-4 ">
           {linkProfile.map((link) => {
-            const linkValidForAgent = [1, 2, 3];
-            if (linkValidForAgent.includes(link.id) && user?.role !== "AGENT") return;
+            const linkValidForOwnerOrAdmin = [1, 2, 3];
+            const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
+            if (linkValidForOwnerOrAdmin.includes(link.id) && !isOwnerOrAdmin) return;
             return (
               <Link to={link.path}>
                 <li
@@ -44,7 +44,7 @@ const LayoutDashboard = () => {
         </ul>
         <div className="bottom-0 absolute border-t inset-x-0 p-4">
           <ProfileMenu>
-            <Avatar className="size-9">
+            <Avatar className="size-9 ">
               <AvatarImage src={user?.photoUrl} alt="@shadcn" />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>

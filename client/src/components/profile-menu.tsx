@@ -9,13 +9,13 @@ import { Link } from "react-router-dom";
 const ProfileMenu = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  console.log(user);
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="cursor-pointer h-11 rounded-full border-none">
+        <Button variant="outline" className="cursor-pointer h-11 rounded-full border-none ">
           {children}
-          <span className="capitalize">{user?.name}</span>
+          <span className="capitalize ">{user?.name}</span>
           <ChevronDown />
         </Button>
       </PopoverTrigger>
@@ -23,8 +23,9 @@ const ProfileMenu = ({ children }: { children: ReactNode }) => {
         <div className="grid gap-4 text-sm">
           <div className="grid gap-0.5">
             {linkProfile.map((link) => {
-              const linkValidForAgent = [1, 2, 3];
-              if (linkValidForAgent.includes(link.id) && user?.role !== "AGENT") return;
+              const linkValidForOwnerOrAdmin = [1, 2, 3];
+              const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
+              if (linkValidForOwnerOrAdmin.includes(link.id) && !isOwnerOrAdmin) return;
               return (
                 <Link to={link.path} key={link.id} onClick={() => setIsOpen(false)}>
                   <div className="py-3 px-4 hover:bg-[#181a20] hover:text-white rounded-xl flex items-center gap-x-6 font-medium transition-all duration-200">

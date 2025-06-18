@@ -6,9 +6,9 @@ const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
   const { isLogin } = useAuthStore();
   const { pathname } = useLocation();
 
-  const protectedByToken = ["/dashboard", "/dashboard/profile"];
+  // const protectedByToken = ["/dashboard", "/dashboard/profile"];
 
-  if (protectedByToken.includes(pathname)) {
+  if (pathname.startsWith("/dashboard")) {
     if (!isLogin) {
       return <Navigate to={"/"} />;
     }

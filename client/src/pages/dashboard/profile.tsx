@@ -11,7 +11,7 @@ const Profile = () => {
   return (
     <div className="bg-white rounded-xl p-6 border space-y-8">
       {/* <h1 className="text-xl font-medium">Profile</h1> */}
-      {user?.role == "AGENT" && (
+      {user?.role == "OWNER" && (
         <div className="p-4 rounded-xl border flex items-center gap-4">
           <Info className="text-sky-500" />
           <h3 className="text-sm text-sky-500">
@@ -29,21 +29,13 @@ const Profile = () => {
           <div className="space-y-2">
             <h2 className="font-semibold capitalize">{user?.name}</h2>
             <p className="flex items-center text-muted-foreground text-xs ">
-              {user?.position ? (
-                <>
-                  <span>{user?.position ?? "-"}</span>
-                </>
-              ) : null}
-              {user?.address?.city ? (
+              {user?.location?.address ? (
                 <>
                   <span className="mx-1">|</span>
-                  <span className="capitalize">
-                    {user.address.city}
-                    {" , "}
-                  </span>
+                  <span className="capitalize">{user?.location?.address}</span>
                 </>
               ) : null}
-              {user?.address?.state ? <span className="capitalize ml-1">{user.address?.state}</span> : null}
+              {user?.location?.state ? <span className="capitalize ml-1">{user.location?.state}</span> : null}
             </p>
           </div>
         </div>
@@ -91,26 +83,21 @@ const Profile = () => {
           <div className="col-span-5 grid grid-cols-2 gap-6">
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">Country</span>
-              <span className=" font-medium text-sm text-gray-800">
-                {user?.address?.country !== "" ? user?.address?.country : "-"}
-              </span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.country ?? "-"}</span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">City/State</span>
               <span className=" font-medium text-sm text-gray-800">
-                {user?.address?.city} {user?.address?.city && user.address.state ? "/" : "-"}{" "}
-                {user?.address?.state}
+                {user?.location?.city ?? "-"} / {user?.location?.state ?? "-"}
               </span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">Postal Code</span>
-              <span className=" font-medium text-sm text-gray-800">
-                {user?.postalCode !== 0 ? user?.postalCode : "-"}
-              </span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.postalCode ?? "-"}</span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">TAX ID</span>
-              <span className=" font-medium text-sm text-gray-800">{user?.taxId ?? "-"}</span>
+              <span className=" font-medium text-sm text-gray-800">{"222"}</span>
             </div>
           </div>
         </div>

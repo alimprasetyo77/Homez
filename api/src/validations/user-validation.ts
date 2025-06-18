@@ -7,7 +7,7 @@ const registerSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
-  role: z.enum(["USER", "AGENT"]).default("USER"),
+  role: z.enum(["OWNER", "REGULAR", "ADMIN"]).default("REGULAR"),
 });
 
 const loginSchema = z.object({
@@ -19,9 +19,10 @@ export const updateUserSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   email: z.string().email().optional(),
   password: z.string().min(8).max(100).optional(),
-  position: z.string({ required_error: "invalid position" }).optional(),
-  phone: z.string().min(10, { message: "Invalid Phone Number" }).optional(),
-  photoUrl: z
+
+  phone: z.string().min(10, { message: "Invalid phone number" }).max(20).optional(),
+
+  photoProfile: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
     .refine(
@@ -30,20 +31,29 @@ export const updateUserSchema = z.object({
     )
     .optional()
     .or(z.string()),
-  bio: z.string({ required_error: "invalid bio " }).optional(),
-  address: z.object({
-    city: z.string({ required_error: "invalid city" }).optional(),
-    state: z.string({ required_error: "invalid state" }).optional(),
-    country: z.string({ required_error: "invalid country " }).optional(),
-  }),
-  postalCode: z.number({ required_error: "invalid postal code" }).optional(),
-  taxId: z.string({ required_error: "invalid tax id" }).optional(),
-  socialMedia: z.object({
-    facebook: z.string({ required_error: "invalid Facebook url" }).optional(),
-    x: z.string({ required_error: "invalid X url " }).optional(),
-    linkedIn: z.string({ required_error: "invalid linkedIn url" }).optional(),
-    instagram: z.string({ required_error: "invalid Instagram url" }).optional(),
-  }),
+
+  bio: z.string().optional(),
+
+  location: z
+    .object({
+      address: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      country: z.string().optional(),
+      postalCode: z.number().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+    })
+    .optional(),
+
+  socialMedia: z
+    .object({
+      facebook: z.string().url().optional(),
+      x: z.string().url().optional(),
+      linkedIn: z.string().url().optional(),
+      instagram: z.string().url().optional(),
+    })
+    .optional(),
 });
 
 const changePasswordSchema = z.object({

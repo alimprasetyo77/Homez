@@ -4,16 +4,55 @@ export class PropertyValidation {
     title: z.string().min(1).max(255),
     description: z.string().min(1).max(1000),
     price: z.number().positive(),
-    status: z.enum(["buy", "rent"]),
+
+    status: z.enum(["pending", "approved", "rejected"]),
     type: z.enum(["house", "apartment", "office", "villa"]),
+    listingType: z.enum(["buy", "rent"]),
+
     bedrooms: z.number().int().nonnegative(),
     bathrooms: z.number().int().nonnegative(),
     squareFeet: z.number().positive(),
-    address: z.string().min(1).max(255),
-    city: z.string().min(1).max(255),
-    state: z.string().min(1).max(255),
-    country: z.string().min(1).max(255),
-    images: z.array(z.string().url()),
+
+    location: z.object({
+      address: z.string().min(1).max(255),
+      city: z.string().min(1).max(100),
+      state: z.string().max(100),
+      country: z.string().min(1).max(100),
+      postalCode: z.number(),
+      latitude: z.number(),
+      longitude: z.number(),
+    }),
+
+    amenities: z.array(
+      z.enum([
+        "AC",
+        "WATER_HEATER",
+        "KITCHEN_SET",
+        "FURNISHED",
+        "PRIVATE_POOL",
+        "BALCONY",
+        "GARDEN",
+        "GARAGE",
+        "SECURITY",
+        "CCTV",
+        "GYM",
+        "SHARED_POOL",
+        "ELEVATOR",
+        "PLAYGROUND",
+        "INTERNET",
+        "CABLE_TV",
+      ])
+    ),
+
+    photos: z.object({
+      main_photo: z.string().url(),
+      photo_1: z.string().url(),
+      photo_2: z.string().url(),
+      photo_3: z.string().url(),
+      photo_4: z.string().url(),
+    }),
+    photoDocument: z.string().url(),
+    isVerified: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
   });
 
