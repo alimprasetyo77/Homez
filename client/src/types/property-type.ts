@@ -1,4 +1,7 @@
 import { z } from "zod";
+const MAX_MB = 2;
+const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const createPropertySchema = z.object({
   title: z.string(),
@@ -40,13 +43,61 @@ export const createPropertySchema = z.object({
     ])
   ),
   photos: z.object({
-    main_photo: z.string(),
-    photo_1: z.string(),
-    photo_2: z.string(),
-    photo_3: z.string(),
-    photo_4: z.string(),
+    main_photo: z
+      .instanceof(File)
+      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+      .refine(
+        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, and .png formats are supported"
+      )
+      .optional()
+      .or(z.string()),
+    photo_1: z
+      .instanceof(File)
+      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+      .refine(
+        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, and .png formats are supported"
+      )
+      .optional()
+      .or(z.string()),
+    photo_2: z
+      .instanceof(File)
+      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+      .refine(
+        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, and .png formats are supported"
+      )
+      .optional()
+      .or(z.string()),
+    photo_3: z
+      .instanceof(File)
+      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+      .refine(
+        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, and .png formats are supported"
+      )
+      .optional()
+      .or(z.string()),
+    photo_4: z
+      .instanceof(File)
+      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+      .refine(
+        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, and .png formats are supported"
+      )
+      .optional()
+      .or(z.string()),
   }),
-  photoDocument: z.string(),
+  photoDocument: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
+    .refine(
+      (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only .jpg, .jpeg, and .png formats are supported"
+    )
+    .optional()
+    .or(z.string()),
   isVerified: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });

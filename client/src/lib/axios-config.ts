@@ -43,7 +43,7 @@ axiosWithConfig.interceptors.response.use(
         return axiosWithConfig(originalRequest);
       } catch (error) {
         useAuthStore.getState().logout();
-        toast.info("You have succesfully log out.");
+        toast.message("You have logged out.");
         return Promise.reject(error);
       }
     }

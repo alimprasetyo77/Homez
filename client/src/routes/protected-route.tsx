@@ -3,13 +3,13 @@ import { ReactNode } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
-  const { isLogin } = useAuthStore();
+  const { token } = useAuthStore();
   const { pathname } = useLocation();
 
   // const protectedByToken = ["/dashboard", "/dashboard/profile"];
 
   if (pathname.startsWith("/dashboard")) {
-    if (!isLogin) {
+    if (!token) {
       return <Navigate to={"/"} />;
     }
   }

@@ -9,8 +9,8 @@ const StepIndicator = ({ currentStep }: IStepIndicator) => {
       <div className="flex items-center space-x-4">
         {Steps.map((step, index) => {
           const Icon = step.icon;
-          const isActive = index === currentStep;
-          const isCompleted = index < currentStep;
+          const isActive = index + 1 === currentStep;
+          const isCompleted = index + 1 < currentStep;
 
           return (
             <div key={step.id} className="flex items-center">
@@ -31,7 +31,7 @@ const StepIndicator = ({ currentStep }: IStepIndicator) => {
               <span className={`ml-2 text-sm font-medium ${isActive ? "text-red-500" : "text-gray-500"}`}>
                 {step.label}
               </span>
-              {index < Steps.length - 1 && (
+              {index + 1 < Steps.length && (
                 <div className={`w-12 h-0.5 ml-4 ${isCompleted ? "bg-green-500" : "bg-gray-300"}`} />
               )}
             </div>

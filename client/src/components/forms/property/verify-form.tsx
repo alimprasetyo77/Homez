@@ -1,12 +1,14 @@
-import { Trash, Upload, X } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ICreateProperty } from "@/types/property-type";
+import PreviewPhoto from "@/components/preview-photo";
 const VerifyForm = () => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<ICreateProperty>();
   const [previewImage, setPreviewImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -30,14 +32,14 @@ const VerifyForm = () => {
         <div className="space-y-6">
           <FormField
             control={control}
-            name="name"
+            name="listingType"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-gray-700">Property Type</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="w-full border-gray-300 ">
-                      <SelectValue placeholder="Select a verified email to display" />
+                    <SelectTrigger className="w-full border-gray-300 !h-11">
+                      <SelectValue placeholder="Select a Type to display" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -74,20 +76,14 @@ const VerifyForm = () => {
                 </FormControl>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 ">
                   {previewImage ? (
-                    <div className="relative group">
-                      <img src={previewImage} className="rounded-xl" alt="previewImage" />
-                      <Button
-                        className="absolute top-2 right-2 rounded-full p-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                        variant={"destructive"}
-                        size={"icon"}
-                        onClick={() => {
-                          setPreviewImage("");
-                          field.onChange("");
-                        }}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <PreviewPhoto
+                      url={previewImage}
+                      alt="previewImage"
+                      handleDelete={() => {
+                        setPreviewImage("");
+                        field.onChange("");
+                      }}
+                    />
                   ) : (
                     <div>
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -95,7 +91,7 @@ const VerifyForm = () => {
                       <Button
                         type="button"
                         size={"sm"}
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
                         onClick={handleFileButtonClick}
                       >
                         Select Files
@@ -103,6 +99,7 @@ const VerifyForm = () => {
                     </div>
                   )}
                 </div>
+                <FormMessage />
               </FormItem>
             )}
           />

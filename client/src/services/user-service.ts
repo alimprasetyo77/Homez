@@ -18,7 +18,7 @@ export const updateUser = async (body: IUpdateUserType) => {
     const value = body[key];
     if (!checkProperty(value)) continue;
 
-    if (body[key] instanceof File) {
+    if (value instanceof File) {
       formData.append(key, value as File);
     } else if (typeof value === "object") {
       formData.append(key, JSON.stringify(value) as "object");

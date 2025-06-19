@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { create } from "zustand";
 
 interface IAuthStore {
-  isLogin: boolean;
   isLoading: boolean;
   user: IUser | null;
   resetUser: (payload: IUser) => void;
@@ -16,7 +15,6 @@ interface IAuthStore {
 }
 
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
-  isLogin: false,
   isLoading: false,
   user: null,
   token: sessionStorage.getItem("token") ?? null,
@@ -27,14 +25,14 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
 
   setToken(token: string) {
     sessionStorage.setItem("token", token);
-    set({ token, isLogin: true });
+    set({ token });
   },
 
   async fetchUser() {
     set({ isLoading: true });
     try {
       const { data } = await getUser();
-      set({ user: data, isLogin: true });
+      set({ user: data });
     } catch (error) {
       toast.error(`${error}`);
     } finally {
@@ -43,13 +41,12 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
   },
   async logout() {
     try {
-      const { message } = await logout();
+      await logout();
       const tokenInSessionStorage = sessionStorage.getItem("token");
       if (tokenInSessionStorage) {
         sessionStorage.removeItem("token");
       }
-      set({ isLogin: false, user: null, token: null });
-      toast.success(`${message}`);
+      set({ user: null, token: null });
     } catch (error) {
       toast.error(`${error}`);
     }

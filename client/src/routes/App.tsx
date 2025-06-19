@@ -23,7 +23,6 @@ function App() {
     if (token === null) return;
     fetchUser();
   }, [token]);
-
   return (
     <BrowserRouter>
       <Routes>

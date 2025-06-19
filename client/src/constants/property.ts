@@ -1,5 +1,6 @@
 import { Camera, Check, DollarSign, Home, Star } from "lucide-react";
 import { ICity, ILinkOnSearch } from "./types";
+import { IProperty } from "@/types/property-type";
 
 export const listLinkOnSearch: ILinkOnSearch[] = [
   {
@@ -91,15 +92,21 @@ export const Steps = [
   { id: "reviews", label: "Reviews", icon: Star },
 ];
 
-export const AmenitiesList = [
-  "AC",
-  "Kolam Renang",
-  "Gym",
-  "Parkir",
-  "Keamanan 24 Jam",
-  "Taman",
-  "Balkon",
-  "Furnished",
-  "Internet",
-  "Laundry",
+export const AmenitiesList: { label: string; value: IProperty["amenities"][number] }[] = [
+  { label: "AC", value: "AC" },
+  { label: "Water Heater", value: "WATER_HEATER" },
+  { label: "Kitchen Set", value: "KITCHEN_SET" },
+  { label: "Furnished", value: "FURNISHED" },
+  { label: "Private Pool", value: "PRIVATE_POOL" },
+  { label: "Balcony", value: "BALCONY" },
+  { label: "Garden", value: "GARDEN" },
+  { label: "Garage", value: "GARAGE" },
+  { label: "Security", value: "SECURITY" },
+  { label: "CCTV", value: "CCTV" },
+  { label: "Gym", value: "GYM" },
+  { label: "Shared Pool", value: "SHARED_POOL" },
+  { label: "Elevator", value: "ELEVATOR" },
+  { label: "Playground", value: "PLAYGROUND" },
+  { label: "Internet", value: "INTERNET" },
+  { label: "Cable TV", value: "CABLE_TV" },
 ];

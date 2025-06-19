@@ -13,7 +13,9 @@ export const convertToUrlSlug = (title: string) => {
   return title.replace(/\s+/g, "-").toLowerCase();
 };
 
-export const checkProperty = (property: File | string | number | object | null | undefined): boolean => {
+export const checkProperty = (
+  property: File | Array<string> | boolean | string | number | object | null | undefined
+): boolean => {
   if (property instanceof File) {
     return property.size > 0;
   }

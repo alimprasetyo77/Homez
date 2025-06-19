@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import VerifyForm from "@/components/forms/property/verify-form";
 import DetailForm from "@/components/forms/property/detail-form";
@@ -10,55 +10,11 @@ import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { createPropertySchema, ICreateProperty } from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
-type FormDataType = {
-  propertyType: string;
-  ownership: string;
-  documents: any[];
-  title: string;
-  description: string;
-  address: string;
-  bedrooms: string;
-  bathrooms: string;
-  area: string;
-  yearBuilt: string;
-  amenities: string[];
-  listingType: string;
-  price: string;
-  pricePerSqft: string;
-  photos: any[];
-  allowReviews: boolean;
-};
+import { useSearchParams } from "react-router-dom";
 
 const PropertyListingFlow = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const [formData, setFormData] = useState<FormDataType>({
-    // Verification data
-    propertyType: "",
-    ownership: "",
-    documents: [],
-
-    // Details data
-    title: "",
-    description: "",
-    address: "",
-    bedrooms: "",
-    bathrooms: "",
-    area: "",
-    yearBuilt: "",
-    amenities: [],
-
-    // Pricing data
-    listingType: "sale",
-    price: "",
-    pricePerSqft: "",
-
-    // Photos data
-    photos: [],
-
-    // Reviews data
-    allowReviews: true,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const step = Number(searchParams.get("step"));
 
   const form = useForm<ICreateProperty>({
     resolver: zodResolver(createPropertySchema),
@@ -93,31 +49,37 @@ const PropertyListingFlow = () => {
       isVerified: false,
     },
   });
-
-  const handleInputChange = (field: any, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleArrayToggle = (field: any, item: any) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [field]: prev[field].includes(item)
-        ? prev[field].filter((i: any) => i !== item)
-        : [...prev[field], item],
-    }));
-  };
+  console.log("Form Data:", form.watch());
 
   const nextStep = () => {
-    if (currentStep < Steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (Number(step) < Steps.length) {
+      setSearchParams((searchParams) => {
+        if (step == 0) {
+          searchParams.set("step", String(step + 2));
+        } else {
+          searchParams.set("step", String(step + 1));
+        }
+        return searchParams;
+      });
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    if (Number(step) > 0) {
+      setSearchParams((searchParams) => {
+        searchParams.set("step", String(step - 1));
+        return searchParams;
+      });
     }
   };
+  // useEffect(() => {
+  //   if (step === 0 || step > Steps.length) {
+  //     setSearchParams((searchParams) => {
+  //       searchParams.set("step", String(1));
+  //       return searchParams;
+  //     });
+  //   }
+  // }, [step]);
 
   const ReviewsStep = () => (
     <div className="max-w-5xl mx-auto">
@@ -148,12 +110,7 @@ const PropertyListingFlow = () => {
 
           <div className="space-y-4">
             <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 text-red-500 focus:ring-red-500"
-                checked={formData.allowReviews}
-                onChange={(e) => handleInputChange("allowReviews", e.target.checked)}
-              />
+              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
               <span className="text-gray-700">Izinkan pengunjung memberikan ulasan</span>
             </label>
 
@@ -173,21 +130,19 @@ const PropertyListingFlow = () => {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-600">Jenis:</span>
-                <span className="ml-2 text-gray-900 capitalize">{formData.propertyType || "-"}</span>
+                <span className="ml-2 text-gray-900 capitalize">{form.getValues("listingType") || "-"}</span>
               </div>
               <div>
                 <span className="text-gray-600">Harga:</span>
-                <span className="ml-2 text-gray-900">Rp {formData.price || "-"}</span>
+                <span className="ml-2 text-gray-900">Rp {form.getValues("price") || "-"}</span>
               </div>
               <div>
                 <span className="text-gray-600">Kamar:</span>
-                <span className="ml-2 text-gray-900">
-                  {formData.bedrooms || "-"} KT, {formData.bathrooms || "-"} KM
-                </span>
+                <span className="ml-2 text-gray-900">{form.getValues("bathrooms") || "-"} KT</span>
               </div>
               <div>
                 <span className="text-gray-600">Luas:</span>
-                <span className="ml-2 text-gray-900">{formData.area || "-"} m²</span>
+                <span className="ml-2 text-gray-900">{form.getValues("squareFeet") || "-"} m²</span>
               </div>
             </div>
           </div>
@@ -200,22 +155,16 @@ const PropertyListingFlow = () => {
     </div>
   );
   const renderStep = () => {
-    switch (currentStep) {
-      case 0:
-        return <VerifyForm />;
+    switch (Number(step)) {
       case 1:
-        return (
-          <DetailForm
-            formData={formData}
-            handleArrayToggle={handleArrayToggle}
-            handleInputChange={handleInputChange}
-          />
-        );
+        return <VerifyForm />;
       case 2:
-        return <PricingForm formData={formData} handleInputChange={handleInputChange} />;
+        return <DetailForm />;
       case 3:
-        return <PhotosForm />;
+        return <PricingForm />;
       case 4:
+        return <PhotosForm />;
+      case 5:
         return <ReviewsStep />;
       default:
         return <VerifyForm />;
@@ -230,19 +179,21 @@ const PropertyListingFlow = () => {
           <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
         </div>
 
-        <StepIndicator currentStep={currentStep} />
+        <StepIndicator currentStep={step === 0 ? 1 : step} />
 
         <Form {...form}>
-          <form className="mb-8">{renderStep()}</form>
+          <form onSubmit={() => form.handleSubmit((data) => {})} className="mb-8">
+            {renderStep()}
+          </form>
         </Form>
 
         {/* Navigation */}
         <div className="flex justify-between items-center max-w-5xl mx-auto">
           <button
             onClick={prevStep}
-            disabled={currentStep === 0}
+            disabled={step === 0}
             className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              currentStep === 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
+              step === 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
             }`}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -251,14 +202,14 @@ const PropertyListingFlow = () => {
 
           <button
             onClick={nextStep}
-            disabled={currentStep === Steps.length - 1}
+            disabled={step === Steps.length}
             className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              currentStep === Steps.length - 1
+              step === Steps.length
                 ? "text-gray-400 cursor-not-allowed"
                 : "bg-red-500 text-white hover:bg-red-600"
             }`}
           >
-            Continue to {Steps[currentStep + 1]?.label}
+            Continue to {Steps[step]?.label}
             <ArrowRight className="ml-2 h-4 w-4" />
           </button>
         </div>
