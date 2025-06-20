@@ -11,6 +11,8 @@ import { useForm } from "react-hook-form";
 import { createPropertySchema, ICreateProperty } from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "react-router-dom";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const PropertyListingFlow = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,68 +20,43 @@ const PropertyListingFlow = () => {
 
   const form = useForm<ICreateProperty>({
     resolver: zodResolver(createPropertySchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      price: 0,
-      status: "pending",
-      type: "house",
-      listingType: "buy",
-      bedrooms: 0,
-      bathrooms: 0,
-      squareFeet: 0,
-      location: {
-        address: "",
-        city: "",
-        state: "",
-        country: "",
-        postalCode: 0,
-        latitude: 0,
-        longitude: 0,
-      },
-      amenities: [],
-      photos: {
-        main_photo: "",
-        photo_1: "",
-        photo_2: "",
-        photo_3: "",
-        photo_4: "",
-      },
-      isFeatured: false,
-      isVerified: false,
-    },
   });
-  console.log("Form Data:", form.watch());
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (Number(step) < Steps.length) {
-      setSearchParams((searchParams) => {
-        if (step == 0) {
-          searchParams.set("step", String(step + 2));
-        } else {
-          searchParams.set("step", String(step + 1));
-        }
-        return searchParams;
-      });
+      const result = await checkValidForm(step == 0 ? 1 : step);
+      if (!result) return;
+      setStepParams("next");
     }
   };
 
   const prevStep = () => {
-    if (Number(step) > 0) {
-      setSearchParams((searchParams) => {
-        searchParams.set("step", String(step - 1));
-        return searchParams;
-      });
+    if (Number(step) > 1) {
+      setStepParams("prev");
     }
   };
-  // useEffect(() => {
-  //   if (step === 0 || step > Steps.length) {
-  //     setSearchParams((searchParams) => {
-  //       searchParams.set("step", String(1));
-  //       return searchParams;
-  //     });
-  //   }
-  // }, [step]);
+
+  const checkValidForm = (stepForm: number) => {
+    type FieldNames = Parameters<typeof form.trigger>[0];
+    const field: Record<number, FieldNames> = {
+      1: ["type", "photoDocument"],
+      2: ["title", "description", "location.address", "bedrooms", "bathrooms", "squareFeet", "amenities"],
+      3: ["listingType", "price"],
+      4: ["photos.main_photo", "photos.photo_1", "photos.photo_2", "photos.photo_3", "photos.photo_4"],
+    };
+    return form.trigger(field[stepForm]);
+  };
+
+  const setStepParams = (type: "prev" | "next") => {
+    setSearchParams((searchParams) => {
+      if (step == 0) {
+        searchParams.set("step", String(step + 2));
+      } else {
+        searchParams.set("step", String(type === "next" ? step + 1 : step - 1));
+      }
+      return searchParams;
+    });
+  };
 
   const ReviewsStep = () => (
     <div className="max-w-5xl mx-auto">
@@ -147,7 +124,7 @@ const PropertyListingFlow = () => {
             </div>
           </div>
 
-          <button className="w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg">
+          <button className="cursor-pointer w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg">
             Publikasikan Listing
           </button>
         </div>
@@ -170,7 +147,8 @@ const PropertyListingFlow = () => {
         return <VerifyForm />;
     }
   };
-
+  console.log(form.formState.errors);
+  console.log("Watch Form: ", form.watch());
   return (
     <div className="min-h-screen font-sans">
       <div className="max-w-6xl mx-auto px-4">
@@ -182,37 +160,44 @@ const PropertyListingFlow = () => {
         <StepIndicator currentStep={step === 0 ? 1 : step} />
 
         <Form {...form}>
-          <form onSubmit={() => form.handleSubmit((data) => {})} className="mb-8">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit((data) => console.log(data));
+            }}
+            className="mb-8 space-y-4"
+          >
             {renderStep()}
+
+            {/* Navigation */}
+            <div className="flex justify-between items-center max-w-5xl mx-auto">
+              <button
+                onClick={prevStep}
+                disabled={step === 1}
+                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
+                  step === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </button>
+
+              <button
+                onClick={nextStep}
+                type={step === Steps.length ? "submit" : "button"}
+                className={cn(
+                  buttonVariants({
+                    variant: "destructive",
+                    className: "flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer",
+                  })
+                )}
+              >
+                {step === Steps.length ? "Publish Listing" : ` Continue to ${Steps[step]?.label}`}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </button>
+            </div>
           </form>
         </Form>
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center max-w-5xl mx-auto">
-          <button
-            onClick={prevStep}
-            disabled={step === 0}
-            className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              step === 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </button>
-
-          <button
-            onClick={nextStep}
-            disabled={step === Steps.length}
-            className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-              step === Steps.length
-                ? "text-gray-400 cursor-not-allowed"
-                : "bg-red-500 text-white hover:bg-red-600"
-            }`}
-          >
-            Continue to {Steps[step]?.label}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </button>
-        </div>
       </div>
     </div>
   );

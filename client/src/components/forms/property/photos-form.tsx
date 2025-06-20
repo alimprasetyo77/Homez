@@ -12,13 +12,15 @@ interface IPreviewPhoto {
   photo_4: string;
 }
 const PhotosForm = () => {
-  const { setValue } = useFormContext<ICreateProperty>();
+  const { setValue, getValues } = useFormContext<ICreateProperty>();
   const [previewPhoto, setPreviewPhoto] = useState<IPreviewPhoto>({
-    main_photo: "",
-    photo_1: "",
-    photo_2: "",
-    photo_3: "",
-    photo_4: "",
+    main_photo: getValues("photos.main_photo")
+      ? URL.createObjectURL(getValues("photos.main_photo") as Blob)
+      : "",
+    photo_1: getValues("photos.photo_1") ? URL.createObjectURL(getValues("photos.photo_1") as Blob) : "",
+    photo_2: getValues("photos.photo_2") ? URL.createObjectURL(getValues("photos.photo_2") as Blob) : "",
+    photo_3: getValues("photos.photo_3") ? URL.createObjectURL(getValues("photos.photo_3") as Blob) : "",
+    photo_4: getValues("photos.photo_4") ? URL.createObjectURL(getValues("photos.photo_4") as Blob) : "",
   });
   const fileInputRefs = useRef<Record<keyof IPreviewPhoto, HTMLInputElement | null>>({
     main_photo: null,
@@ -31,6 +33,8 @@ const PhotosForm = () => {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>, photoKey: keyof IPreviewPhoto) => {
     const file = e.target.files?.[0];
     if (file) {
+      setValue(`photos.${photoKey}`, file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewPhoto((prev) => ({ ...prev, [photoKey]: reader.result as string }));

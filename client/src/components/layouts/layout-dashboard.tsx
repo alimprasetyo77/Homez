@@ -29,7 +29,7 @@ const LayoutDashboard = () => {
             const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
             if (linkValidForOwnerOrAdmin.includes(link.id) && !isOwnerOrAdmin) return;
             return (
-              <Link to={link.path}>
+              <Link to={link.path} key={link.id}>
                 <li
                   className={`p-3 hover:bg-[#181a20] hover:text-white rounded-lg flex items-center gap-x-6 font-medium transition-all duration-200 cursor-pointer text-nowrap ${
                     pathname === link.path ? "bg-[#181a20] text-white" : "bg-transparent"

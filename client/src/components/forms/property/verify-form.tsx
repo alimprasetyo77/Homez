@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { ICreateProperty } from "@/types/property-type";
 import PreviewPhoto from "@/components/preview-photo";
 const VerifyForm = () => {
-  const { control } = useFormContext<ICreateProperty>();
-  const [previewImage, setPreviewImage] = useState<string>("");
+  const { control, getValues } = useFormContext<ICreateProperty>();
+  const [previewImage, setPreviewImage] = useState<string>(
+    getValues("photoDocument") ? URL.createObjectURL(getValues("photoDocument") as Blob) : ""
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileButtonClick = () => {
@@ -32,7 +34,7 @@ const VerifyForm = () => {
         <div className="space-y-6">
           <FormField
             control={control}
-            name="listingType"
+            name="type"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-gray-700">Property Type</FormLabel>

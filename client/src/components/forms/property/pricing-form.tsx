@@ -32,11 +32,10 @@ const PricingForm = () => {
                     { value: "buy", label: "For Buy" },
                     { value: "rent", label: "For Rent" },
                   ].map((type) => (
-                    <FormControl>
+                    <FormControl key={type.value}>
                       <Button
                         type="button"
                         variant={"ghost"}
-                        key={type.value}
                         className={`h-14 p-4 border-2 rounded-lg text-center transition-all ${
                           field.value === type.value
                             ? "border-red-500 bg-red-50 text-red-700"
