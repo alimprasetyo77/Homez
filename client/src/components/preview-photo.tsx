@@ -9,8 +9,8 @@ interface IPreviewPhotoProps {
 }
 const PreviewPhoto = ({ url, alt, handleDelete }: IPreviewPhotoProps) => {
   return (
-    <div className="relative group">
-      <img src={url} className="rounded-xl object-cover" alt={alt} />
+    <div className="relative group h-full max-h-full ">
+      <img src={url} className="rounded-xl h-full max-h-full w-auto object-contain mx-auto" alt={alt} />
       <TooltipDemo message="Click to remove image">
         <Button
           className="absolute top-2 right-2 rounded-full p-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"

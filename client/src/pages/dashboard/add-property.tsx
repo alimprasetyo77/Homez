@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import VerifyForm from "@/components/forms/property/verify-form";
 import DetailForm from "@/components/forms/property/detail-form";
@@ -11,8 +10,7 @@ import { useForm } from "react-hook-form";
 import { createPropertySchema, ICreateProperty } from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "react-router-dom";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const PropertyListingFlow = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,13 +22,13 @@ const PropertyListingFlow = () => {
 
   const nextStep = async () => {
     if (Number(step) < Steps.length) {
-      const result = await checkValidForm(step == 0 ? 1 : step);
-      if (!result) return;
+      const isValidForm = await checkValidForm(step == 0 ? 1 : step);
+      if (!isValidForm) return;
       setStepParams("next");
     }
   };
 
-  const prevStep = () => {
+  const prevStep = async () => {
     if (Number(step) > 1) {
       setStepParams("prev");
     }
@@ -124,7 +122,10 @@ const PropertyListingFlow = () => {
             </div>
           </div>
 
-          <button className="cursor-pointer w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg">
+          <button
+            type="submit"
+            className="cursor-pointer w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg"
+          >
             Publikasikan Listing
           </button>
         </div>
@@ -147,8 +148,6 @@ const PropertyListingFlow = () => {
         return <VerifyForm />;
     }
   };
-  console.log(form.formState.errors);
-  console.log("Watch Form: ", form.watch());
   return (
     <div className="min-h-screen font-sans">
       <div className="max-w-6xl mx-auto px-4">
@@ -161,43 +160,35 @@ const PropertyListingFlow = () => {
 
         <Form {...form}>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit((data) => console.log(data));
-            }}
+            onSubmit={form.handleSubmit((data) => console.log("Data on submit : ", data))}
             className="mb-8 space-y-4"
           >
             {renderStep()}
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center max-w-5xl mx-auto">
-              <button
-                onClick={prevStep}
-                disabled={step === 1}
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  step === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </button>
-
-              <button
-                onClick={nextStep}
-                type={step === Steps.length ? "submit" : "button"}
-                className={cn(
-                  buttonVariants({
-                    variant: "destructive",
-                    className: "flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer",
-                  })
-                )}
-              >
-                {step === Steps.length ? "Publish Listing" : ` Continue to ${Steps[step]?.label}`}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </button>
-            </div>
           </form>
         </Form>
+
+        {/* Navigation */}
+        <div className="flex justify-between items-center max-w-5xl mx-auto">
+          <Button
+            variant={"secondary"}
+            onClick={prevStep}
+            hidden={step <= 1}
+            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer `}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+
+          <Button
+            variant={"secondary"}
+            onClick={nextStep}
+            hidden={step === Steps.length}
+            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer ml-auto `}
+          >
+            {`Continue to ${Steps[step]?.label}`}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

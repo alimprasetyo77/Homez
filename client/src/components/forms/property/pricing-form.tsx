@@ -64,7 +64,12 @@ const PricingForm = () => {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-1/2 text-gray-500">$</span>
                   <FormControl>
-                    <Input placeholder="0" className="h-11 pl-10" {...field} />
+                    <Input
+                      placeholder="0"
+                      className="h-11 pl-10"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                 </div>
                 <FormMessage />

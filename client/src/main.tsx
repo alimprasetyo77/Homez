@@ -4,6 +4,7 @@ import "./styles/index.css";
 import App from "./routes/App.tsx";
 import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
+import "leaflet/dist/leaflet.css";
 
 // Buat instance QueryClient
 const queryClient = new QueryClient({

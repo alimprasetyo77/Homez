@@ -1,5 +1,6 @@
 import PreviewPhoto from "@/components/preview-photo";
 import { Button } from "@/components/ui/button";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ICreateProperty } from "@/types/property-type";
 import { Camera } from "lucide-react";
 import { useRef, useState } from "react";
@@ -12,7 +13,7 @@ interface IPreviewPhoto {
   photo_4: string;
 }
 const PhotosForm = () => {
-  const { setValue, getValues } = useFormContext<ICreateProperty>();
+  const { control, getValues } = useFormContext<ICreateProperty>();
   const [previewPhoto, setPreviewPhoto] = useState<IPreviewPhoto>({
     main_photo: getValues("photos.main_photo")
       ? URL.createObjectURL(getValues("photos.main_photo") as Blob)
@@ -30,18 +31,6 @@ const PhotosForm = () => {
     photo_4: null,
   });
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>, photoKey: keyof IPreviewPhoto) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue(`photos.${photoKey}`, file);
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewPhoto((prev) => ({ ...prev, [photoKey]: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
   const handleUploadClick = (key: keyof IPreviewPhoto) => {
     fileInputRefs.current[key]?.click();
   };
@@ -59,45 +48,65 @@ const PhotosForm = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-96 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center">
-            {previewPhoto.main_photo ? (
-              <PreviewPhoto
-                url={previewPhoto.main_photo}
-                alt="previewImage"
-                handleDelete={() => {
-                  setPreviewPhoto((prev) => ({ ...prev, main_photo: "" }));
-                  setValue("photos.main_photo", "");
-                }}
-              />
-            ) : (
-              <>
-                <Camera className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Property Photos</h3>
-                <p className="text-gray-600 mb-4">
-                  Drag & drop photos or click to select files
-                  <br />
-                  <span className="text-sm">Format: JPG, PNG (Max 5MB per file)</span>
-                </p>
-                <input
-                  ref={(el) => {
-                    fileInputRefs.current.main_photo = el;
-                  }}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handlePhotoChange(e, "main_photo")}
-                />
-                <Button
-                  size={"sm"}
-                  type="button"
-                  className="text-white text-xs bg-red-500 hover:bg-red-600"
-                  onClick={() => handleUploadClick("main_photo")}
+          <FormField
+            control={control}
+            name="photos.main_photo"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <input
+                    ref={(el) => {
+                      fileInputRefs.current.main_photo = el;
+                    }}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setPreviewPhoto((prev) => ({ ...prev, main_photo: URL.createObjectURL(file) }));
+                        field.onChange(file);
+                      }
+                    }}
+                  />
+                </FormControl>
+                <div
+                  className={`border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full max-h-[600px] text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center`}
                 >
-                  Upload Main Photo
-                </Button>
-              </>
+                  {previewPhoto.main_photo ? (
+                    <PreviewPhoto
+                      url={previewPhoto.main_photo}
+                      alt="previewImage"
+                      handleDelete={() => {
+                        setPreviewPhoto((prev) => ({ ...prev, main_photo: "" }));
+                        field.onChange();
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <Camera className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Property Photos</h3>
+                      <p className="text-gray-600 mb-4">
+                        Drag & drop photos or click to select files
+                        <br />
+                        <span className="text-sm">Format: JPG, PNG (Max 5MB per file)</span>
+                      </p>
+
+                      <Button
+                        size={"sm"}
+                        type="button"
+                        className="text-white text-xs bg-red-500 hover:bg-red-600"
+                        onClick={() => handleUploadClick("main_photo")}
+                      >
+                        Upload Main Photo
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           <div className="bg-yellow-50 p-4 rounded-lg">
             <div className="flex items-start">
@@ -116,38 +125,56 @@ const PhotosForm = () => {
 
           <div className="grid grid-cols-2 gap-4">
             {["photo_1", "photo_2", "photo_3", "photo_4"].map((item, index) => (
-              <div
+              <FormField
+                control={control}
+                name={`photos.${item as keyof ICreateProperty["photos"]}`}
                 key={item}
-                className="aspect-video bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer"
-                onClick={() => handleUploadClick(item as keyof IPreviewPhoto)}
-              >
-                {previewPhoto[item as keyof IPreviewPhoto] ? (
-                  <PreviewPhoto
-                    url={previewPhoto[item as keyof IPreviewPhoto]}
-                    alt={`preview-${item}`}
-                    handleDelete={() => {
-                      setPreviewPhoto((prev) => ({ ...prev, [item]: "" }));
-                      setValue(`photos.${item as keyof IPreviewPhoto}`, "");
-                    }}
-                  />
-                ) : (
-                  <>
-                    <input
-                      ref={(el) => {
-                        fileInputRefs.current[item as keyof IPreviewPhoto] = el;
+                render={({ field }) => (
+                  <FormItem>
+                    <div
+                      className="aspect-video bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer "
+                      onClick={() => {
+                        if (!previewPhoto[item as keyof IPreviewPhoto])
+                          handleUploadClick(item as keyof IPreviewPhoto);
                       }}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handlePhotoChange(e, item as keyof IPreviewPhoto)}
-                    />
-                    <div className="text-center">
-                      <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500">Photo {index + 1}</p>
+                    >
+                      <FormControl>
+                        <input
+                          ref={(el) => {
+                            fileInputRefs.current[item as keyof IPreviewPhoto] = el;
+                          }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setPreviewPhoto((prev) => ({ ...prev, [item]: URL.createObjectURL(file) }));
+                              field.onChange(file);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      {previewPhoto[item as keyof IPreviewPhoto] ? (
+                        <PreviewPhoto
+                          url={previewPhoto[item as keyof IPreviewPhoto]}
+                          alt={`preview-${item}`}
+                          handleDelete={() => {
+                            setPreviewPhoto((prev) => ({ ...prev, [item]: "" }));
+                            field.onChange();
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center">
+                          <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-500">Photo {index + 1}</p>
+                        </div>
+                      )}
                     </div>
-                  </>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
             ))}
           </div>
         </div>

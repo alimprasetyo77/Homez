@@ -1,3 +1,4 @@
+import Map from "@/components/map";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -65,12 +66,13 @@ const DetailForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>
-                <div className="relative h-11">
+                <div className="relative h-11 mb-2">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2  size-5 text-gray-400" />
                   <FormControl>
                     <Input className="h-11 pl-10" placeholder="Enter address" {...field} />
                   </FormControl>
                 </div>
+                <Map dragable />
                 <FormMessage />
               </FormItem>
             )}
@@ -84,7 +86,12 @@ const DetailForm = () => {
                 <FormItem>
                   <FormLabel>Bedrooms</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} className="h-11" />
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className="h-11"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +105,12 @@ const DetailForm = () => {
                 <FormItem>
                   <FormLabel>Bathrooms</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} className="h-11" />
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className="h-11"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,7 +123,12 @@ const DetailForm = () => {
                 <FormItem>
                   <FormLabel>SquareFeet</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} className="h-11" />
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className="h-11"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

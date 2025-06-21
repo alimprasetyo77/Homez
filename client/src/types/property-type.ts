@@ -4,23 +4,32 @@ const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const createPropertySchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  price: z.number(),
-  status: z.union([z.literal("pending"), z.literal("approved"), z.literal("rejected")]),
-  type: z.union([z.literal("house"), z.literal("apartment"), z.literal("office"), z.literal("villa")]),
-  listingType: z.union([z.literal("buy"), z.literal("rent")]),
-  bedrooms: z.number(),
-  bathrooms: z.number(),
-  squareFeet: z.number(),
+  title: z.string({ required_error: "Title is required" }).nonempty("Title cannot be empty"),
+  description: z
+    .string({ required_error: "Description is required" })
+    .nonempty("Description cannot be empty"),
+  price: z.number({ required_error: "Price is required" }),
+
+  type: z.enum(["house", "apartment", "villa", "office"], {
+    errorMap: () => ({ message: "Please select a property type" }),
+  }),
+  listingType: z.enum(["buy", "rent"], {
+    errorMap: () => ({ message: "Listing type must be either buy or rent" }),
+  }),
+  bedrooms: z.number({ required_error: "Number of bedrooms is required" }),
+  bathrooms: z.number({ required_error: "Number of bathrooms is required" }),
+  squareFeet: z.number({ required_error: "Square feet is required" }),
   location: z.object({
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    country: z.string(),
-    postalCode: z.number(),
-    latitude: z.number(),
-    longitude: z.number(),
+    address: z.string({ required_error: "Address is required" }).nonempty("Address cannot be empty"),
+    city: z.string({ required_error: "City is required" }).nonempty("City cannot be empty").optional(),
+    state: z.string({ required_error: "State is required" }).nonempty("State cannot be empty").optional(),
+    country: z
+      .string({ required_error: "Country is required" })
+      .nonempty("Country cannot be empty")
+      .optional(),
+    postalCode: z.number({ required_error: "Postal code is required" }).optional(),
+    latitude: z.number({ required_error: "Latitude is required" }).optional(),
+    longitude: z.number({ required_error: "Longitude is required" }).optional(),
   }),
   amenities: z.array(
     z.union([
@@ -40,64 +49,56 @@ export const createPropertySchema = z.object({
       z.literal("PLAYGROUND"),
       z.literal("INTERNET"),
       z.literal("CABLE_TV"),
-    ])
+    ]),
+    {
+      required_error: "At least one amenity must be selected",
+      invalid_type_error: "Amenities must be a list of valid values",
+    }
   ),
   photos: z.object({
     main_photo: z
-      .instanceof(File)
+      .instanceof(File, { message: "Main photo is required" })
       .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
       .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, and .png formats are supported"
-      )
-      .optional()
-      .or(z.string()),
+      ),
     photo_1: z
-      .instanceof(File)
+      .instanceof(File, { message: "Photo 1 is required" })
       .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
       .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, and .png formats are supported"
-      )
-      .optional()
-      .or(z.string()),
+      ),
     photo_2: z
-      .instanceof(File)
+      .instanceof(File, { message: "Photo 2 is required" })
       .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
       .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, and .png formats are supported"
-      )
-      .optional()
-      .or(z.string()),
+      ),
     photo_3: z
-      .instanceof(File)
+      .instanceof(File, { message: "Photo 3 is required" })
       .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
       .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, and .png formats are supported"
-      )
-      .optional()
-      .or(z.string()),
+      ),
     photo_4: z
-      .instanceof(File)
+      .instanceof(File, { message: "Photo 4 is required" })
       .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
       .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
         "Only .jpg, .jpeg, and .png formats are supported"
-      )
-      .optional()
-      .or(z.string()),
+      ),
   }),
   photoDocument: z
-    .instanceof(File)
+    .instanceof(File, { message: "Please upload the property document photo" })
     .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
     .refine(
       (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Only .jpg, .jpeg, and .png formats are supported"
-    )
-    .optional()
-    .or(z.string()),
+    ),
   isVerified: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });
