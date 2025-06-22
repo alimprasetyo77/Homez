@@ -2,6 +2,8 @@ import { Response, ResponsePagination } from "@/types/type";
 import axiosWithConfig from "@/lib/axios-config";
 import { ICreateProperty, IProperty, ISearchOrFilterProperties, PropertyType } from "@/types/property-type";
 import { checkProperty } from "@/lib/utils";
+import axios from "axios";
+import { IForwardGeoCode, IReverseGeocode } from "@/types/geocode-type";
 
 export const getLocation = async () => {
   try {
@@ -58,5 +60,47 @@ export const createProperty = async (body: ICreateProperty) => {
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const forwardGeocode = async (address: string) => {
+  try {
+    const res = await axios.get("https://nominatim.openstreetmap.org/search", {
+      params: {
+        q: address,
+        format: "json",
+      },
+    });
+
+    const data: IForwardGeoCode[] = res.data;
+
+    if (!data || data.length === 0) {
+      throw new Error("Address not found.");
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Failed search location.");
+  }
+};
+export const reverseGeocode = async (position: { lat: number; lon: number }) => {
+  try {
+    const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+      params: {
+        lat: position.lat,
+        lon: position.lon,
+        format: "json",
+      },
+    });
+
+    const data = response.data;
+
+    if (!data) {
+      throw new Error("Data not found.");
+    }
+
+    return data as IReverseGeocode;
+  } catch (error: any) {
+    throw new Error(error.message || "Failed search location.");
   }
 };

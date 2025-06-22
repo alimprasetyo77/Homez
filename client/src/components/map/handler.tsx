@@ -1,4 +1,4 @@
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { useMemo, useRef } from "react";
 import L, { LatLngExpression } from "leaflet";
 
@@ -9,15 +9,17 @@ interface Props {
 
 export const DraggableMarker = ({ position, onDragEnd }: Props) => {
   const markerRef = useRef<L.Marker>(null);
+  const map = useMap();
 
-  const eventHandlers = useMemo(
+  const eventHandlers: L.LeafletEventHandlerFnMap = useMemo(
     () => ({
       dragend() {
         const marker = markerRef.current;
-        if (marker) {
-          const latlng = marker.getLatLng();
-          onDragEnd([latlng.lat, latlng.lng]);
-        }
+        if (!marker) return;
+
+        const { lat, lng } = marker.getLatLng();
+        onDragEnd([lat, lng]);
+        map.panTo([lat, lng]);
       },
     }),
     [onDragEnd]
@@ -28,4 +30,13 @@ export const DraggableMarker = ({ position, onDragEnd }: Props) => {
       <Popup>You can drag me!</Popup>
     </Marker>
   );
+};
+
+export const MapClickHandler = ({ onClick }: { onClick: (latlng: [number, number]) => void }) => {
+  useMapEvents({
+    click(e) {
+      onClick([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
 };

@@ -18,6 +18,11 @@ const PropertyListingFlow = () => {
 
   const form = useForm<ICreateProperty>({
     resolver: zodResolver(createPropertySchema),
+    // defaultValues: {
+    //   location: {
+    //     address: "",
+    //   },
+    // },
   });
 
   const nextStep = async () => {

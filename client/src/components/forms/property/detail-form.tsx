@@ -1,3 +1,4 @@
+import { AutoComplete } from "@/components/input-autocomplete";
 import Map from "@/components/map";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -6,10 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { AmenitiesList } from "@/constants/property";
 import { ICreateProperty } from "@/types/property-type";
 import { MapPin } from "lucide-react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 const DetailForm = () => {
   const { control } = useFormContext<ICreateProperty>();
+  const [keywordAddress, setKeywordAddress] = useState("");
+  const [isOpenSuggestionAddress, setIsOpenSuggestionAddress] = useState(false);
+  const [selectedValue, setSelectedValue] = useState<string>("");
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -66,14 +71,30 @@ const DetailForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>
-                <div className="relative h-11 mb-2">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2  size-5 text-gray-400" />
-                  <FormControl>
-                    <Input className="h-11 pl-10" placeholder="Enter address" {...field} />
-                  </FormControl>
-                </div>
-                <Map dragable />
+                <AutoComplete
+                  selectedValue={selectedValue}
+                  onSelectedValueChange={setSelectedValue}
+                  searchValue={keywordAddress}
+                  onSearchValueChange={setKeywordAddress}
+                  items={[
+                    { label: "test", value: "test" },
+                    { label: "test", value: "test" },
+                    { label: "test", value: "test" },
+                  ]}
+                />
+                <FormControl>
+                  <div className="relative h-11 mb-2">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2  size-5 text-gray-400" />
+                    <Input
+                      className="h-11 pl-10"
+                      placeholder="Enter address"
+                      {...field}
+                      onChange={(e) => setKeywordAddress(e.target.value)}
+                    />
+                  </div>
+                </FormControl>
                 <FormMessage />
+                <Map interactive />
               </FormItem>
             )}
           />
