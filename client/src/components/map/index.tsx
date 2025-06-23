@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, MapContainerProps, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
@@ -6,7 +6,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { DraggableMarker } from "./handler";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useFormContext } from "react-hook-form";
 import { ICreateProperty } from "@/types/property-type";
@@ -26,9 +26,10 @@ interface MapProps {
   interactive?: boolean;
 }
 
-const Map = ({ position = [-6.2, 106.816666], interactive }: MapProps) => {
+const Map = ({ position, interactive }: MapProps) => {
   const { setValue } = useFormContext<ICreateProperty>();
-  const [markerPos, setMarkerPos] = useState<[number, number]>(position as [number, number]);
+  const [markerPos, setMarkerPos] = useState<[number, number]>([-6.2, 106.816666]);
+  const mapRef = useRef<any>(null);
 
   const { refetch } = useQuery<IReverseGeocode>({
     queryKey: ["location", markerPos],
@@ -39,13 +40,19 @@ const Map = ({ position = [-6.2, 106.816666], interactive }: MapProps) => {
     },
     enabled: false,
   });
+  useEffect(() => {
+    if (!mapRef.current && !position) return;
+    mapRef.current.panTo(position);
+    setMarkerPos(position as [number, number]);
+  }, [position]);
 
   return (
     <MapContainer
-      center={position}
+      center={markerPos}
       zoom={13}
-      scrollWheelZoom={true}
+      scrollWheelZoom
       style={{ height: "400px", width: "100%" }}
+      ref={mapRef}
     >
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

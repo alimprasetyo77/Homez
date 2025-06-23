@@ -72,13 +72,13 @@ export const forwardGeocode = async (address: string) => {
       },
     });
 
-    const data: IForwardGeoCode[] = res.data;
+    const data = res.data;
 
     if (!data || data.length === 0) {
       throw new Error("Address not found.");
     }
 
-    return data;
+    return data as IForwardGeoCode[];
   } catch (error: any) {
     throw new Error(error.message || "Failed search location.");
   }

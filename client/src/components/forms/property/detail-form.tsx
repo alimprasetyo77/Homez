@@ -1,20 +1,29 @@
-import { AutoComplete } from "@/components/input-autocomplete";
 import Map from "@/components/map";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AmenitiesList } from "@/constants/property";
+import useDebounce from "@/hooks/use-debounce";
+import { forwardGeocode } from "@/services/property-service";
 import { ICreateProperty } from "@/types/property-type";
+import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 const DetailForm = () => {
-  const { control } = useFormContext<ICreateProperty>();
+  const { control, setValue } = useFormContext<ICreateProperty>();
+  const [position, setPosition] = useState<[number, number]>();
+  const [openSuggestionAddress, setOpenSuggestionAddress] = useState(false);
   const [keywordAddress, setKeywordAddress] = useState("");
-  const [isOpenSuggestionAddress, setIsOpenSuggestionAddress] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string>("");
+  const keywordDebounce = useDebounce(keywordAddress, 500);
+
+  const { data } = useQuery({
+    queryKey: ["forwardGeoCode", keywordDebounce],
+    queryFn: () => forwardGeocode(keywordDebounce),
+    enabled: !!keywordDebounce,
+  });
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -71,30 +80,42 @@ const DetailForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>
-                <AutoComplete
-                  selectedValue={selectedValue}
-                  onSelectedValueChange={setSelectedValue}
-                  searchValue={keywordAddress}
-                  onSearchValueChange={setKeywordAddress}
-                  items={[
-                    { label: "test", value: "test" },
-                    { label: "test", value: "test" },
-                    { label: "test", value: "test" },
-                  ]}
-                />
                 <FormControl>
                   <div className="relative h-11 mb-2">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2  size-5 text-gray-400" />
                     <Input
-                      className="h-11 pl-10"
+                      className="h-11 pl-10 "
                       placeholder="Enter address"
                       {...field}
-                      onChange={(e) => setKeywordAddress(e.target.value)}
+                      onClick={() => setOpenSuggestionAddress(true)}
+                      onChange={(e) => {
+                        setKeywordAddress(e.target.value);
+                        field.onChange(e.target.value);
+                      }}
                     />
+                    <div
+                      className="p-3 absolute inset-x-0 bg-white border shadow-sm rounded-sm z-[2000] max-h-56 overflow-y-scroll "
+                      hidden={keywordDebounce.trim() === "" || openSuggestionAddress === false}
+                    >
+                      <ul className="space-y-2 *border-b">
+                        {data?.map((d, i) => (
+                          <li
+                            key={i}
+                            onClick={() => {
+                              setPosition([Number(d.lat), Number(d.lon)]);
+                              setOpenSuggestionAddress(false);
+                              setValue("location.address", d.display_name);
+                            }}
+                          >
+                            {d.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </FormControl>
                 <FormMessage />
-                <Map interactive />
+                <Map interactive position={position} />
               </FormItem>
             )}
           />
