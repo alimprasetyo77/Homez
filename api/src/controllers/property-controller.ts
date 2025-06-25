@@ -8,6 +8,7 @@ import {
 } from "../validations/property-validation";
 import { User } from "../generated/prisma";
 import { ResponseError } from "../utils/response-error";
+import { parseFormData } from "../utils/parse-form-data";
 
 export class PropertyController {
   static async getById(req: Request, res: Response, next: NextFunction) {
@@ -36,7 +37,8 @@ export class PropertyController {
   static async create(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
     try {
       const user = req.user as User;
-      const request: ICreateProperty = req.body;
+      if (req.body) throw new ResponseError(400, "Use form data for request body");
+      const request = await parseFormData(req);
       const response = await PropertyService.create(user, request);
       res.status(201).json({
         message: "Property created successfully",

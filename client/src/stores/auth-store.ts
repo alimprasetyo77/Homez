@@ -12,12 +12,18 @@ interface IAuthStore {
   setToken: (token: string) => void;
   fetchUser: () => void;
   logout: () => void;
+  clearState: () => void;
 }
 
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
   isLoading: false,
   user: null,
   token: sessionStorage.getItem("token") ?? null,
+
+  clearState() {
+    sessionStorage.removeItem("token");
+    set({ user: null, token: null });
+  },
 
   resetUser(payload) {
     set({ user: payload });

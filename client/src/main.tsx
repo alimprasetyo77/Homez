@@ -10,7 +10,7 @@ import "leaflet/dist/leaflet.css";
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (err: any) => {
-      const isValidShape = toast.error(err.message); // the shape of the errors should be as errors DTO: [key : string]
+      const isValidShape = toast.error(err.errors.message); // the shape of the errors should be as errors DTO: [key : string]
       if (typeof isValidShape !== "undefined") {
         toast.error(err.message); // shows API validation messages as a toast
       }

@@ -1,6 +1,7 @@
 import { Request } from "express";
 import formidable from "formidable";
 import path from "path";
+
 export interface IParseFormData {
   fields: formidable.Fields;
   files: formidable.Files;
@@ -23,6 +24,7 @@ export function parseFormData(req: Request): Promise<IParseFormData> {
 
 function normalizeFields(fields: formidable.Fields) {
   const result: Record<string, any> = {};
+
   for (const key in fields) {
     const value = Array.isArray(fields[key]) ? fields[key][0] : fields[key];
 
@@ -30,7 +32,7 @@ function normalizeFields(fields: formidable.Fields) {
       try {
         result[key] = JSON.parse(value);
       } catch {
-        result[key] = value;
+        result[key] = String(value);
       }
     } else {
       result[key] = value;

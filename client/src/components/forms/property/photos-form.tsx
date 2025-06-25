@@ -132,7 +132,7 @@ const PhotosForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div
-                      className="aspect-video bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer "
+                      className="aspect-video max-w-[464px] bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer "
                       onClick={() => {
                         if (!previewPhoto[item as keyof IPreviewPhoto])
                           handleUploadClick(item as keyof IPreviewPhoto);

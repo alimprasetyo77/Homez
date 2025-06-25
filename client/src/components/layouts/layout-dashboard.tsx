@@ -8,7 +8,7 @@ const LayoutDashboard = () => {
   const { user } = useAuthStore();
   const { pathname } = useLocation();
   return (
-    <div className=" h-[100vh] flex">
+    <div className="h-[100vh] flex">
       <aside className="relative border-r flex flex-col gap-y-8 p-8 min-w-[300px]">
         <Link to={"/"}>
           <img

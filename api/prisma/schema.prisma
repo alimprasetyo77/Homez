@@ -111,7 +111,7 @@ type LocationType {
   city       String
   state      String
   country    String
-  postalCode Int
+  postalCode String
   latitude   Float
   longitude  Float
 }

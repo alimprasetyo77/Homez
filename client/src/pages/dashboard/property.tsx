@@ -18,12 +18,12 @@ const Property = () => {
   const columns: ColumnDef<IProperty>[] = [
     {
       accessorKey: "title",
-      header: "Title",
+      header: "Property",
       cell: (info) => (
         <div className="flex items-start gap-x-4 ">
           <div className="space-y-2">
             <h2 className="font-bold ">{info.getValue() as string}</h2>
-            <p className="text-gray-600 text-xs">
+            <p className="text-gray-600 text-xs text-wrap">
               {info.row.original.location.address}, {info.row.original.location.city},{" "}
               {info.row.original.location.state}, {info.row.original.location.country}
             </p>

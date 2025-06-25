@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircleIcon } from "lucide-react";
 import VerifyForm from "@/components/forms/property/verify-form";
 import DetailForm from "@/components/forms/property/detail-form";
 import PricingForm from "@/components/forms/property/pricing-form";
@@ -9,20 +9,56 @@ import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { createPropertySchema, ICreateProperty } from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { createProperty } from "@/services/property-service";
+import { toast } from "sonner";
+import PublishProperty from "@/components/modals/publish-property-modal";
+import { FaSpinner } from "react-icons/fa";
+import { useAuthStore } from "@/stores/auth-store";
 
 const PropertyListingFlow = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const step = Number(searchParams.get("step"));
+  const havePropertyPending = useAuthStore((state) =>
+    state.user?.properties.some((property) => property.status === "pending")
+  );
+
+  const mutation = useMutation({
+    mutationKey: ["properties"],
+    mutationFn: createProperty,
+    onSuccess: ({ message }) => {
+      toast.success(message);
+      setSearchParams((searchParams) => {
+        searchParams.delete("step");
+        return searchParams;
+      });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
 
   const form = useForm<ICreateProperty>({
     resolver: zodResolver(createPropertySchema),
-    // defaultValues: {
-    //   location: {
-    //     address: "",
-    //   },
-    // },
+    mode: "onChange",
+    defaultValues: {
+      location: {
+        address: "",
+        city: "",
+        state: "",
+        country: "",
+        postalCode: "",
+        latitude: 0,
+        longitude: 0,
+      },
+
+      amenities: [],
+
+      isVerified: false,
+      isFeatured: false,
+    },
   });
 
   const nextStep = async () => {
@@ -47,7 +83,7 @@ const PropertyListingFlow = () => {
       3: ["listingType", "price"],
       4: ["photos.main_photo", "photos.photo_1", "photos.photo_2", "photos.photo_3", "photos.photo_4"],
     };
-    return form.trigger(field[stepForm]);
+    return form.trigger(field[stepForm], { shouldFocus: true });
   };
 
   const setStepParams = (type: "prev" | "next") => {
@@ -88,23 +124,6 @@ const PropertyListingFlow = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center space-x-3">
-              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
-              <span className="text-gray-700">Izinkan pengunjung memberikan ulasan</span>
-            </label>
-
-            <label className="flex items-center space-x-3">
-              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
-              <span className="text-gray-700">Terima notifikasi email untuk inquiry baru</span>
-            </label>
-
-            <label className="flex items-center space-x-3">
-              <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
-              <span className="text-gray-700">Tampilkan nomor kontak di listing</span>
-            </label>
-          </div>
-
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-medium text-gray-900 mb-2">Ringkasan Listing</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -126,13 +145,24 @@ const PropertyListingFlow = () => {
               </div>
             </div>
           </div>
-
-          <button
-            type="submit"
-            className="cursor-pointer w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition-colors font-medium text-lg"
+          <PublishProperty
+            onSubmit={form.handleSubmit((data) => {
+              mutation.mutate(data);
+            })}
           >
-            Publikasikan Listing
-          </button>
+            <Button
+              type="button"
+              disabled={form.formState.isSubmitting}
+              aria-disabled={form.formState.isSubmitting}
+              className="w-full cursor-pointer  ml-auto bg-red-500 text-white h-10  rounded-lg hover:bg-red-600  flex items-center justify-center"
+            >
+              {form.formState.isLoading ? (
+                <FaSpinner className="animate-spin duration-300" />
+              ) : (
+                <div className="flex items-center gap-x-2">Publish Listing</div>
+              )}
+            </Button>
+          </PublishProperty>
         </div>
       </div>
     </div>
@@ -154,46 +184,68 @@ const PropertyListingFlow = () => {
     }
   };
   return (
-    <div className="min-h-screen font-sans">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Listing Your Property</h1>
-          <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
-        </div>
+    <div className="min-h-screen font-sans ">
+      <div className="max-w-6xl mx-auto px-4 ">
+        {havePropertyPending || (form.formState.isSubmitted && !form.formState.isSubmitting) ? (
+          <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 mt-10">
+            <div className="flex items-start gap-4">
+              <div className="text-[#ef4f4f] text-3xl">
+                <CheckCircleIcon className="h-8 w-8" />
+              </div>
+              <div className="flex-1 ">
+                <h3 className="text-lg font-semibold text-[#ef4f4f] mb-1">Property Submitted Successfully</h3>
+                <p className="text-sm text-gray-700">
+                  Your property has been submitted and is now under review. Our team will verify the details
+                  within 1–2 business days. Once approved, your listing will go live.
+                </p>
+                <div className="mt-4 flex gap-3">
+                  <Link to={"/dashboard/property"}>
+                    <Button variant={"animate"}>View My Listings</Button>
+                  </Link>
+                  <Link to={"/dashboard"}>
+                    <Button variant={"outline"}>Go to Dashboard</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Listing Your Property</h1>
+              <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
+            </div>
 
-        <StepIndicator currentStep={step === 0 ? 1 : step} />
+            <StepIndicator currentStep={step === 0 ? 1 : step} />
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit((data) => console.log("Data on submit : ", data))}
-            className="mb-8 space-y-4"
-          >
-            {renderStep()}
-          </form>
-        </Form>
+            <Form {...form}>
+              <form className="mb-8 space-y-4">{renderStep()}</form>
+            </Form>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center max-w-5xl mx-auto">
-          <Button
-            variant={"secondary"}
-            onClick={prevStep}
-            hidden={step <= 1}
-            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer `}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+            {/* Navigation */}
+            <div className="flex justify-between items-center max-w-5xl mx-auto">
+              <Button
+                variant={"secondary"}
+                onClick={prevStep}
+                hidden={step <= 1}
+                className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer `}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
 
-          <Button
-            variant={"secondary"}
-            onClick={nextStep}
-            hidden={step === Steps.length}
-            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer ml-auto `}
-          >
-            {`Continue to ${Steps[step]?.label}`}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+              <Button
+                variant={"secondary"}
+                onClick={nextStep}
+                hidden={step === Steps.length}
+                className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer ml-auto `}
+              >
+                {`Continue to ${Steps[step]?.label}`}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

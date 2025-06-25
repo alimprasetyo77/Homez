@@ -1,5 +1,4 @@
-import { SafeParseError } from "zod";
-import { User } from "../generated/prisma";
+import { Property, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";
 import {
@@ -9,6 +8,8 @@ import {
   PropertyValidation,
 } from "../validations/property-validation";
 import { validate } from "../validations/validation";
+import { IParseFormData } from "../utils/parse-form-data";
+import { v2 as cloudinary } from "cloudinary";
 
 export class PropertyService {
   static async getById(id: string) {
@@ -22,11 +23,51 @@ export class PropertyService {
     return properties;
   }
 
-  static async create(user: User, request: ICreateProperty) {
-    const data = validate(PropertyValidation.createProperty, request);
+  static async create(user: User, request: IParseFormData) {
+    const { fields, files } = request;
+
+    const payload = {
+      ...fields,
+      photoDocument: files.photoDocument?.[0],
+      photos: {
+        main_photo: files.main_photo?.[0],
+        photo_1: files.photo_1?.[0],
+        photo_2: files.photo_2?.[0],
+        photo_3: files.photo_3?.[0],
+        photo_4: files.photo_4?.[0],
+      },
+    } as ICreateProperty;
+
+    const data = validate(PropertyValidation.createProperty, payload);
+
+    let photoDocument = "";
+    if (data.photoDocument) {
+      const docResult = await cloudinary.uploader.upload(data.photoDocument.filepath, {
+        folder: "homez_file/property/documents",
+      });
+      photoDocument = docResult.secure_url;
+    }
+
+    let uploadedPhotos: Record<string, string> = {};
+    for (const [key, file] of Object.entries(data.photos)) {
+      if (file?.filepath) {
+        const result = await cloudinary.uploader.upload(file.filepath, {
+          folder: "homez_file/property/photos",
+        });
+        uploadedPhotos[key] = result.secure_url;
+      }
+    }
+
     const property = await prisma.property.create({
-      data: { ...data, ownerId: user.id },
+      data: {
+        ...data,
+        photoDocument: photoDocument,
+        photos: uploadedPhotos,
+        status: "pending",
+        ownerId: user.id,
+      },
     });
+
     return property;
   }
 
@@ -38,11 +79,11 @@ export class PropertyService {
     });
     if (!propertyExists) throw new ResponseError(404, "Property not found");
 
-    const property = await prisma.property.update({
-      where: { id },
-      data,
-    });
-    return property;
+    // // const property = await prisma.property.update({
+    // //   where: { id },
+    // //   data,
+    // // });
+    // return property;
   }
 
   static async delete(user: User, propertyId: string) {

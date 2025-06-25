@@ -115,10 +115,85 @@ const DetailForm = () => {
                   </div>
                 </FormControl>
                 <FormMessage />
-                <Map interactive position={position} />
+                <Map
+                  interactive
+                  position={position}
+                  onChangePosition={(data) => {
+                    setValue("location.address", data.display_name ?? "");
+                    setValue(
+                      "location.city",
+                      data.address.city ??
+                        (data.address as any).regency ??
+                        (data.address as any).town ??
+                        (data.address as any).county ??
+                        ""
+                    );
+                    setValue("location.state", (data.address as any).state ?? data.address.region);
+                    setValue("location.country", data.address.country);
+                    setValue("location.postalCode", data.address.postcode);
+                    setValue("location.latitude", Number(data.lat));
+                    setValue("location.longitude", Number(data.lon));
+                  }}
+                />
               </FormItem>
             )}
           />
+
+          <div className="grid grid-cols-4 gap-4">
+            <FormField
+              control={control}
+              name="location.city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="h-11" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="location.state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="h-11" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="location.country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="h-11" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="location.postalCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Postal Code</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="h-11" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="grid grid-cols-3 gap-4">
             <FormField

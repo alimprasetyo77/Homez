@@ -42,8 +42,19 @@ export const createProperty = async (body: ICreateProperty) => {
     let key: keyof typeof body;
 
     for (key in body) {
-      const value = body[key];
+      let value = body[key];
+
       if (!checkProperty(value)) continue;
+
+      if (key === "photos" && value && typeof value === "object") {
+        const photos = value as ICreateProperty["photos"];
+        let keyPhotos: keyof typeof photos;
+        for (keyPhotos in photos) {
+          const valueFieldPhotos = photos[keyPhotos];
+          formData.append(keyPhotos, valueFieldPhotos);
+        }
+        continue;
+      }
 
       if (value instanceof File) {
         formData.append(key, value as File);
@@ -55,7 +66,6 @@ export const createProperty = async (body: ICreateProperty) => {
         formData.append(key, String(value));
       }
     }
-
     const result = await axiosWithConfig.post("/properties", formData);
     return result.data as Response<IProperty>;
   } catch (error: any) {

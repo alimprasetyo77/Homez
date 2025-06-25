@@ -1,16 +1,12 @@
-import { MapContainer, MapContainerProps, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { DraggableMarker } from "./handler";
-import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useFormContext } from "react-hook-form";
-import { ICreateProperty } from "@/types/property-type";
-import { MapClickHandler } from "./handler";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { IReverseGeocode } from "@/types/geocode-type";
 import { reverseGeocode } from "@/services/property-service";
 
@@ -24,34 +20,69 @@ L.Icon.Default.mergeOptions({
 interface MapProps {
   position?: [number, number];
   interactive?: boolean;
+  onChangePosition?: (data: IReverseGeocode) => void;
 }
+const DEFAULT_POSITION: [number, number] = [47.751076, -120.740135];
 
-const Map = ({ position, interactive }: MapProps) => {
-  const { setValue } = useFormContext<ICreateProperty>();
-  const [markerPos, setMarkerPos] = useState<[number, number]>([-6.2, 106.816666]);
-  const mapRef = useRef<any>(null);
+const Map = ({ position, interactive = false, onChangePosition }: MapProps) => {
+  const [markerPos, setMarkerPos] = useState<[number, number]>(position ?? DEFAULT_POSITION);
+  const mapRef = useRef<L.Map | null>(null);
 
-  const { refetch } = useQuery<IReverseGeocode>({
-    queryKey: ["location", markerPos],
-    queryFn: async () => {
-      const data = await reverseGeocode({ lat: markerPos[0], lon: markerPos[1] });
-      setValue("location.address", data.display_name);
-      return data;
+  const mutation = useMutation({
+    mutationKey: ["geocode"],
+    mutationFn: (position: { lat: number; lon: number }) => reverseGeocode(position),
+    onSuccess: (data) => {
+      if (onChangePosition) {
+        onChangePosition(data);
+      }
     },
-    enabled: false,
   });
   useEffect(() => {
-    if (!mapRef.current && !position) return;
-    mapRef.current.panTo(position);
-    setMarkerPos(position as [number, number]);
+    if (mapRef.current && position) {
+      mapRef.current.panTo(position as [number, number]);
+      setMarkerPos(position as [number, number]);
+      mutation.mutate({ lat: position[0], lon: position[1] });
+    }
   }, [position]);
+
+  const MapEventsHandler = () => {
+    const markerRef = useRef<L.Marker>(null);
+
+    const map = useMapEvents({
+      click(e) {
+        const { lat, lon } = { lat: e.latlng.lat, lon: e.latlng.lng };
+        setMarkerPos([lat, lon]);
+        mutation.mutate({ lat, lon });
+      },
+    });
+
+    const dragHandlers: L.LeafletEventHandlerFnMap = useMemo(
+      () => ({
+        dragend() {
+          const marker = markerRef.current;
+          if (!marker) return;
+          const { lat, lng: lon } = marker.getLatLng();
+          setMarkerPos([lat, lon]);
+          map.panTo([lat, lon]);
+          mutation.mutate({ lat, lon });
+        },
+      }),
+      [setMarkerPos, map]
+    );
+
+    return (
+      <Marker draggable eventHandlers={dragHandlers} position={markerPos} ref={markerRef}>
+        <Popup>You can drag me!</Popup>
+      </Marker>
+    );
+  };
 
   return (
     <MapContainer
       center={markerPos}
-      zoom={13}
+      zoom={5}
       scrollWheelZoom
-      style={{ height: "400px", width: "100%" }}
+      style={{ height: "500px", width: "100%" }}
       ref={mapRef}
     >
       <TileLayer
@@ -60,24 +91,10 @@ const Map = ({ position, interactive }: MapProps) => {
       />
 
       {interactive ? (
-        <>
-          <DraggableMarker
-            position={markerPos}
-            onDragEnd={(newPos) => {
-              setMarkerPos(newPos);
-              refetch();
-            }}
-          />
-          <MapClickHandler
-            onClick={(pos) => {
-              setMarkerPos(pos);
-              refetch();
-            }}
-          />
-        </>
+        <MapEventsHandler />
       ) : (
         <Marker position={markerPos}>
-          <Popup>You can drag me!</Popup>
+          <Popup>You position.</Popup>
         </Marker>
       )}
     </MapContainer>

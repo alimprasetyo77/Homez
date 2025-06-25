@@ -24,10 +24,21 @@ export const checkProperty = (
     return property.trim() !== "";
   }
 
+  if (typeof property === "number") {
+    return true; // anggap 0 pun tetap valid
+  }
+
+  if (typeof property === "boolean") {
+    return true; // false tetap dianggap properti yang valid
+  }
+
+  if (Array.isArray(property)) {
+    return property.length > 0;
+  }
+
   if (property && typeof property === "object") {
     return Object.keys(property).length > 0;
   }
 
-  if (typeof property === "number") return true;
   return false;
 };

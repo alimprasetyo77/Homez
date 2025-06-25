@@ -16,45 +16,44 @@ export const createPropertySchema = z.object({
   listingType: z.enum(["buy", "rent"], {
     errorMap: () => ({ message: "Listing type must be either buy or rent" }),
   }),
-  bedrooms: z.number({ required_error: "Number of bedrooms is required" }),
-  bathrooms: z.number({ required_error: "Number of bathrooms is required" }),
+  bedrooms: z.number({ required_error: "Number of bedrooms is required" }).min(1).max(100),
+  bathrooms: z.number({ required_error: "Number of bathrooms is required" }).min(1).max(100),
   squareFeet: z.number({ required_error: "Square feet is required" }),
   location: z.object({
     address: z.string({ required_error: "Address is required" }).nonempty("Address cannot be empty"),
-    city: z.string({ required_error: "City is required" }).nonempty("City cannot be empty").optional(),
-    state: z.string({ required_error: "State is required" }).nonempty("State cannot be empty").optional(),
-    country: z
-      .string({ required_error: "Country is required" })
-      .nonempty("Country cannot be empty")
-      .optional(),
-    postalCode: z.number({ required_error: "Postal code is required" }).optional(),
-    latitude: z.number({ required_error: "Latitude is required" }).optional(),
-    longitude: z.number({ required_error: "Longitude is required" }).optional(),
+    city: z.string({ required_error: "City is required" }).nonempty("City cannot be empty"),
+    state: z.string({ required_error: "State is required" }).nonempty("State cannot be empty"),
+    country: z.string({ required_error: "Country is required" }).nonempty("Country cannot be empty"),
+    postalCode: z.string({ required_error: "Postal code is required" }).nonempty("Country cannot be empty"),
+    latitude: z.number({ required_error: "Latitude is required" }),
+    longitude: z.number({ required_error: "Longitude is required" }),
   }),
-  amenities: z.array(
-    z.union([
-      z.literal("AC"),
-      z.literal("WATER_HEATER"),
-      z.literal("KITCHEN_SET"),
-      z.literal("FURNISHED"),
-      z.literal("PRIVATE_POOL"),
-      z.literal("BALCONY"),
-      z.literal("GARDEN"),
-      z.literal("GARAGE"),
-      z.literal("SECURITY"),
-      z.literal("CCTV"),
-      z.literal("GYM"),
-      z.literal("SHARED_POOL"),
-      z.literal("ELEVATOR"),
-      z.literal("PLAYGROUND"),
-      z.literal("INTERNET"),
-      z.literal("CABLE_TV"),
-    ]),
-    {
-      required_error: "At least one amenity must be selected",
-      invalid_type_error: "Amenities must be a list of valid values",
-    }
-  ),
+  amenities: z
+    .array(
+      z.union([
+        z.literal("AC"),
+        z.literal("WATER_HEATER"),
+        z.literal("KITCHEN_SET"),
+        z.literal("FURNISHED"),
+        z.literal("PRIVATE_POOL"),
+        z.literal("BALCONY"),
+        z.literal("GARDEN"),
+        z.literal("GARAGE"),
+        z.literal("SECURITY"),
+        z.literal("CCTV"),
+        z.literal("GYM"),
+        z.literal("SHARED_POOL"),
+        z.literal("ELEVATOR"),
+        z.literal("PLAYGROUND"),
+        z.literal("INTERNET"),
+        z.literal("CABLE_TV"),
+      ]),
+      {
+        required_error: "At least one amenity must be selected",
+        invalid_type_error: "Amenities must be a list of valid values",
+      }
+    )
+    .refine((v) => v.length >= 3, { message: "Must be have 3 amenities" }),
   photos: z.object({
     main_photo: z
       .instanceof(File, { message: "Main photo is required" })
