@@ -73,6 +73,15 @@ export const createProperty = async (body: ICreateProperty) => {
   }
 };
 
+export const deleteProperty = async (propertyId: string) => {
+  try {
+    const response = await axiosWithConfig.delete(`/properties/${propertyId}`);
+    return response.data as Omit<Response, "data">;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
 export const forwardGeocode = async (address: string) => {
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/search", {

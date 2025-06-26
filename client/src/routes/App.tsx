@@ -47,11 +47,11 @@ function App() {
           </Route>
           <Route element={<LayoutDashboard />}>
             <Route path="/dashboard" element={<MainDashboard />} />
-            <Route path="/dashboard/add-property" element={<AddProperty />} />
             <Route path="/dashboard/property" element={<Property />} />
             <Route path="/dashboard/favorite" element={<Favorite />} />
             <Route path="/dashboard/profile" element={<Profile />} />
           </Route>
+          <Route path="/dashboard/add-property" element={<AddProperty />} />
         </Route>
       </Routes>
     </BrowserRouter>

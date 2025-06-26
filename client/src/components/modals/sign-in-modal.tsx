@@ -63,7 +63,10 @@ const SignIn = () => {
         </DialogHeader>
         <div className="*:w-full flex flex-col items-center justify-center p-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(async (data) => await mutation.mutateAsync(data))}
+              className="space-y-4"
+            >
               <FormSignIn />
               <span className="text-sm flex justify-end hover:underline underline-offset-2 cursor-pointer">
                 Lost your password?

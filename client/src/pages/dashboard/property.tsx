@@ -1,24 +1,35 @@
 import { DataTable } from "@/components/data-table";
-import { Button } from "@/components/ui/button";
 import { usdCurrencyFormat } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CircleOff, Edit, ExternalLink, MoreHorizontal, X } from "lucide-react";
+import { CircleOff, Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteProperty } from "@/services/property-service";
+import Alert from "@/components/alert";
+import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 const Property = () => {
+  const queryClient = useQueryClient();
   const properties = useAuthStore((state) => state.user?.properties);
+
+  const onDeleteProperty = useMutation({
+    mutationKey: ["properties"],
+    mutationFn: deleteProperty,
+    onSuccess: () => {
+      // Refresh the product list after deletion
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
 
   const columns: ColumnDef<IProperty>[] = [
     {
       accessorKey: "title",
-      header: "Property",
+      header: () => <h3 className="pl-2">Property</h3>,
+      size: 800,
       cell: (info) => (
         <div className="flex items-start gap-x-4 ">
           <div className="space-y-2">
@@ -37,7 +48,8 @@ const Property = () => {
 
     {
       accessorKey: "status",
-      header: "Status",
+      header: () => <h3 className="text-center">Status</h3>,
+      size: 50,
       cell: (info) => {
         const status = info.getValue() as string;
         const statusClasses: Record<string, string> = {
@@ -56,7 +68,8 @@ const Property = () => {
     },
     {
       accessorKey: "createdAt",
-      header: "Publisehed At",
+      header: () => <h3 className="text-center">Publisehed At</h3>,
+      size: 50,
       cell: (info) => (
         <div className="text-center text-xs font-medium">
           {new Date(info.getValue() as string).toLocaleDateString("en-US", {
@@ -69,39 +82,49 @@ const Property = () => {
     },
     {
       id: "actions",
-      cell: () => {
+      header: () => <h3 className="text-center">Actions</h3>,
+      cell: (info) => {
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center justify-center">
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
+          <div className="flex items-center justify-center gap-x-2">
+            <Popover>
+              <PopoverTrigger className="cursor-pointer">
+                <span className="sr-only">Open menu</span>
+                <div className="size-6 p-1 rounded-full hover:bg-gray-200">
                   <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <Edit />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CircleOff />
-                Sold
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <X />
-                Delete
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <ExternalLink />
-                View property details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="max-w-[150px] *:hover:bg-gray-200 p-0 *:px-4 *:py-2 *:flex *:items-center *:gap-x-2 *:text-xs py-2 *:cursor-pointer "
+              >
+                <Alert
+                  title="Are you sure?"
+                  description={`This action cannot be undone. This will permanently delete the property data.`}
+                  onAction={async () => await onDeleteProperty.mutateAsync(info.row.original.id)}
+                >
+                  <div>
+                    <Trash2 className="size-4" />
+                    <span>Delete</span>
+                  </div>
+                </Alert>
+                <div>
+                  <Edit className="size-4" />
+                  <span>Edit</span>
+                </div>
+                <div>
+                  <CircleOff className="size-4" />
+                  <span>Sold</span>
+                </div>
+                <div>
+                  <ExternalLink className="size-4" />
+                  <span>view</span>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         );
       },
+      size: 50,
     },
   ];
   if (!properties || properties.length === 0) {
@@ -115,7 +138,7 @@ const Property = () => {
   return (
     <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
       <h1 className="text-2xl font-semibold">My Properties</h1>
-      <DataTable columns={columns} data={properties as any} />
+      <DataTable columns={columns} data={properties} />
     </div>
   );
 };

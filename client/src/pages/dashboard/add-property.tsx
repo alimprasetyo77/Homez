@@ -9,12 +9,11 @@ import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { createPropertySchema, ICreateProperty } from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { createProperty } from "@/services/property-service";
 import { toast } from "sonner";
-import PublishProperty from "@/components/modals/publish-property-modal";
 import { FaSpinner } from "react-icons/fa";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -24,16 +23,12 @@ const PropertyListingFlow = () => {
   const havePropertyPending = useAuthStore((state) =>
     state.user?.properties.some((property) => property.status === "pending")
   );
-
+  const navigate = useNavigate();
   const mutation = useMutation({
-    mutationKey: ["properties"],
     mutationFn: createProperty,
     onSuccess: ({ message }) => {
       toast.success(message);
-      setSearchParams((searchParams) => {
-        searchParams.delete("step");
-        return searchParams;
-      });
+      navigate("/dashboard/property");
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -42,8 +37,8 @@ const PropertyListingFlow = () => {
 
   const form = useForm<ICreateProperty>({
     resolver: zodResolver(createPropertySchema),
-    mode: "onChange",
     defaultValues: {
+      title: "",
       location: {
         address: "",
         city: "",
@@ -98,7 +93,7 @@ const PropertyListingFlow = () => {
   };
 
   const ReviewsStep = () => (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto ">
       <div className="bg-white rounded-lg p-8 shadow-sm border">
         <div className="flex items-center mb-6">
           <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
@@ -145,28 +140,23 @@ const PropertyListingFlow = () => {
               </div>
             </div>
           </div>
-          <PublishProperty
-            onSubmit={form.handleSubmit((data) => {
-              mutation.mutate(data);
-            })}
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            aria-disabled={form.formState.isSubmitting}
+            className="w-full cursor-pointer  ml-auto bg-red-500 text-white h-10  rounded-lg hover:bg-red-600  flex items-center justify-center"
           >
-            <Button
-              type="button"
-              disabled={form.formState.isSubmitting}
-              aria-disabled={form.formState.isSubmitting}
-              className="w-full cursor-pointer  ml-auto bg-red-500 text-white h-10  rounded-lg hover:bg-red-600  flex items-center justify-center"
-            >
-              {form.formState.isLoading ? (
-                <FaSpinner className="animate-spin duration-300" />
-              ) : (
-                <div className="flex items-center gap-x-2">Publish Listing</div>
-              )}
-            </Button>
-          </PublishProperty>
+            {form.formState.isLoading ? (
+              <FaSpinner className="animate-spin duration-300" />
+            ) : (
+              <div className="flex items-center gap-x-2">Publish Listing</div>
+            )}
+          </Button>
         </div>
       </div>
     </div>
   );
+
   const renderStep = () => {
     switch (Number(step)) {
       case 1:
@@ -184,9 +174,9 @@ const PropertyListingFlow = () => {
     }
   };
   return (
-    <div className="min-h-screen font-sans ">
+    <div className="min-h-screen font-sans py-16">
       <div className="max-w-6xl mx-auto px-4 ">
-        {havePropertyPending || (form.formState.isSubmitted && !form.formState.isSubmitting) ? (
+        {havePropertyPending ? (
           <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 mt-10">
             <div className="flex items-start gap-4">
               <div className="text-[#ef4f4f] text-3xl">
@@ -219,7 +209,12 @@ const PropertyListingFlow = () => {
             <StepIndicator currentStep={step === 0 ? 1 : step} />
 
             <Form {...form}>
-              <form className="mb-8 space-y-4">{renderStep()}</form>
+              <form
+                onSubmit={form.handleSubmit(async (data) => await mutation.mutateAsync(data))}
+                className="mb-8 space-y-4"
+              >
+                {renderStep()}
+              </form>
             </Form>
 
             {/* Navigation */}

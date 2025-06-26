@@ -8,7 +8,7 @@ import {
   PropertyValidation,
 } from "../validations/property-validation";
 import { validate } from "../validations/validation";
-import { IParseFormData } from "../utils/parse-form-data";
+import { getPublicId, IParseFormData } from "../utils/parse-form-data";
 import { v2 as cloudinary } from "cloudinary";
 
 export class PropertyService {
@@ -97,6 +97,15 @@ export class PropertyService {
     }
     if (propertyExists.ownerId !== user.id) {
       throw new ResponseError(403, "You are not authorized to delete this property");
+    }
+    const deletePhoto = {
+      photoDocument: propertyExists.photoDocument,
+      ...propertyExists.photos,
+    };
+
+    for (const [_, value] of Object.entries(deletePhoto)) {
+      const publicId = getPublicId(value!);
+      await cloudinary.uploader.destroy(publicId);
     }
 
     await prisma.property.delete({
