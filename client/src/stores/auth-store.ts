@@ -1,5 +1,6 @@
 import { logout } from "@/services/auth-service";
 import { getUser } from "@/services/user-service";
+import { IProperty } from "@/types/property-type";
 import { IUser } from "@/types/user-type";
 import { toast } from "sonner";
 import { create } from "zustand";
@@ -13,12 +14,16 @@ interface IAuthStore {
   fetchUser: () => void;
   logout: () => void;
   clearState: () => void;
+  properties: IProperty[];
+  havePendingProperty: boolean;
 }
 
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
   isLoading: false,
   user: null,
   token: sessionStorage.getItem("token") ?? null,
+  properties: [],
+  havePendingProperty: false,
 
   clearState() {
     sessionStorage.removeItem("token");
@@ -38,7 +43,11 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
     set({ isLoading: true });
     try {
       const { data } = await getUser();
-      set({ user: data });
+      set({
+        user: data,
+        properties: data.properties,
+        havePendingProperty: data.properties.some((value) => value.status === "pending"),
+      });
     } catch (error) {
       toast.error(`${error}`);
     } finally {

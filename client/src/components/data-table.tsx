@@ -4,13 +4,15 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./ui/button";
+import { FaSpinner } from "react-icons/fa";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
@@ -19,7 +21,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border relative">
+        {isLoading ? (
+          <div className="absolute inset-0 bg-muted/50 z-50 flex items-center justify-center">
+            <FaSpinner className="animate-spin duration-300 size-5" />
+          </div>
+        ) : null}
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

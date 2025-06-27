@@ -12,7 +12,7 @@ const PopularProperty = () => {
   const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<PropertyType>("house");
 
   const { data: popularProperties, isLoading } = useQuery({
-    queryKey: ["popularProperties", "properties", activeLinkOnProperties],
+    queryKey: ["properties", activeLinkOnProperties],
     queryFn: () => getPopular(activeLinkOnProperties),
   });
 

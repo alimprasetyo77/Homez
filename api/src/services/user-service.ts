@@ -11,8 +11,6 @@ import {
 } from "../validations/user-validation";
 import { validate } from "../validations/validation";
 import bcrypt from "bcrypt";
-import { v2 as cloudinary } from "cloudinary";
-import { getPublicId, IParseFormData } from "../utils/parse-form-data";
 import { IPublicUser } from "../types/user-request";
 
 export class UserService {
@@ -119,30 +117,16 @@ export class UserService {
     return result as IPublicUser;
   }
 
-  static async update(user: User, request: IParseFormData): Promise<IUpdateUserSchema> {
-    const updateRequest = validate(UserValidation.updateUser, request.fields);
-    let fileRequest = request.files.photoProfile?.[0];
-    const payload = { ...updateRequest, photoProfile: fileRequest } as IUpdateUserSchema;
-
-    if (Object.keys(updateRequest).length === 0) {
-      throw new ResponseError(400, "At least one field must be provided");
-    }
-
-    if (fileRequest) {
-      if (user.photoProfile) {
-        const publicId = getPublicId(user.photoProfile);
-        if (publicId) {
-          await cloudinary.uploader.destroy(publicId);
-        }
-      }
-      const result = await cloudinary.uploader.upload(fileRequest.filepath, {
-        folder: "homez_file",
-      });
-      payload["photoProfile"] = result.secure_url;
-    }
+  static async update(user: User, request: IUpdateUserSchema): Promise<IUpdateUserSchema> {
+    const data = validate(UserValidation.updateUser, request);
     const result = await prisma.user.update({
       where: { id: user.id },
-      data: payload as IUser,
+      data: {
+        ...data,
+        location: { set: { ...(data.location as any) } },
+        socialMedia: { set: { ...(data.socialMedia as any) } },
+        photoProfile: { set: data.photoProfile as any },
+      },
       omit: { password: true, token: true },
     });
     return result as IUpdateUserSchema;

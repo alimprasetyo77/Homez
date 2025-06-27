@@ -6,23 +6,22 @@ import { Camera } from "lucide-react";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 interface IPreviewPhoto {
-  main_photo: string;
-  photo_1: string;
-  photo_2: string;
-  photo_3: string;
-  photo_4: string;
+  main_photo: string | File;
+  photo_1: string | File;
+  photo_2: string | File;
+  photo_3: string | File;
+  photo_4: string | File;
 }
 const PhotosForm = () => {
   const { control, getValues } = useFormContext<ICreateProperty>();
   const [previewPhoto, setPreviewPhoto] = useState<IPreviewPhoto>({
-    main_photo: getValues("photos.main_photo")
-      ? URL.createObjectURL(getValues("photos.main_photo") as Blob)
-      : "",
-    photo_1: getValues("photos.photo_1") ? URL.createObjectURL(getValues("photos.photo_1") as Blob) : "",
-    photo_2: getValues("photos.photo_2") ? URL.createObjectURL(getValues("photos.photo_2") as Blob) : "",
-    photo_3: getValues("photos.photo_3") ? URL.createObjectURL(getValues("photos.photo_3") as Blob) : "",
-    photo_4: getValues("photos.photo_4") ? URL.createObjectURL(getValues("photos.photo_4") as Blob) : "",
+    main_photo: getValues("photos.main_photo") ?? "",
+    photo_1: getValues("photos.photo_1") ?? "",
+    photo_2: getValues("photos.photo_2") ?? "",
+    photo_3: getValues("photos.photo_3") ?? "",
+    photo_4: getValues("photos.photo_4") ?? "",
   });
+
   const fileInputRefs = useRef<Record<keyof IPreviewPhoto, HTMLInputElement | null>>({
     main_photo: null,
     photo_1: null,
@@ -75,7 +74,7 @@ const PhotosForm = () => {
                 >
                   {previewPhoto.main_photo ? (
                     <PreviewPhoto
-                      url={previewPhoto.main_photo}
+                      url={previewPhoto.main_photo as string}
                       alt="previewImage"
                       handleDelete={() => {
                         setPreviewPhoto((prev) => ({ ...prev, main_photo: "" }));
@@ -157,7 +156,7 @@ const PhotosForm = () => {
                       </FormControl>
                       {previewPhoto[item as keyof IPreviewPhoto] ? (
                         <PreviewPhoto
-                          url={previewPhoto[item as keyof IPreviewPhoto]}
+                          url={previewPhoto[item as keyof IPreviewPhoto] as string}
                           alt={`preview-${item}`}
                           handleDelete={() => {
                             setPreviewPhoto((prev) => ({ ...prev, [item]: "" }));

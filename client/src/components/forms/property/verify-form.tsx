@@ -1,4 +1,4 @@
-import { Upload } from "lucide-react";
+import { FileDiff, Upload } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,17 +7,35 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ICreateProperty } from "@/types/property-type";
 import PreviewPhoto from "@/components/preview-photo";
+import { deletePhoto, uploadPhoto } from "@/services/upload-service";
+import { toast } from "sonner";
 const VerifyForm = () => {
   const { control, getValues } = useFormContext<ICreateProperty>();
-  const [previewImage, setPreviewImage] = useState<string>(
-    getValues("photoDocument") ? URL.createObjectURL(getValues("photoDocument") as Blob) : ""
-  );
+  const [previewImage, setPreviewImage] = useState<string | File>(getValues("photoDocument") ?? "");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
   };
 
+  const handleChange = async (e: any) => {
+    if (!e.target.files) return;
+    try {
+      const file = e.target.files[0];
+      const result = await uploadPhoto(file);
+      setPreviewImage(result.data.url);
+    } catch (error: any) {
+      toast.error(error);
+    }
+  };
+  const handleDelete = async () => {
+    try {
+      const result = await deletePhoto(previewImage as string);
+      toast.success(result.message);
+    } catch (error: any) {
+      toast.error(error);
+    }
+  };
   return (
     <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-lg p-8 shadow-sm border">
@@ -67,24 +85,15 @@ const VerifyForm = () => {
                     className="hidden"
                     type="file"
                     ref={fileInputRef}
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        const file = e.target.files[0];
-                        setPreviewImage(URL.createObjectURL(file));
-                        field.onChange(file);
-                      }
-                    }}
+                    onChange={(e) => handleChange(e)}
                   />
                 </FormControl>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 ">
                   {previewImage ? (
                     <PreviewPhoto
-                      url={previewImage}
+                      url={previewImage as string}
                       alt="previewImage"
-                      handleDelete={() => {
-                        setPreviewImage("");
-                        field.onChange("");
-                      }}
+                      handleDelete={handleDelete}
                     />
                   ) : (
                     <div>

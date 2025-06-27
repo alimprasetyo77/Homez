@@ -7,6 +7,7 @@ import { useFormContext } from "react-hook-form";
 
 const PricingForm = () => {
   const { control, getValues } = useFormContext<ICreateProperty>();
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-lg p-8 shadow-sm border">

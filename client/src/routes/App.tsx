@@ -10,7 +10,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import ProtectedRoute from "./protected-route";
 import Register from "@/pages/auth/register";
 import MainDashboard from "@/pages/dashboard";
-import AddProperty from "@/pages/dashboard/add-property";
+import PropertyForm from "@/pages/dashboard/property-form";
 import Property from "@/pages/dashboard/property";
 import Favorite from "@/pages/dashboard/favorite";
 import Profile from "@/pages/dashboard/profile";
@@ -42,7 +42,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/properties/search" element={<Search />} />
-            <Route path="/properties/:slug" element={<DetailProperty />} />
+            <Route path="/properties/:propertyId" element={<DetailProperty />} />
             <Route path="/about" element={<About />} />
           </Route>
           <Route element={<LayoutDashboard />}>
@@ -51,8 +51,16 @@ function App() {
             <Route path="/dashboard/favorite" element={<Favorite />} />
             <Route path="/dashboard/profile" element={<Profile />} />
           </Route>
-          <Route path="/dashboard/add-property" element={<AddProperty />} />
+          <Route path="/dashboard/property/form/:propertyId?" element={<PropertyForm />} />
         </Route>
+        <Route
+          path="*"
+          element={
+            <div className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 lg font-semibold">
+              Not found page.
+            </div>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

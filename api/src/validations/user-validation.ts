@@ -30,7 +30,7 @@ export const updateUserSchema = z.object({
       "Only .jpg, .jpeg, and .png formats are supported"
     )
     .optional()
-    .or(z.string()),
+    .or(z.literal("")),
 
   bio: z.string().optional(),
 

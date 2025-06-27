@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, CheckCircleIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import VerifyForm from "@/components/forms/property/verify-form";
 import DetailForm from "@/components/forms/property/detail-form";
 import PricingForm from "@/components/forms/property/pricing-form";
@@ -7,25 +7,41 @@ import { Steps } from "@/constants/property";
 import StepIndicator from "@/components/step-indicator";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { createPropertySchema, ICreateProperty } from "@/types/property-type";
+import {
+  createPropertySchema,
+  ICreateProperty,
+  IUpdateProperty,
+  updatePropertySchema,
+} from "@/types/property-type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { createProperty } from "@/services/property-service";
+import { createProperty, updateProperty } from "@/services/property-service";
 import { toast } from "sonner";
 import { FaSpinner } from "react-icons/fa";
 import { useAuthStore } from "@/stores/auth-store";
+type MutationPayload = { data: IUpdateProperty; propertyId?: string };
 
-const PropertyListingFlow = () => {
+const PropertyForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const step = Number(searchParams.get("step"));
-  const havePropertyPending = useAuthStore((state) =>
-    state.user?.properties.some((property) => property.status === "pending")
-  );
+  const { propertyId } = useParams();
+  const isEdit = !!propertyId;
   const navigate = useNavigate();
+
+  const property = useAuthStore((state) => state.properties.find((value) => value.id === propertyId));
+
   const mutation = useMutation({
-    mutationFn: createProperty,
+    mutationKey: ["properties"],
+    mutationFn: async ({ data, propertyId }: MutationPayload) => {
+      if (isEdit) {
+        if (!propertyId) throw new Error("No propertyId provided");
+        return updateProperty(data as IUpdateProperty, propertyId);
+      } else {
+        return createProperty(data as ICreateProperty);
+      }
+    },
     onSuccess: ({ message }) => {
       toast.success(message);
       navigate("/dashboard/property");
@@ -35,26 +51,30 @@ const PropertyListingFlow = () => {
     },
   });
 
-  const form = useForm<ICreateProperty>({
-    resolver: zodResolver(createPropertySchema),
-    defaultValues: {
-      title: "",
-      location: {
-        address: "",
-        city: "",
-        state: "",
-        country: "",
-        postalCode: "",
-        latitude: 0,
-        longitude: 0,
-      },
+  const form = useForm<ICreateProperty | IUpdateProperty>({
+    resolver: zodResolver(isEdit ? updatePropertySchema : createPropertySchema),
+    defaultValues: isEdit
+      ? { ...(property as any) }
+      : {
+          title: "",
+          location: {
+            address: "",
+            city: "",
+            state: "",
+            country: "",
+            postalCode: "",
+            latitude: 0,
+            longitude: 0,
+          },
 
-      amenities: [],
+          amenities: [],
 
-      isVerified: false,
-      isFeatured: false,
-    },
+          isVerified: false,
+          isFeatured: false,
+        },
   });
+
+  console.log(form.getValues());
 
   const nextStep = async () => {
     if (Number(step) < Steps.length) {
@@ -146,10 +166,10 @@ const PropertyListingFlow = () => {
             aria-disabled={form.formState.isSubmitting}
             className="w-full cursor-pointer  ml-auto bg-red-500 text-white h-10  rounded-lg hover:bg-red-600  flex items-center justify-center"
           >
-            {form.formState.isLoading ? (
+            {form.formState.isSubmitting ? (
               <FaSpinner className="animate-spin duration-300" />
             ) : (
-              <div className="flex items-center gap-x-2">Publish Listing</div>
+              <span>{isEdit ? "Submit" : "Publish Listing"}</span>
             )}
           </Button>
         </div>
@@ -176,74 +196,60 @@ const PropertyListingFlow = () => {
   return (
     <div className="min-h-screen font-sans py-16">
       <div className="max-w-6xl mx-auto px-4 ">
-        {havePropertyPending ? (
-          <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 mt-10">
-            <div className="flex items-start gap-4">
-              <div className="text-[#ef4f4f] text-3xl">
-                <CheckCircleIcon className="h-8 w-8" />
-              </div>
-              <div className="flex-1 ">
-                <h3 className="text-lg font-semibold text-[#ef4f4f] mb-1">Property Submitted Successfully</h3>
-                <p className="text-sm text-gray-700">
-                  Your property has been submitted and is now under review. Our team will verify the details
-                  within 1–2 business days. Once approved, your listing will go live.
-                </p>
-                <div className="mt-4 flex gap-3">
-                  <Link to={"/dashboard/property"}>
-                    <Button variant={"animate"}>View My Listings</Button>
-                  </Link>
-                  <Link to={"/dashboard"}>
-                    <Button variant={"outline"}>Go to Dashboard</Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Listing Your Property</h1>
-              <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
-            </div>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {isEdit ? "Update" : "Listing Your"} Property
+          </h1>
+          <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
+        </div>
 
-            <StepIndicator currentStep={step === 0 ? 1 : step} />
+        <StepIndicator currentStep={step === 0 ? 1 : step} />
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(async (data) => await mutation.mutateAsync(data))}
-                className="mb-8 space-y-4"
-              >
-                {renderStep()}
-              </form>
-            </Form>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(async (data: ICreateProperty | IUpdateProperty) => {
+              if (isEdit) {
+                mutation.mutateAsync({
+                  data,
+                  propertyId: propertyId,
+                });
+              } else {
+                mutation.mutateAsync({
+                  data,
+                });
+              }
+            })}
+            className="mb-8 space-y-4"
+          >
+            {renderStep()}
+          </form>
+        </Form>
 
-            {/* Navigation */}
-            <div className="flex justify-between items-center max-w-5xl mx-auto">
-              <Button
-                variant={"secondary"}
-                onClick={prevStep}
-                hidden={step <= 1}
-                className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer `}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
+        {/* Navigation */}
+        <div className="flex justify-between items-center max-w-5xl mx-auto">
+          <Button
+            variant={"secondary"}
+            onClick={prevStep}
+            hidden={step <= 1}
+            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer `}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
 
-              <Button
-                variant={"secondary"}
-                onClick={nextStep}
-                hidden={step === Steps.length}
-                className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer ml-auto `}
-              >
-                {`Continue to ${Steps[step]?.label}`}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </>
-        )}
+          <Button
+            variant={"secondary"}
+            onClick={nextStep}
+            hidden={step === Steps.length}
+            className={`flex items-center px-6 py-4 rounded-lg transition-colors cursor-pointer ml-auto `}
+          >
+            {`Continue to ${Steps[step]?.label}`}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default PropertyListingFlow;
+export default PropertyForm;

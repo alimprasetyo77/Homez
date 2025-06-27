@@ -4,6 +4,9 @@ import { UserController } from "../controllers/user-controller";
 import { PropertyController } from "../controllers/property-controller";
 import { roleMiddleware } from "../middleware/role-middleware";
 import { FavoriteController } from "../controllers/favorite-controller";
+import { uploadMiddleware } from "../middleware/upload-middleware";
+import { UploadController } from "../controllers/upload-controller";
+import { RequestHandler } from "express";
 
 export const apiRouter = Router();
 apiRouter.use(authMiddleware as any);
@@ -25,3 +28,8 @@ apiRouter.delete("/api/properties/:propertyId", roleMiddleware as any, PropertyC
 apiRouter.get("/api/favorites/me", FavoriteController.getMyFavorite);
 apiRouter.post("/api/favorites", FavoriteController.add);
 apiRouter.delete("/api/favorites/:favoriteId", FavoriteController.delete);
+
+// upload file
+
+apiRouter.post("/api/upload", uploadMiddleware as RequestHandler, UploadController.create as RequestHandler);
+apiRouter.delete("/api/upload", UploadController.delete);

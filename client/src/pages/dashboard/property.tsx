@@ -9,9 +9,12 @@ import { deleteProperty } from "@/services/property-service";
 import Alert from "@/components/alert";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 const Property = () => {
   const queryClient = useQueryClient();
-  const properties = useAuthStore((state) => state.user?.properties);
+  const { properties, havePendingProperty } = useAuthStore();
+  const navigate = useNavigate();
 
   const onDeleteProperty = useMutation({
     mutationKey: ["properties"],
@@ -19,6 +22,7 @@ const Property = () => {
     onSuccess: () => {
       // Refresh the product list after deletion
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+      location.reload();
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -95,7 +99,7 @@ const Property = () => {
               </PopoverTrigger>
               <PopoverContent
                 align="end"
-                className="max-w-[150px] *:hover:bg-gray-200 p-0 *:px-4 *:py-2 *:flex *:items-center *:gap-x-2 *:text-xs py-2 *:cursor-pointer "
+                className="max-w-[150px] *:hover:bg-gray-200 p-0 *:px-4 *:py-2 *:flex *:items-center *:gap-x-2 *:text-xs py-2 *:cursor-pointer"
               >
                 <Alert
                   title="Are you sure?"
@@ -107,7 +111,11 @@ const Property = () => {
                     <span>Delete</span>
                   </div>
                 </Alert>
-                <div>
+                <div
+                  onClick={() => {
+                    navigate(`/dashboard/property/form/${info.row.original.id}`);
+                  }}
+                >
                   <Edit className="size-4" />
                   <span>Edit</span>
                 </div>
@@ -115,7 +123,7 @@ const Property = () => {
                   <CircleOff className="size-4" />
                   <span>Sold</span>
                 </div>
-                <div>
+                <div onClick={() => navigate(`/properties/${info.row.original.id}`)}>
                   <ExternalLink className="size-4" />
                   <span>view</span>
                 </div>
@@ -137,8 +145,24 @@ const Property = () => {
   }
   return (
     <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
-      <h1 className="text-2xl font-semibold">My Properties</h1>
-      <DataTable columns={columns} data={properties} />
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">My Properties</h1>
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              if (havePendingProperty) {
+                toast("You have pending property");
+                return;
+              }
+              navigate("/dashboard/property/form");
+            }}
+          >
+            Add Property
+          </Button>
+        </div>
+        <DataTable columns={columns} data={properties} isLoading={onDeleteProperty.isPending} />
+      </div>
     </div>
   );
 };

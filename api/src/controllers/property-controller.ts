@@ -1,14 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { PropertyService } from "../services/property-service";
-import {
-  ICreateProperty,
-  ISearchProperty,
-  IUpdateProperty,
-  PropertyValidation,
-} from "../validations/property-validation";
+import { ICreateProperty, ISearchProperty, IUpdateProperty } from "../validations/property-validation";
 import { User } from "../generated/prisma";
-import { ResponseError } from "../utils/response-error";
-import { parseFormData } from "../utils/parse-form-data";
+import { RequestWithUser } from "../types/user-request";
 
 export class PropertyController {
   static async getById(req: Request, res: Response, next: NextFunction) {
@@ -34,11 +28,10 @@ export class PropertyController {
     }
   }
 
-  static async create(req: Request & Partial<{ user: User }>, res: Response, next: NextFunction) {
+  static async create(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
       const user = req.user as User;
-      if (req.body) throw new ResponseError(400, "Use form data for request body");
-      const request = await parseFormData(req);
+      const request = req.body as ICreateProperty;
       const response = await PropertyService.create(user, request);
       res.status(201).json({
         message: "Property created successfully",
@@ -52,7 +45,7 @@ export class PropertyController {
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
       const { propertyId } = req.params;
-      const request: IUpdateProperty = req.body;
+      const request = req.body as IUpdateProperty;
       const response = await PropertyService.update(propertyId, request);
       res.status(200).json({
         message: "Property updated successfully",
