@@ -27,12 +27,23 @@ export class PropertyService {
     const property = await prisma.property.create({
       data: {
         ...data,
-
         status: "pending",
         ownerId: user.id,
       },
     });
+    const allowedFields = ["main_photo", "photo_1", "photo_2", "photo_3", "photo_4", "photoDocument"];
 
+    await prisma.upload.updateMany({
+      where: {
+        userId: user.id,
+        status: "pending",
+        field: { in: allowedFields },
+      },
+      data: {
+        status: "attached",
+        propertyId: property.id,
+      },
+    });
     return property;
   }
 

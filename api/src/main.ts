@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import { requestLogger } from "./middleware/requestLogger";
 import rateLimit from "express-rate-limit";
-
+import cron from "node-cron";
 dotenv.config();
 
 const app = express();
@@ -55,6 +55,26 @@ app.use(apiRouter);
 app.use(errorMiddleware);
 
 app.listen(3000, () => console.log("Listening on port 3000"));
+
+async function cleanup() {
+  const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 jam
+  const oldUploads = await prisma.upload.findMany({
+    where: {
+      status: "pending",
+      propertyId: null,
+      uploadedAt: { lt: cutoff },
+    },
+  });
+  console.log(oldUploads);
+  for (const u of oldUploads) {
+    await cloudinary.uploader.destroy(u.publicId);
+    await prisma.upload.delete({ where: { id: u.id } });
+  }
+
+  console.log(`🧹 Cleaned ${oldUploads.length} orphan uploads`);
+}
+
+cron.schedule("*/30 * * * *", cleanup);
 
 // async function seedDatabase() {
 //   try {

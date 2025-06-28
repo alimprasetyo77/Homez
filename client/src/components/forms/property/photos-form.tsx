@@ -1,10 +1,14 @@
 import PreviewPhoto from "@/components/preview-photo";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Progress } from "@/components/ui/progress";
+import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
 import { ICreateProperty } from "@/types/property-type";
 import { Camera } from "lucide-react";
-import { useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { FaSpinner } from "react-icons/fa";
+import { toast } from "sonner";
 interface IPreviewPhoto {
   main_photo: string | File;
   photo_1: string | File;
@@ -13,7 +17,7 @@ interface IPreviewPhoto {
   photo_4: string | File;
 }
 const PhotosForm = () => {
-  const { control, getValues } = useFormContext<ICreateProperty>();
+  const { control, getValues, setValue } = useFormContext<ICreateProperty>();
   const [previewPhoto, setPreviewPhoto] = useState<IPreviewPhoto>({
     main_photo: getValues("photos.main_photo") ?? "",
     photo_1: getValues("photos.photo_1") ?? "",
@@ -21,7 +25,20 @@ const PhotosForm = () => {
     photo_3: getValues("photos.photo_3") ?? "",
     photo_4: getValues("photos.photo_4") ?? "",
   });
-
+  const [isloadingUpload, setIsloadingUpload] = useState<Record<keyof ICreateProperty["photos"], boolean>>({
+    main_photo: false,
+    photo_1: false,
+    photo_2: false,
+    photo_3: false,
+    photo_4: false,
+  });
+  const [isloadingDelete, setIsloadingDelete] = useState<Record<keyof ICreateProperty["photos"], boolean>>({
+    main_photo: false,
+    photo_1: false,
+    photo_2: false,
+    photo_3: false,
+    photo_4: false,
+  });
   const fileInputRefs = useRef<Record<keyof IPreviewPhoto, HTMLInputElement | null>>({
     main_photo: null,
     photo_1: null,
@@ -30,6 +47,42 @@ const PhotosForm = () => {
     photo_4: null,
   });
 
+  const { uploadAsync, progress } = useUploadFile({
+    onSuccess: (res) => {
+      const field = res.data.field;
+      const url = res.data.url;
+      setIsloadingUpload((prev) => ({ ...prev, [field.split(".")[1]]: false }));
+      setValue(field as keyof ICreateProperty, url);
+      setPreviewPhoto((prev) => ({ ...prev, [field.split(".")[1]]: url }));
+    },
+    onError: (err) => {
+      toast.error(err?.message);
+    },
+  });
+
+  const { deleteUploadFileAsync } = useDeleteUploadFile({
+    onSuccess: (res) => {
+      const field = res.field;
+      setIsloadingDelete((prev) => ({ ...prev, [field.split(".")[1]]: false }));
+      setValue(field as keyof ICreateProperty, "");
+      setPreviewPhoto((prev) => ({ ...prev, [field.split(".")[1]]: "" }));
+    },
+    onError: (err) => {
+      toast.error(err?.message);
+    },
+  });
+
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    const name = e.target.name;
+    setIsloadingUpload((prev) => ({ ...prev, [name.split(".")[1]]: true }));
+    await uploadAsync({ file: file, field: name });
+  };
+  const handleDelete = async (field: string) => {
+    setIsloadingUpload((prev) => ({ ...prev, [field.split(".")[1]]: true }));
+    await deleteUploadFileAsync({ field });
+  };
   const handleUploadClick = (key: keyof IPreviewPhoto) => {
     fileInputRefs.current[key]?.click();
   };
@@ -60,27 +113,29 @@ const PhotosForm = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setPreviewPhoto((prev) => ({ ...prev, main_photo: URL.createObjectURL(file) }));
-                        field.onChange(file);
-                      }
-                    }}
+                    name={field.name}
+                    onChange={handleChange}
                   />
                 </FormControl>
                 <div
-                  className={`border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full max-h-[600px] text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center`}
+                  className={`border-2 border-dashed border-gray-300 rounded-lg p-4 w-full h-full max-h-[600px] text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center relative`}
                 >
+                  {isloadingDelete.main_photo ? (
+                    <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
+                      <FaSpinner className="animate-spin duration-300 text-white" />
+                    </div>
+                  ) : null}
                   {previewPhoto.main_photo ? (
                     <PreviewPhoto
                       url={previewPhoto.main_photo as string}
                       alt="previewImage"
-                      handleDelete={() => {
-                        setPreviewPhoto((prev) => ({ ...prev, main_photo: "" }));
-                        field.onChange();
-                      }}
+                      handleDelete={() => handleDelete(field.name)}
                     />
+                  ) : isloadingDelete.main_photo ? (
+                    <div className="flex flex-col max-w-[300px] w-full gap-y-2">
+                      <span className="text-sm font-semibold">Uploading: {progress}%</span>
+                      <Progress value={progress} max={100} />
+                    </div>
                   ) : (
                     <>
                       <Camera className="mx-auto h-16 w-16 text-gray-400 mb-4" />
@@ -131,12 +186,17 @@ const PhotosForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div
-                      className="aspect-video max-w-[464px] bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer "
+                      className="aspect-video max-w-[464px] bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer relative"
                       onClick={() => {
                         if (!previewPhoto[item as keyof IPreviewPhoto])
                           handleUploadClick(item as keyof IPreviewPhoto);
                       }}
                     >
+                      {isloadingUpload[item as keyof typeof isloadingUpload] ? (
+                        <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
+                          <FaSpinner className="animate-spin duration-300 text-white" />
+                        </div>
+                      ) : null}
                       <FormControl>
                         <input
                           ref={(el) => {
@@ -145,24 +205,21 @@ const PhotosForm = () => {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setPreviewPhoto((prev) => ({ ...prev, [item]: URL.createObjectURL(file) }));
-                              field.onChange(file);
-                            }
-                          }}
+                          name={field.name}
+                          onChange={handleChange}
                         />
                       </FormControl>
                       {previewPhoto[item as keyof IPreviewPhoto] ? (
                         <PreviewPhoto
                           url={previewPhoto[item as keyof IPreviewPhoto] as string}
                           alt={`preview-${item}`}
-                          handleDelete={() => {
-                            setPreviewPhoto((prev) => ({ ...prev, [item]: "" }));
-                            field.onChange();
-                          }}
+                          handleDelete={() => handleDelete(field.name)}
                         />
+                      ) : isloadingUpload[item as keyof typeof isloadingUpload] ? (
+                        <div className="flex flex-col max-w-[300px] w-full gap-y-2">
+                          <span className="text-sm font-semibold">Uploading: {progress}%</span>
+                          <Progress value={progress} max={100} />
+                        </div>
                       ) : (
                         <div className="text-center">
                           <Camera className="mx-auto h-8 w-8 text-gray-400 mb-2" />

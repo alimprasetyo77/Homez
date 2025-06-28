@@ -1,10 +1,11 @@
 import { z } from "zod";
-const MAX_MB = 2;
-const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
-const fileOrString = z.union([z.instanceof(File), z.string()]);
 
-const basePropertySchema = z.object({
+const fileOrString = z.union([
+  z.instanceof(File),
+  z.string({ required_error: "Photo is required" }).nonempty("Photo cannot be empty"),
+]);
+
+export const createPropertySchema = z.object({
   title: z.string({ required_error: "Title is required" }).nonempty("Title cannot be empty"),
   description: z
     .string({ required_error: "Description is required" })
@@ -55,71 +56,19 @@ const basePropertySchema = z.object({
       }
     )
     .refine((v) => v.length >= 3, { message: "Must be have 3 amenities" }),
+  photos: z.object({
+    main_photo: fileOrString,
+    photo_1: fileOrString,
+    photo_2: fileOrString,
+    photo_3: fileOrString,
+    photo_4: fileOrString,
+  }),
+  photoDocument: fileOrString,
   isVerified: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });
 
-export const createPropertySchema = z
-  .object({
-    photos: z.object({
-      main_photo: z
-        .instanceof(File, { message: "Main photo is required" })
-        .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, and .png formats are supported"
-        ),
-      photo_1: z
-        .instanceof(File, { message: "Photo 1 is required" })
-        .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, and .png formats are supported"
-        ),
-      photo_2: z
-        .instanceof(File, { message: "Photo 2 is required" })
-        .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, and .png formats are supported"
-        ),
-      photo_3: z
-        .instanceof(File, { message: "Photo 3 is required" })
-        .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, and .png formats are supported"
-        ),
-      photo_4: z
-        .instanceof(File, { message: "Photo 4 is required" })
-        .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, and .png formats are supported"
-        ),
-    }),
-    photoDocument: z
-      .instanceof(File, { message: "Please upload the property document photo" })
-      .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-      .refine(
-        (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
-        "Only .jpg, .jpeg, and .png formats are supported"
-      ),
-  })
-  .merge(basePropertySchema);
-
-export const updatePropertySchema = z
-  .object({
-    photos: z.object({
-      main_photo: fileOrString,
-      photo_1: fileOrString,
-      photo_2: fileOrString,
-      photo_3: fileOrString,
-      photo_4: fileOrString,
-    }),
-    photoDocument: fileOrString,
-  })
-  .merge(basePropertySchema);
+export const updatePropertySchema = createPropertySchema.partial();
 
 export const searchOrFilterPropertiesSchema = z.object({
   title: z.string().optional(),

@@ -1,21 +1,38 @@
 import axiosWithConfig from "@/lib/axios-config";
 import { Response } from "@/types/type";
+import { IUpload } from "@/types/upload.type";
 
-export const uploadPhoto = async (file: File) => {
+export const uploadPhoto = async (file: File, field: string, onProgress?: (percent: number) => void) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    const result = await axiosWithConfig.post("/upload", formData);
-    return result.data as Response<{ url: string }>;
+    formData.append("field", field);
+    const result = await axiosWithConfig.post("/upload", formData, {
+      onUploadProgress(progressEvent) {
+        if (progressEvent.total) {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress?.(percent);
+        }
+      },
+    });
+    return result.data as Response<IUpload>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
   }
 };
-export const deletePhoto = async (imageUrl: string) => {
+
+export const getPublicIdByField = async (field: string) => {
   try {
-    const result = await axiosWithConfig.delete("/upload", {
-      url: imageUrl,
-    });
+    const result = await axiosWithConfig.get("/upload", { params: { field } });
+    return result.data as Response<Omit<IUpload, "field" | "url">>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const deletePhoto = async (publicId: string) => {
+  try {
+    const result = await axiosWithConfig.delete("/upload", { params: { publicId } });
     return result.data as Omit<Response, "data">;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);

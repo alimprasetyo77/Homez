@@ -31,5 +31,6 @@ apiRouter.delete("/api/favorites/:favoriteId", FavoriteController.delete);
 
 // upload file
 
+apiRouter.get("/api/upload", UploadController.getPublicId);
 apiRouter.post("/api/upload", uploadMiddleware as RequestHandler, UploadController.create as RequestHandler);
 apiRouter.delete("/api/upload", UploadController.delete);

@@ -1,41 +1,57 @@
-import { FileDiff, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { ChangeEvent, useRef, useState } from "react";
 import { ICreateProperty } from "@/types/property-type";
 import PreviewPhoto from "@/components/preview-photo";
-import { deletePhoto, uploadPhoto } from "@/services/upload-service";
 import { toast } from "sonner";
+import { FaSpinner } from "react-icons/fa";
+import { Progress } from "@/components/ui/progress";
+import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
+
 const VerifyForm = () => {
-  const { control, getValues } = useFormContext<ICreateProperty>();
-  const [previewImage, setPreviewImage] = useState<string | File>(getValues("photoDocument") ?? "");
+  const { control, getValues, setValue } = useFormContext<ICreateProperty>();
+  const [previewImage, setPreviewImage] = useState<File | string>(getValues("photoDocument") ?? "");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const {
+    uploadAsync,
+    progress,
+    isLoading: isLoadingUpload,
+  } = useUploadFile({
+    onSuccess: (res) => {
+      setValue("photoDocument", res.data.url);
+      setPreviewImage(res.data.url);
+    },
+    onError: (err) => {
+      toast.error(err?.message);
+    },
+  });
+
+  const { deleteUploadFileAsync, isLoading: isLoadingDeleteFile } = useDeleteUploadFile({
+    onSuccess: () => {
+      setValue("photoDocument", "");
+      setPreviewImage("");
+    },
+    onError: (err) => {
+      toast.error(err?.message);
+    },
+  });
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleChange = async (e: any) => {
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    try {
-      const file = e.target.files[0];
-      const result = await uploadPhoto(file);
-      setPreviewImage(result.data.url);
-    } catch (error: any) {
-      toast.error(error);
-    }
+    const file = e.target.files[0];
+    await uploadAsync({ file: file, field: "photoDocument" });
   };
   const handleDelete = async () => {
-    try {
-      const result = await deletePhoto(previewImage as string);
-      toast.success(result.message);
-    } catch (error: any) {
-      toast.error(error);
-    }
+    await deleteUploadFileAsync({ field: "photoDocument" });
   };
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-lg p-8 shadow-sm border">
@@ -77,7 +93,7 @@ const VerifyForm = () => {
           <FormField
             control={control}
             name="photoDocument"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <h3 className="font-semibold text-sm text-gray-700">Upload Document</h3>
                 <FormControl>
@@ -88,25 +104,36 @@ const VerifyForm = () => {
                     onChange={(e) => handleChange(e)}
                   />
                 </FormControl>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 ">
+                <div
+                  className={`border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 relative`}
+                >
+                  {isLoadingDeleteFile ? (
+                    <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
+                      <FaSpinner className="animate-spin duration-300 text-white" />
+                    </div>
+                  ) : null}
                   {previewImage ? (
                     <PreviewPhoto
                       url={previewImage as string}
                       alt="previewImage"
                       handleDelete={handleDelete}
                     />
+                  ) : isLoadingUpload ? (
+                    <div className="flex flex-col max-w-[300px] w-full gap-y-2">
+                      <span className="text-sm font-semibold">Uploading: {progress}%</span>
+                      <Progress value={progress} max={100} />
+                    </div>
                   ) : (
                     <div>
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                       <p className="text-gray-600 mb-2">Certificate, IMB, or other ownership documents</p>
-                      <Button
+                      <button
                         type="button"
-                        size={"sm"}
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
+                        className="text-sm h-8 bg-red-500 text-white px-4 font-medium rounded-lg hover:bg-red-600 cursor-pointer"
                         onClick={handleFileButtonClick}
                       >
                         Select Files
-                      </Button>
+                      </button>
                     </div>
                   )}
                 </div>

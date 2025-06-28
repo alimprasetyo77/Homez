@@ -63,6 +63,22 @@ model Favorite {
   @@unique([userId, propertyId])
 }
 
+model Upload {
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  publicId   String
+  url        String
+  field      String
+  status     StatusUploadPhoto
+  uploadedAt DateTime          @default(now())
+  propertyId String?
+  userId     String
+}
+
+enum StatusUploadPhoto {
+  pending
+  attached
+}
+
 enum Amenity {
   AC
   WATER_HEATER
