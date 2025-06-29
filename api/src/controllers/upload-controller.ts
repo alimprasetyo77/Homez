@@ -1,12 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import { UploadService } from "../services/upload-service";
+import {
+  IRequestDeleteUpload,
+  IRequestPublicId,
+  IRequestUploadService,
+  UploadService,
+} from "../services/upload-service";
 import { RequestFile, RequestWithUser } from "../types/user-request";
+import { Prisma } from "../generated/prisma";
 
 export class UploadController {
   static async getPublicId(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
-      const { field, propertyId } = req.query as { field: string; propertyId: string };
-      const request = { field, propertyId, user: req.user! };
+      const { field, propertyId } = req.query as {
+        field: keyof Prisma.$PhotoTypePayload | "photoDocument";
+        propertyId: string;
+      };
+      const request: IRequestPublicId = { field, propertyId, user: req.user! };
       const response = await UploadService.getPublicId(request);
       res.status(201).json({ message: "Upload file successfuly.", data: response });
     } catch (error) {
@@ -15,7 +24,7 @@ export class UploadController {
   }
   static async create(req: RequestFile, res: Response, next: NextFunction) {
     try {
-      const request = { files: req.files, fields: req.fields, user: req.user };
+      const request: IRequestUploadService = { files: req.files, fields: req.fields, user: req.user };
       const response = await UploadService.create(request);
       res.status(201).json({ message: "Upload file successfuly.", data: response });
     } catch (error) {
@@ -24,8 +33,13 @@ export class UploadController {
   }
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const request = req.query.publicId;
-      await UploadService.delete(request as string);
+      const { publicId, field, propertyId } = req.query as {
+        publicId: string;
+        field: keyof Prisma.$PhotoTypePayload | "photoDocument";
+        propertyId: string;
+      };
+      const request: IRequestDeleteUpload = { publicId, field, propertyId };
+      await UploadService.delete(request);
       res.status(200).json({ message: "Delete file successfuly." });
     } catch (error) {
       console.log(error);

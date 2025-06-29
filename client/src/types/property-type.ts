@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-const fileOrString = z.union([
-  z.instanceof(File),
-  z.string({ required_error: "Photo is required" }).nonempty("Photo cannot be empty"),
-]);
-
 export const createPropertySchema = z.object({
   title: z.string({ required_error: "Title is required" }).nonempty("Title cannot be empty"),
   description: z
@@ -57,13 +52,31 @@ export const createPropertySchema = z.object({
     )
     .refine((v) => v.length >= 3, { message: "Must be have 3 amenities" }),
   photos: z.object({
-    main_photo: fileOrString,
-    photo_1: fileOrString,
-    photo_2: fileOrString,
-    photo_3: fileOrString,
-    photo_4: fileOrString,
+    main_photo: z
+      .string({ required_error: "Photo is required" })
+      .nonempty("Photo cannot be empty")
+      .url({ message: "invalid url" }),
+    photo_1: z
+      .string({ required_error: "Photo is required" })
+      .nonempty("Photo cannot be empty")
+      .url({ message: "invalid url" }),
+    photo_2: z
+      .string({ required_error: "Photo is required" })
+      .nonempty("Photo cannot be empty")
+      .url({ message: "invalid url" }),
+    photo_3: z
+      .string({ required_error: "Photo is required" })
+      .nonempty("Photo cannot be empty")
+      .url({ message: "invalid url" }),
+    photo_4: z
+      .string({ required_error: "Photo is required" })
+      .nonempty("Photo cannot be empty")
+      .url({ message: "invalid url" }),
   }),
-  photoDocument: fileOrString,
+  photoDocument: z
+    .string({ required_error: "Photo is required" })
+    .nonempty("Photo cannot be empty")
+    .url({ message: "invalid url" }),
   isVerified: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });
@@ -114,7 +127,7 @@ export interface IProperty {
     city: string;
     state: string;
     country: string;
-    postalCode: number;
+    postalCode: string;
     latitude: number;
     longitude: number;
   };

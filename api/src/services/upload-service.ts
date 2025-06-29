@@ -5,19 +5,24 @@ import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "../main";
 import { IPublicUser } from "../types/user-request";
 import { Prisma } from "../generated/prisma";
-interface IGetPublicId {
-  field: string;
+
+export interface IRequestPublicId {
+  field: keyof Prisma.$PhotoTypePayload | "photoDocument";
   propertyId: string;
   user: IPublicUser;
 }
 
-interface IParamsUploadService {
+export interface IRequestUploadService extends Omit<IRequestPublicId, "propertyId" | "field"> {
   files: formidable.Files;
   fields: formidable.Fields;
-  user: IPublicUser;
 }
+
+export interface IRequestDeleteUpload extends Omit<IRequestPublicId, "user"> {
+  publicId: string;
+}
+
 export class UploadService {
-  static async getPublicId({ field, propertyId, user }: IGetPublicId): Promise<{ publicId: string }> {
+  static async getPublicId({ field, propertyId, user }: IRequestPublicId): Promise<{ publicId: string }> {
     if (!field) throw new ResponseError(400, "field is required");
     const whereClause: Prisma.UploadWhereInput = {
       field,
@@ -35,7 +40,7 @@ export class UploadService {
     return { publicId: file.publicId };
   }
 
-  static async create(request: IParamsUploadService) {
+  static async create(request: IRequestUploadService) {
     const file = request.files.file?.[0];
     const field = request.fields.field?.[0];
     if (!file || !field) throw new ResponseError(400, "File and field are required");
@@ -56,10 +61,33 @@ export class UploadService {
     return { url: upload.url, field };
   }
 
-  static async delete(publicId: string) {
+  static async delete(request: IRequestDeleteUpload) {
+    const { publicId, field, propertyId } = request;
     if (!publicId) throw new ResponseError(400, "public id is required");
+
     const { result } = await cloudinary.uploader.destroy(publicId);
-    if (result == "not found") throw new ResponseError(404, "invalid public id!");
-    await prisma.upload.deleteMany({ where: { publicId: publicId } });
+    if (result === "not found") throw new ResponseError(404, "invalid public id!");
+
+    if (propertyId && field) {
+      const updateData: Prisma.PropertyUpdateInput = {};
+
+      if (field === "photoDocument") {
+        updateData.photoDocument = "";
+      } else {
+        const property = await prisma.property.findUnique({
+          where: { id: propertyId },
+          select: { photos: true },
+        });
+        if (!property) throw new ResponseError(404, "property not found");
+        updateData.photos = { ...property.photos, [field]: "" };
+      }
+
+      await prisma.property.update({
+        where: { id: propertyId },
+        data: updateData,
+      });
+    }
+
+    await prisma.upload.deleteMany({ where: { publicId } });
   }
 }

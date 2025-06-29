@@ -20,9 +20,7 @@ const Property = () => {
     mutationKey: ["properties"],
     mutationFn: deleteProperty,
     onSuccess: () => {
-      // Refresh the product list after deletion
       queryClient.invalidateQueries({ queryKey: ["properties"] });
-      location.reload();
     },
     onError: ({ message }) => {
       toast.error(message);

@@ -21,18 +21,22 @@ export const uploadPhoto = async (file: File, field: string, onProgress?: (perce
   }
 };
 
-export const getPublicIdByField = async (field: string) => {
+export const getPublicIdByField = async (field: string, propertyId?: string) => {
   try {
-    const result = await axiosWithConfig.get("/upload", { params: { field } });
+    const result = await axiosWithConfig.get("/upload", {
+      params: { field, ...(propertyId && { propertyId }) },
+    });
     return result.data as Response<Omit<IUpload, "field" | "url">>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
   }
 };
 
-export const deletePhoto = async (publicId: string) => {
+export const deletePhoto = async (publicId: string, field?: string, propertyId?: string) => {
   try {
-    const result = await axiosWithConfig.delete("/upload", { params: { publicId } });
+    const result = await axiosWithConfig.delete("/upload", {
+      params: { publicId, ...(field && { field }), ...(propertyId && { propertyId }) },
+    });
     return result.data as Omit<Response, "data">;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);

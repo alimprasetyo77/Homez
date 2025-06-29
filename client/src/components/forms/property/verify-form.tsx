@@ -3,26 +3,29 @@ import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useRef } from "react";
 import { ICreateProperty } from "@/types/property-type";
 import PreviewPhoto from "@/components/preview-photo";
 import { toast } from "sonner";
 import { FaSpinner } from "react-icons/fa";
 import { Progress } from "@/components/ui/progress";
 import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
+import { useParams } from "react-router-dom";
 
 const VerifyForm = () => {
-  const { control, getValues, setValue } = useFormContext<ICreateProperty>();
-  const [previewImage, setPreviewImage] = useState<File | string>(getValues("photoDocument") ?? "");
+  const { control, setValue, resetField, getFieldState } = useFormContext<ICreateProperty>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { propertyId } = useParams();
+  const isEdit = !!propertyId;
+
   const {
     uploadAsync,
     progress,
     isLoading: isLoadingUpload,
   } = useUploadFile({
     onSuccess: (res) => {
-      setValue("photoDocument", res.data.url);
-      setPreviewImage(res.data.url);
+      setValue("photoDocument", res.data.url, { shouldDirty: true });
+      console.log(getFieldState("photoDocument"));
     },
     onError: (err) => {
       toast.error(err?.message);
@@ -31,10 +34,10 @@ const VerifyForm = () => {
 
   const { deleteUploadFileAsync, isLoading: isLoadingDeleteFile } = useDeleteUploadFile({
     onSuccess: () => {
-      setValue("photoDocument", "");
-      setPreviewImage("");
+      resetField("photoDocument", { defaultValue: "" });
     },
     onError: (err) => {
+      resetField("photoDocument", { defaultValue: "" });
       toast.error(err?.message);
     },
   });
@@ -49,7 +52,7 @@ const VerifyForm = () => {
     await uploadAsync({ file: file, field: "photoDocument" });
   };
   const handleDelete = async () => {
-    await deleteUploadFileAsync({ field: "photoDocument" });
+    await deleteUploadFileAsync({ field: "photoDocument", ...(isEdit && { propertyId }) });
   };
 
   return (
@@ -93,7 +96,7 @@ const VerifyForm = () => {
           <FormField
             control={control}
             name="photoDocument"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <h3 className="font-semibold text-sm text-gray-700">Upload Document</h3>
                 <FormControl>
@@ -112,12 +115,8 @@ const VerifyForm = () => {
                       <FaSpinner className="animate-spin duration-300 text-white" />
                     </div>
                   ) : null}
-                  {previewImage ? (
-                    <PreviewPhoto
-                      url={previewImage as string}
-                      alt="previewImage"
-                      handleDelete={handleDelete}
-                    />
+                  {field.value ? (
+                    <PreviewPhoto url={field.value} alt="previewImage" handleDelete={handleDelete} />
                   ) : isLoadingUpload ? (
                     <div className="flex flex-col max-w-[300px] w-full gap-y-2">
                       <span className="text-sm font-semibold">Uploading: {progress}%</span>

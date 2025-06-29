@@ -7,6 +7,8 @@ import { useState } from "react";
 interface IUseUploadFileOptions {
   onSuccess?: (data: Response<IUpload>) => void;
   onError?: (err: Error | null) => void;
+  onSettled?: (data: Response<IUpload>) => void;
+  onMutate?: (data: { file: File; field: string }) => void;
 }
 interface IUseDeleteUploadFile {
   onSuccess?: (data: { field: string }) => void;
@@ -19,16 +21,20 @@ export const useUploadFile = (options?: IUseUploadFileOptions) => {
     mutationKey: ["upload"],
     mutationFn: ({ file, field }: { file: File; field: string }) =>
       uploadPhoto(file, field, (percent) => setProgress(percent)),
-    onMutate: () => {
+    onMutate: (data) => {
       setProgress(0);
+      options?.onMutate?.(data);
     },
-    onSuccess: (data) => {
+    onSuccess: (field) => {
       setProgress(100);
-      options?.onSuccess?.(data);
+      options?.onSuccess?.(field);
     },
     onError: (err) => {
       setProgress(0);
       options?.onError?.(err);
+    },
+    onSettled: (data) => {
+      options?.onSettled?.(data!);
     },
   });
 
@@ -37,6 +43,7 @@ export const useUploadFile = (options?: IUseUploadFileOptions) => {
     isLoading: mutation.isPending,
     progress,
     error: mutation.error,
+    field: mutation.variables?.field ?? "",
   };
 };
 
@@ -45,9 +52,9 @@ export const useDeleteUploadFile = (options?: IUseDeleteUploadFile) => {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationKey: ["upload"],
-    mutationFn: async ({ field }: { field: string }) => {
-      const { data } = await getPublicIdByField(field);
-      return await deletePhoto(data.publicId);
+    mutationFn: async ({ field, propertyId }: { field: string; propertyId?: string }) => {
+      const { data } = await getPublicIdByField(field, propertyId);
+      return await deletePhoto(data.publicId, field, propertyId);
     },
     onMutate: ({ field }: { field: string }) => {
       setField(field);

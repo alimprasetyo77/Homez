@@ -7,7 +7,6 @@ import {
   IUpdateProperty,
   PropertyType,
 } from "@/types/property-type";
-import { checkProperty } from "@/lib/utils";
 import axios from "axios";
 import { IForwardGeoCode, IReverseGeocode } from "@/types/geocode-type";
 
@@ -42,42 +41,9 @@ export const searchOrFilterProperties = async (payload: ISearchOrFilterPropertie
   }
 };
 
-const createFormDataProperty = (body: ICreateProperty | IUpdateProperty) => {
-  const formData = new FormData();
-  let key: keyof typeof body;
-
-  for (key in body) {
-    let value = body[key];
-
-    if (!checkProperty(value)) continue;
-
-    if (key === "photos" && value && typeof value === "object") {
-      const photos = value as ICreateProperty["photos"];
-      let keyPhotos: keyof typeof photos;
-      for (keyPhotos in photos) {
-        const valueFieldPhotos = photos[keyPhotos];
-        formData.append(keyPhotos, valueFieldPhotos);
-      }
-      continue;
-    }
-
-    if (value instanceof File) {
-      formData.append(key, value as File);
-    } else if (typeof value === "object") {
-      formData.append(key, JSON.stringify(value));
-    } else if (Array.isArray(value)) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, String(value));
-    }
-  }
-  return formData;
-};
-
 export const createProperty = async (body: ICreateProperty) => {
   try {
-    const formData = createFormDataProperty(body);
-    const result = await axiosWithConfig.post("/properties", formData);
+    const result = await axiosWithConfig.post("/properties", body);
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -86,8 +52,7 @@ export const createProperty = async (body: ICreateProperty) => {
 
 export const updateProperty = async (body: IUpdateProperty, propertyId: string) => {
   try {
-    const formData = createFormDataProperty(body);
-    const result = await axiosWithConfig.put(`/properties/${propertyId}`, formData);
+    const result = await axiosWithConfig.put(`/properties/${propertyId}`, body);
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);

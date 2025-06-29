@@ -16,14 +16,16 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProperty, updateProperty } from "@/services/property-service";
 import { toast } from "sonner";
 import { FaSpinner } from "react-icons/fa";
 import { useAuthStore } from "@/stores/auth-store";
+import { useEffect } from "react";
 type MutationPayload = { data: IUpdateProperty; propertyId?: string };
 
 const PropertyForm = () => {
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const step = Number(searchParams.get("step"));
   const { propertyId } = useParams();
@@ -34,7 +36,7 @@ const PropertyForm = () => {
 
   const mutation = useMutation({
     mutationKey: ["properties"],
-    mutationFn: async ({ data, propertyId }: MutationPayload) => {
+    mutationFn: ({ data, propertyId }: MutationPayload) => {
       if (isEdit) {
         if (!propertyId) throw new Error("No propertyId provided");
         return updateProperty(data as IUpdateProperty, propertyId);
@@ -43,8 +45,9 @@ const PropertyForm = () => {
       }
     },
     onSuccess: ({ message }) => {
-      toast.success(message);
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
       navigate("/dashboard/property");
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -53,28 +56,45 @@ const PropertyForm = () => {
 
   const form = useForm<ICreateProperty | IUpdateProperty>({
     resolver: zodResolver(isEdit ? updatePropertySchema : createPropertySchema),
-    defaultValues: isEdit
-      ? { ...(property as any) }
-      : {
-          title: "",
-          location: {
-            address: "",
-            city: "",
-            state: "",
-            country: "",
-            postalCode: "",
-            latitude: 0,
-            longitude: 0,
-          },
+    defaultValues: {
+      title: "",
+      bathrooms: 0,
+      bedrooms: 0,
+      description: "",
+      listingType: "buy",
+      photoDocument: "",
+      photos: {
+        main_photo: "",
+        photo_1: "",
+        photo_2: "",
+        photo_3: "",
+        photo_4: "",
+      },
+      price: 0,
+      squareFeet: 0,
+      type: "house",
+      location: {
+        address: "",
+        city: "",
+        state: "",
+        country: "",
+        postalCode: "",
+        latitude: 0,
+        longitude: 0,
+      },
 
-          amenities: [],
+      amenities: [],
 
-          isVerified: false,
-          isFeatured: false,
-        },
+      isVerified: false,
+      isFeatured: false,
+    },
   });
 
-  console.log(form.getValues());
+  useEffect(() => {
+    if (isEdit && property) {
+      form.reset(property);
+    }
+  }, [isEdit, property]);
 
   const nextStep = async () => {
     if (Number(step) < Steps.length) {
@@ -162,8 +182,8 @@ const PropertyForm = () => {
           </div>
           <Button
             type="submit"
-            disabled={form.formState.isSubmitting}
-            aria-disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || !form.formState.isDirty}
+            aria-disabled={form.formState.isSubmitting || !form.formState.isDirty}
             className="w-full cursor-pointer  ml-auto bg-red-500 text-white h-10  rounded-lg hover:bg-red-600  flex items-center justify-center"
           >
             {form.formState.isSubmitting ? (

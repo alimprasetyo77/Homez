@@ -8,6 +8,7 @@ import {
   PropertyValidation,
 } from "../validations/property-validation";
 import { validate } from "../validations/validation";
+import { v2 as cloudinary } from "cloudinary";
 
 export class PropertyService {
   static async getById(id: string) {
@@ -79,6 +80,14 @@ export class PropertyService {
     await prisma.property.delete({
       where: { id: propertyId },
     });
+
+    const fileUpload = await prisma.upload.findMany({
+      where: { AND: [{ propertyId, userId: user.id }] },
+      select: { publicId: true },
+    });
+    if (fileUpload.length > 0) {
+      await Promise.allSettled(fileUpload.map((file) => cloudinary.uploader.destroy(file.publicId)));
+    }
   }
 
   static async search(request: ISearchProperty) {
