@@ -6,7 +6,7 @@ import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
 import { ICreateProperty } from "@/types/property-type";
 import { Camera } from "lucide-react";
 import { ChangeEvent, useRef } from "react";
-import { useFormContext } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ interface IPreviewPhoto {
 const fieldsPhoto = ["main_photo", "photo_1", "photo_2", "photo_3", "photo_4"] as const;
 const PhotosForm = () => {
   const { control, setValue, resetField } = useFormContext<ICreateProperty>();
+  const {} = useController({ control, name: "photos.main_photo" });
   const { propertyId } = useParams();
   const isEdit = !!propertyId;
   const fileInputRefs = useRef<Record<keyof IPreviewPhoto, HTMLInputElement | null>>({
@@ -195,7 +196,7 @@ const PhotosForm = () => {
                     <div
                       className="aspect-video max-w-[464px] bg-gray-100 rounded-lg border-2 p-4 border-dashed border-gray-300 flex items-center justify-center cursor-pointer relative"
                       onClick={() => {
-                        if (field.value) return;
+                        if (field.value || uploadHooks[item].isLoading) return;
                         handleUploadClick(item as keyof IPreviewPhoto);
                       }}
                     >

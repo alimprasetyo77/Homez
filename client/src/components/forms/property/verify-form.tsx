@@ -13,19 +13,17 @@ import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
 import { useParams } from "react-router-dom";
 
 const VerifyForm = () => {
-  const { control, setValue, resetField, getFieldState } = useFormContext<ICreateProperty>();
+  const { control, setValue, resetField } = useFormContext<ICreateProperty>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { propertyId } = useParams();
   const isEdit = !!propertyId;
-
   const {
     uploadAsync,
     progress,
     isLoading: isLoadingUpload,
   } = useUploadFile({
     onSuccess: (res) => {
-      setValue("photoDocument", res.data.url, { shouldDirty: true });
-      console.log(getFieldState("photoDocument"));
+      setValue("photoDocument", res.data.url);
     },
     onError: (err) => {
       toast.error(err?.message);
@@ -72,73 +70,79 @@ const VerifyForm = () => {
           <FormField
             control={control}
             name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Property Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="w-full border-gray-300 !h-11">
-                      <SelectValue placeholder="Select a Type to display" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="house">House</SelectItem>
-                    <SelectItem value="apartment">Apartment</SelectItem>
-                    <SelectItem value="villa">Villa</SelectItem>
-                    <SelectItem value="office">Office</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              console.log("FIELD TYPE VALUE:", field.value);
+
+              return (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Property Type</FormLabel>
+                  <Select value={field.value || ""} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full border-gray-300 !h-11">
+                        <SelectValue placeholder="Select a Type to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="house">House</SelectItem>
+                      <SelectItem value="apartment">Apartment</SelectItem>
+                      <SelectItem value="office">Office</SelectItem>
+                      <SelectItem value="villa">Villa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
             control={control}
             name="photoDocument"
-            render={({ field }) => (
-              <FormItem>
-                <h3 className="font-semibold text-sm text-gray-700">Upload Document</h3>
-                <FormControl>
-                  <Input
-                    className="hidden"
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => handleChange(e)}
-                  />
-                </FormControl>
-                <div
-                  className={`border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 relative`}
-                >
-                  {isLoadingDeleteFile ? (
-                    <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
-                      <FaSpinner className="animate-spin duration-300 text-white" />
-                    </div>
-                  ) : null}
-                  {field.value ? (
-                    <PreviewPhoto url={field.value} alt="previewImage" handleDelete={handleDelete} />
-                  ) : isLoadingUpload ? (
-                    <div className="flex flex-col max-w-[300px] w-full gap-y-2">
-                      <span className="text-sm font-semibold">Uploading: {progress}%</span>
-                      <Progress value={progress} max={100} />
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-gray-600 mb-2">Certificate, IMB, or other ownership documents</p>
-                      <button
-                        type="button"
-                        className="text-sm h-8 bg-red-500 text-white px-4 font-medium rounded-lg hover:bg-red-600 cursor-pointer"
-                        onClick={handleFileButtonClick}
-                      >
-                        Select Files
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <h3 className="font-semibold text-sm text-gray-700">Upload Document</h3>
+                  <FormControl>
+                    <Input
+                      className="hidden"
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={(e) => handleChange(e)}
+                    />
+                  </FormControl>
+                  <div
+                    className={`border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors flex flex-col items-center justify-center min-h-96 relative`}
+                  >
+                    {isLoadingDeleteFile ? (
+                      <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
+                        <FaSpinner className="animate-spin duration-300 text-white" />
+                      </div>
+                    ) : null}
+                    {field.value ? (
+                      <PreviewPhoto url={field.value} alt="previewImage" handleDelete={handleDelete} />
+                    ) : isLoadingUpload ? (
+                      <div className="flex flex-col max-w-[300px] w-full gap-y-2">
+                        <span className="text-sm font-semibold">Uploading: {progress}%</span>
+                        <Progress value={progress} max={100} />
+                      </div>
+                    ) : (
+                      <div>
+                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                        <p className="text-gray-600 mb-2">Certificate, IMB, or other ownership documents</p>
+                        <button
+                          type="button"
+                          className="text-sm h-8 bg-red-500 text-white px-4 font-medium rounded-lg hover:bg-red-600 cursor-pointer"
+                          onClick={handleFileButtonClick}
+                        >
+                          Select Files
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </div>
       </div>

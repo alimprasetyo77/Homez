@@ -1,4 +1,7 @@
+import PropertyType from "@/components/sections/property-type-section";
 import { z } from "zod";
+const propertyTypeOptions = ["house", "apartment", "villa", "office"] as const;
+const listingTypeOptions = ["buy", "rent"] as const;
 
 export const createPropertySchema = z.object({
   title: z.string({ required_error: "Title is required" }).nonempty("Title cannot be empty"),
@@ -7,12 +10,14 @@ export const createPropertySchema = z.object({
     .nonempty("Description cannot be empty"),
   price: z.number({ required_error: "Price is required" }),
 
-  type: z.enum(["house", "apartment", "villa", "office"], {
-    errorMap: () => ({ message: "Please select a property type" }),
-  }),
-  listingType: z.enum(["buy", "rent"], {
-    errorMap: () => ({ message: "Listing type must be either buy or rent" }),
-  }),
+  type: z
+    .string()
+    .refine((val) => propertyTypeOptions.includes(val as PropertyType), { message: "Invalid selection" }),
+
+  listingType: z
+    .string()
+    .refine((val) => listingTypeOptions.includes(val as PropertyStatus), { message: "Invalid selection" }),
+
   bedrooms: z.number({ required_error: "Number of bedrooms is required" }).min(1).max(100),
   bathrooms: z.number({ required_error: "Number of bathrooms is required" }).min(1).max(100),
   squareFeet: z.number({ required_error: "Square feet is required" }),

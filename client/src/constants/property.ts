@@ -1,6 +1,7 @@
 import { Camera, Check, DollarSign, Home, Star } from "lucide-react";
 import { ICity, ILinkOnSearch } from "./types";
-import { IProperty } from "@/types/property-type";
+import { ICreateProperty, IProperty, IUpdateProperty } from "@/types/property-type";
+import { useForm } from "react-hook-form";
 
 export const listLinkOnSearch: ILinkOnSearch[] = [
   {
@@ -110,3 +111,45 @@ export const AmenitiesList: { label: string; value: IProperty["amenities"][numbe
   { label: "Internet", value: "INTERNET" },
   { label: "Cable TV", value: "CABLE_TV" },
 ];
+
+// SECTION CREATE | UPDATE
+type FormData = ICreateProperty | IUpdateProperty;
+type FieldNames = Parameters<ReturnType<typeof useForm<FormData>>["trigger"]>[0];
+
+// Constants
+export const STEP_VALIDATION_FIELDS: Record<number, FieldNames> = {
+  1: ["type", "photoDocument"],
+  2: ["title", "description", "location.address", "bedrooms", "bathrooms", "squareFeet", "amenities"],
+  3: ["listingType", "price"],
+  4: ["photos.main_photo", "photos.photo_1", "photos.photo_2", "photos.photo_3", "photos.photo_4"],
+};
+export const DEFAULT_FORM_VALUES: Partial<ICreateProperty> = {
+  title: "",
+  bathrooms: 0,
+  bedrooms: 0,
+  description: "",
+  listingType: "",
+  photoDocument: "",
+  photos: {
+    main_photo: "",
+    photo_1: "",
+    photo_2: "",
+    photo_3: "",
+    photo_4: "",
+  },
+  price: 0,
+  squareFeet: 0,
+  type: "",
+  location: {
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+    postalCode: "",
+    latitude: 0,
+    longitude: 0,
+  },
+  amenities: [],
+  isVerified: false,
+  isFeatured: false,
+};

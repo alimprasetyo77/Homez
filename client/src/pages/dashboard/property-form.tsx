@@ -3,7 +3,7 @@ import VerifyForm from "@/components/forms/property/verify-form";
 import DetailForm from "@/components/forms/property/detail-form";
 import PricingForm from "@/components/forms/property/pricing-form";
 import PhotosForm from "@/components/forms/property/photos-form";
-import { Steps } from "@/constants/property";
+import { DEFAULT_FORM_VALUES, Steps } from "@/constants/property";
 import StepIndicator from "@/components/step-indicator";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ import { createProperty, updateProperty } from "@/services/property-service";
 import { toast } from "sonner";
 import { FaSpinner } from "react-icons/fa";
 import { useAuthStore } from "@/stores/auth-store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 type MutationPayload = { data: IUpdateProperty; propertyId?: string };
 
 const PropertyForm = () => {
@@ -29,15 +29,15 @@ const PropertyForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const step = Number(searchParams.get("step"));
   const { propertyId } = useParams();
-  const isEdit = !!propertyId;
+  const isEditMode = Boolean(propertyId);
   const navigate = useNavigate();
-
   const property = useAuthStore((state) => state.properties.find((value) => value.id === propertyId));
+  const [isFormReady, setIsFormReady] = useState(false);
 
   const mutation = useMutation({
     mutationKey: ["properties"],
     mutationFn: ({ data, propertyId }: MutationPayload) => {
-      if (isEdit) {
+      if (isEditMode) {
         if (!propertyId) throw new Error("No propertyId provided");
         return updateProperty(data as IUpdateProperty, propertyId);
       } else {
@@ -47,6 +47,7 @@ const PropertyForm = () => {
     onSuccess: ({ message }) => {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
       navigate("/dashboard/property");
+      form.reset();
       toast.success(message);
     },
     onError: ({ message }) => {
@@ -55,46 +56,25 @@ const PropertyForm = () => {
   });
 
   const form = useForm<ICreateProperty | IUpdateProperty>({
-    resolver: zodResolver(isEdit ? updatePropertySchema : createPropertySchema),
-    defaultValues: {
-      title: "",
-      bathrooms: 0,
-      bedrooms: 0,
-      description: "",
-      listingType: "buy",
-      photoDocument: "",
-      photos: {
-        main_photo: "",
-        photo_1: "",
-        photo_2: "",
-        photo_3: "",
-        photo_4: "",
-      },
-      price: 0,
-      squareFeet: 0,
-      type: "house",
-      location: {
-        address: "",
-        city: "",
-        state: "",
-        country: "",
-        postalCode: "",
-        latitude: 0,
-        longitude: 0,
-      },
-
-      amenities: [],
-
-      isVerified: false,
-      isFeatured: false,
-    },
+    resolver: zodResolver(isEditMode ? updatePropertySchema : createPropertySchema),
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
   useEffect(() => {
-    if (isEdit && property) {
-      form.reset(property);
+    if (isEditMode && property) {
+      form.reset({
+        ...property,
+        photos: {
+          main_photo: property.photos.main_photo,
+          photo_1: property.photos.photo_1,
+          photo_2: property.photos.photo_2,
+          photo_3: property.photos.photo_3,
+          photo_4: property.photos.photo_4,
+        },
+      });
+      setIsFormReady(true);
     }
-  }, [isEdit, property]);
+  }, [isEditMode, property]);
 
   const nextStep = async () => {
     if (Number(step) < Steps.length) {
@@ -189,7 +169,7 @@ const PropertyForm = () => {
             {form.formState.isSubmitting ? (
               <FaSpinner className="animate-spin duration-300" />
             ) : (
-              <span>{isEdit ? "Submit" : "Publish Listing"}</span>
+              <span>{isEditMode ? "Submit" : "Publish Listing"}</span>
             )}
           </Button>
         </div>
@@ -213,12 +193,22 @@ const PropertyForm = () => {
         return <VerifyForm />;
     }
   };
+
+  // Loading state
+  if (!isFormReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <FaSpinner className="animate-spin text-red-500 text-2xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen font-sans py-16">
       <div className="max-w-6xl mx-auto px-4 ">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {isEdit ? "Update" : "Listing Your"} Property
+            {isEditMode ? "Update" : "Listing Your"} Property
           </h1>
           <p className="text-gray-800 ">Complete the following steps to publish your property.</p>
         </div>
@@ -228,7 +218,7 @@ const PropertyForm = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(async (data: ICreateProperty | IUpdateProperty) => {
-              if (isEdit) {
+              if (isEditMode) {
                 mutation.mutateAsync({
                   data,
                   propertyId: propertyId,
