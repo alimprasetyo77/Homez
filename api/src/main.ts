@@ -24,7 +24,7 @@ cloudinary.config({
 
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res, _next, options) => {
@@ -61,7 +61,7 @@ async function cleanup() {
   const oldUploads = await prisma.upload.findMany({
     where: {
       status: "pending",
-      propertyId: null,
+      // propertyId: null,
       uploadedAt: { lt: cutoff },
     },
   });

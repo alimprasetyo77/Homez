@@ -1,20 +1,17 @@
 import { typeProperties } from "@/constants/property";
-import { getPopular } from "@/services/property-service";
 import { PropertyType } from "@/types/property-type";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-import PropertyCard from "../cards/property-card";
+import { PropertyCard } from "../cards/property-card";
+import { usePopularProperties } from "@/hooks/use-properties";
+import { useMyFavorites } from "@/hooks/use-favorite";
 
 const PopularProperty = () => {
   const [activeLinkOnProperties, setActiveLinkOnProperties] = useState<PropertyType>("house");
-
-  const { data: popularProperties, isLoading } = useQuery({
-    queryKey: ["properties", activeLinkOnProperties],
-    queryFn: () => getPopular(activeLinkOnProperties),
-  });
+  const { popularProperties, isLoading } = usePopularProperties(activeLinkOnProperties);
+  const { favorites } = useMyFavorites();
 
   return (
     <section className="py-[120px] px-20 ">
@@ -52,11 +49,12 @@ const PopularProperty = () => {
             ? Array.from({ length: 6 }, (_, index) => (
                 <Skeleton key={index} className="h-[350px] w-full rounded-xl" />
               ))
-            : popularProperties?.data?.map((property) =>
-                property.type === activeLinkOnProperties ? (
-                  <PropertyCard key={property.id} property={property} />
-                ) : null
-              )}
+            : popularProperties?.map((property) => {
+                const favorite = favorites?.find((fav) => fav.property.id === property.id);
+                return property.type === activeLinkOnProperties ? (
+                  <PropertyCard key={property.id} property={property} favoriteId={favorite?.id || null} />
+                ) : null;
+              })}
         </div>
       </motion.div>
     </section>

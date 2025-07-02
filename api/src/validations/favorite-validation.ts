@@ -7,4 +7,4 @@ export class FavoriteValidation {
   });
 }
 
-export type IAddFavorite = z.infer<typeof FavoriteValidation.add>;
+export type IAddFavortieType = z.infer<typeof FavoriteValidation.add>;

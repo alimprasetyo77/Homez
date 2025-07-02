@@ -80,8 +80,8 @@ const Map = ({ position, interactive = false, onChangePosition }: MapProps) => {
   return (
     <MapContainer
       center={markerPos}
-      zoom={5}
-      scrollWheelZoom
+      zoom={interactive ? 5 : 13}
+      scrollWheelZoom={interactive ? true : false}
       style={{ height: "500px", width: "100%" }}
       ref={mapRef}
     >

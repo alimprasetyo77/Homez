@@ -25,9 +25,8 @@ const LayoutDashboard = () => {
         </Link>
         <ul className="flex flex-col space-y-4 ">
           {linkProfile.map((link) => {
-            const linkValidForOwnerOrAdmin = [1, 2, 3];
             const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
-            if (linkValidForOwnerOrAdmin.includes(link.id) && !isOwnerOrAdmin) return;
+            if (link.id === 1 && !isOwnerOrAdmin) return;
             return (
               <Link to={link.path} key={link.id}>
                 <li
@@ -45,7 +44,7 @@ const LayoutDashboard = () => {
         <div className="bottom-0 absolute border-t inset-x-0 p-4">
           <ProfileMenu>
             <Avatar className="size-9 ">
-              <AvatarImage src={user?.photoUrl} alt="@shadcn" />
+              <AvatarImage src={user?.photoProfile} alt="@shadcn" />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
           </ProfileMenu>

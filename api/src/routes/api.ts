@@ -13,24 +13,25 @@ apiRouter.use(authMiddleware as any);
 
 // User routes
 apiRouter.get("/api/users/current", UserController.get);
-apiRouter.get("/api/users/:id", UserController.getById);
+apiRouter.get("/api/users/properties", PropertyController.getByUserId);
+apiRouter.get("/api/users/favorites", FavoriteController.getMyFavorite);
 apiRouter.put("/api/users/current", UserController.update);
 apiRouter.put("/api/users/change-password", UserController.changePassword);
 apiRouter.delete("/api/users/current", UserController.delete);
+apiRouter.get("/api/users/:id", UserController.getById);
 
 // Property routes
-//AGENT ONLY
+//OWNER ONLY
 apiRouter.post("/api/properties", roleMiddleware as any, PropertyController.create);
 apiRouter.put("/api/properties/:propertyId", roleMiddleware as any, PropertyController.update);
 apiRouter.delete("/api/properties/:propertyId", roleMiddleware as any, PropertyController.delete);
 
 // Favorite routes
-apiRouter.get("/api/favorites/me", FavoriteController.getMyFavorite);
+apiRouter.get("/api/user/favorites", FavoriteController.getMyFavorite);
 apiRouter.post("/api/favorites", FavoriteController.add);
 apiRouter.delete("/api/favorites/:favoriteId", FavoriteController.delete);
 
-// upload file
-
+// Upload file
 apiRouter.get("/api/upload", UploadController.getPublicId);
 apiRouter.post("/api/upload", uploadMiddleware as RequestHandler, UploadController.create as RequestHandler);
 apiRouter.delete("/api/upload", UploadController.delete);

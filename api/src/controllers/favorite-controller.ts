@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { FavoriteService } from "../services/favorite-service";
-import { IAddFavorite } from "../validations/favorite-validation";
+
 import { RequestWithUser } from "../types/user-request";
 import { User } from "../generated/prisma";
+import { ObjectId } from "mongoose";
 
 export class FavoriteController {
   static async add(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
-      const request: IAddFavorite = req.body;
+      const request = req.body;
       const user = req.user as User;
       const response = await FavoriteService.add(request, user);
       res.status(201).json(response);

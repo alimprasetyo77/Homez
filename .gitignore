@@ -8,3 +8,4 @@ api/src/generated
 
 client/node_modules
 client/.env
+api/logs/combined.log

@@ -10,6 +10,33 @@ import {
 import axios from "axios";
 import { IForwardGeoCode, IReverseGeocode } from "@/types/geocode-type";
 
+export const getMyProperties = async () => {
+  try {
+    const result = await axiosWithConfig.get("/users/properties");
+    return result.data as Response<IProperty[]>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const getPropertyById = async (propertyId: string) => {
+  try {
+    const result = await axiosWithConfig.get(`/properties/${propertyId}`);
+    return result.data as Response<IProperty>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const getProperties = async () => {
+  try {
+    const result = await axiosWithConfig.get("/properties");
+    return result.data as Response<IProperty[]>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
 export const getLocation = async () => {
   try {
     const result = await axiosWithConfig.get("/properties/location");
@@ -31,16 +58,6 @@ export const getPopular = async (typeProperty: PropertyType) => {
     throw new Error(error.response?.data.errors.message);
   }
 };
-
-export const searchOrFilterProperties = async (payload: ISearchOrFilterProperties) => {
-  try {
-    const result = await axiosWithConfig.post("/properties/search", payload);
-    return result.data as ResponsePagination<IProperty[]>;
-  } catch (error: any) {
-    throw new Error(error.response?.data.errors.message);
-  }
-};
-
 export const createProperty = async (body: ICreateProperty) => {
   try {
     const result = await axiosWithConfig.post("/properties", body);
@@ -63,6 +80,15 @@ export const deleteProperty = async (propertyId: string) => {
   try {
     const response = await axiosWithConfig.delete(`/properties/${propertyId}`);
     return response.data as Omit<Response, "data">;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const searchOrFilterProperties = async (payload: ISearchOrFilterProperties) => {
+  try {
+    const result = await axiosWithConfig.post("/properties/search", payload);
+    return result.data as ResponsePagination<IProperty[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
   }

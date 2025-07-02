@@ -1,4 +1,4 @@
-import { User as IUser, User } from "../generated/prisma";
+import { User as IUser, Prisma, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { Token } from "../utils/token";
 import { ResponseError } from "../utils/response-error";
@@ -105,28 +105,14 @@ export class UserService {
   }
 
   static async get(user: IPublicUser): Promise<IPublicUser> {
-    if (user.role !== "OWNER" && user.role !== "ADMIN") return user;
-
-    const result = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
-      include: { favorites: true, properties: true },
-      omit: { password: true, token: true },
-    });
-    return result as IPublicUser;
+    return user;
   }
 
   static async update(user: User, request: IUpdateUserSchema): Promise<IUpdateUserSchema> {
     const data = validate(UserValidation.updateUser, request);
     const result = await prisma.user.update({
       where: { id: user.id },
-      data: {
-        ...data,
-        location: { set: { ...(data.location as any) } },
-        socialMedia: { set: { ...(data.socialMedia as any) } },
-        photoProfile: { set: data.photoProfile as any },
-      },
+      data: { ...(data as Prisma.UserUpdateInput) },
       omit: { password: true, token: true },
     });
     return result as IUpdateUserSchema;

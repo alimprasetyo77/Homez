@@ -1,4 +1,4 @@
-import { Property, User } from "../generated/prisma";
+import { Prisma, Property, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";
 import {
@@ -11,8 +11,30 @@ import { validate } from "../validations/validation";
 import { v2 as cloudinary } from "cloudinary";
 
 export class PropertyService {
-  static async getById(id: string) {
-    const property = await prisma.property.findFirst({ where: { id } });
+  static async getByUserId(userId: string) {
+    const selectFields: Prisma.PropertySelect = {
+      id: true,
+      status: true,
+      listingType: true,
+      price: true,
+      title: true,
+      location: { omit: { latitude: true, longitude: true } },
+      bedrooms: true,
+      bathrooms: true,
+      squareFeet: true,
+      type: true,
+      createdAt: true,
+      photos: { select: { main_photo: true } },
+    };
+    const properties = await prisma.property.findMany({ where: { ownerId: userId }, select: selectFields });
+    return properties;
+  }
+
+  static async getById(propertyId: string) {
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      include: { owner: true },
+    });
     if (!property) throw new ResponseError(404, "Property not found");
     return property;
   }

@@ -22,15 +22,7 @@ export const updateUserSchema = z.object({
 
   phone: z.string().min(10, { message: "Invalid phone number" }).max(20).optional(),
 
-  photoProfile: z
-    .instanceof(File)
-    .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-    .refine(
-      (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
-      "Only .jpg, .jpeg, and .png formats are supported"
-    )
-    .optional()
-    .or(z.literal("")),
+  photoProfile: z.string().optional(),
 
   bio: z.string().optional(),
 

@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTable
                       style={{
                         width: header.getSize(),
                       }}
-                      className="bg-[#ef4f4f] text-white text-[13px]"
+                      className=" text-[13px] "
                     >
                       {header.isPlaceholder
                         ? null

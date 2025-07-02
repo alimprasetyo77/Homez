@@ -57,13 +57,13 @@ export class PropertyValidation {
       )
       .refine((v) => v.length >= 3, { message: "Must be have 3 amenities" }),
     photos: z.object({
-      main_photo: z.any({ required_error: "main_photo required" }),
-      photo_1: z.any({ required_error: "photo_1 required" }),
-      photo_2: z.any({ required_error: "photo_2 required" }),
-      photo_3: z.any({ required_error: "photo_3 required" }),
-      photo_4: z.any({ required_error: "photo_4 required" }),
+      main_photo: z.string({ required_error: "main_photo required" }),
+      photo_1: z.string({ required_error: "photo_1 required" }),
+      photo_2: z.string({ required_error: "photo_2 required" }),
+      photo_3: z.string({ required_error: "photo_3 required" }),
+      photo_4: z.string({ required_error: "photo_4 required" }),
     }),
-    photoDocument: z.any({ required_error: "photo document required" }),
+    photoDocument: z.string({ required_error: "photo document required" }),
     isVerified: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
   });

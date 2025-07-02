@@ -9,8 +9,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import ProtectedRoute from "./protected-route";
 import Register from "@/pages/auth/register";
-import MainDashboard from "@/pages/dashboard";
-import PropertyForm from "@/pages/dashboard/property-form";
+import CreateUpdateProperty from "@/pages/properties/create-update-property";
 import Property from "@/pages/dashboard/property";
 import Favorite from "@/pages/dashboard/favorite";
 import Profile from "@/pages/dashboard/profile";
@@ -23,6 +22,7 @@ function App() {
     if (token === null) return;
     fetchUser();
   }, [token]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -42,16 +42,15 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/properties/search" element={<Search />} />
-            <Route path="/properties/:propertyId" element={<DetailProperty />} />
+            <Route path="/property/:propertyId" element={<DetailProperty />} />
             <Route path="/about" element={<About />} />
           </Route>
           <Route element={<LayoutDashboard />}>
-            <Route path="/dashboard" element={<MainDashboard />} />
             <Route path="/dashboard/property" element={<Property />} />
             <Route path="/dashboard/favorite" element={<Favorite />} />
             <Route path="/dashboard/profile" element={<Profile />} />
           </Route>
-          <Route path="/dashboard/property/form/:propertyId?" element={<PropertyForm />} />
+          <Route path="/property/form/:propertyId?" element={<CreateUpdateProperty />} />
         </Route>
         <Route
           path="*"

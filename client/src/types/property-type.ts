@@ -1,5 +1,6 @@
 import PropertyType from "@/components/sections/property-type-section";
 import { z } from "zod";
+import { IUser } from "./user-type";
 const propertyTypeOptions = ["house", "apartment", "villa", "office"] as const;
 const listingTypeOptions = ["buy", "rent"] as const;
 
@@ -164,6 +165,9 @@ export interface IProperty {
     photo_4: string;
   };
   photoDocument: string;
+  owner: IUser;
+
+  createdAt: string;
   isVerified?: boolean;
   isFeatured?: boolean;
 }

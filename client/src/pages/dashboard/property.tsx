@@ -1,31 +1,26 @@
 import { DataTable } from "@/components/data-table";
 import { usdCurrencyFormat } from "@/lib/utils";
-import { useAuthStore } from "@/stores/auth-store";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleOff, Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteProperty } from "@/services/property-service";
 import Alert from "@/components/alert";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useDeleteProperty, useMyProperties } from "@/hooks/use-properties";
+import { useEffect, useState } from "react";
 const Property = () => {
-  const queryClient = useQueryClient();
-  const { properties, havePendingProperty } = useAuthStore();
   const navigate = useNavigate();
+  const { properties } = useMyProperties();
+  const { deleteProperty, pendingDeleteProperty } = useDeleteProperty();
+  const [havePendingProperty, sethavePendingProperty] = useState(false);
 
-  const onDeleteProperty = useMutation({
-    mutationKey: ["properties"],
-    mutationFn: deleteProperty,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-    },
-    onError: ({ message }) => {
-      toast.error(message);
-    },
-  });
+  useEffect(() => {
+    if (!properties) return;
+    const result = properties?.some((property) => property.status === "pending");
+    sethavePendingProperty(result!);
+  }, [properties]);
 
   const columns: ColumnDef<IProperty>[] = [
     {
@@ -102,7 +97,7 @@ const Property = () => {
                 <Alert
                   title="Are you sure?"
                   description={`This action cannot be undone. This will permanently delete the property data.`}
-                  onAction={async () => await onDeleteProperty.mutateAsync(info.row.original.id)}
+                  onAction={async () => await deleteProperty(info.row.original.id)}
                 >
                   <div>
                     <Trash2 className="size-4" />
@@ -111,7 +106,7 @@ const Property = () => {
                 </Alert>
                 <div
                   onClick={() => {
-                    navigate(`/dashboard/property/form/${info.row.original.id}`);
+                    navigate(`/property/form/${info.row.original.id}`);
                   }}
                 >
                   <Edit className="size-4" />
@@ -133,6 +128,7 @@ const Property = () => {
       size: 50,
     },
   ];
+
   if (!properties || properties.length === 0) {
     return (
       <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
@@ -153,13 +149,13 @@ const Property = () => {
                 toast("You have pending property");
                 return;
               }
-              navigate("/dashboard/property/form");
+              navigate("/property/form");
             }}
           >
             Add Property
           </Button>
         </div>
-        <DataTable columns={columns} data={properties} isLoading={onDeleteProperty.isPending} />
+        <DataTable columns={columns} data={properties} isLoading={pendingDeleteProperty} />
       </div>
     </div>
   );

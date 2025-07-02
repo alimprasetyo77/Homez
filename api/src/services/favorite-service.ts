@@ -1,36 +1,52 @@
-import { User } from "../generated/prisma";
+import { isValidObjectId } from "mongoose";
+import { Prisma, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";
-import { FavoriteValidation, IAddFavorite } from "../validations/favorite-validation";
+import { FavoriteValidation, IAddFavortieType } from "../validations/favorite-validation";
 import { validate } from "../validations/validation";
 
 export class FavoriteService {
-  static async add(request: IAddFavorite, user: User) {
-    const data = validate(FavoriteValidation.add, request);
-
-    const property = await prisma.property.findUnique({ where: { id: data.propertyId } });
+  static async add(body: IAddFavortieType, user: User) {
+    const { propertyId } = validate(FavoriteValidation.add, body);
+    const property = await prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) throw new ResponseError(400, "Property not found");
 
     const existingFavorite = await prisma.favorite.findFirst({
       where: {
         userId: user.id,
-        propertyId: data.propertyId,
+        propertyId: propertyId,
       },
     });
+    if (existingFavorite) throw new ResponseError(400, "Already favorited.");
 
-    if (existingFavorite) throw new ResponseError(400, "Already favorited!");
-
-    await prisma.favorite.create({ data: { propertyId: data.propertyId, userId: user.id } });
+    await prisma.favorite.create({ data: { propertyId: propertyId, userId: user.id } });
     return {
       message: "Favorite added",
     };
   }
 
   static async getMyFavorite(user: User) {
+    const includesField: Prisma.FavoriteInclude = {
+      property: {
+        select: {
+          id: true,
+          price: true,
+          title: true,
+          location: { omit: { latitude: true, longitude: true } },
+          bedrooms: true,
+          bathrooms: true,
+          squareFeet: true,
+          type: true,
+          listingType: true,
+          photos: { select: { main_photo: true } },
+        },
+      },
+    };
     const favorites = await prisma.favorite.findMany({
       where: { userId: user.id },
-      include: { property: true },
+      include: includesField,
       omit: { userId: true, propertyId: true },
+      orderBy: { createdAt: "desc" },
     });
 
     return {
@@ -51,7 +67,7 @@ export class FavoriteService {
     }
 
     await prisma.favorite.delete({
-      where: { id: favoriteId },
+      where: { id: favoriteId, userId: user.id },
     });
     return {
       message: "Favorite deleted",

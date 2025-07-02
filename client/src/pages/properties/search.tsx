@@ -3,14 +3,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { propertiesTypeOptions } from "@/constants/property";
-import { convertToUrlSlug, usdCurrencyFormat } from "@/lib/utils";
+import { usdCurrencyFormat } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RxExternalLink } from "react-icons/rx";
-import { MdOutlineLibraryAdd } from "react-icons/md";
-import { CiHeart } from "react-icons/ci";
 import { Button } from "@/components/ui/button";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import {
@@ -21,12 +18,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useQuery } from "@tanstack/react-query";
 import { ISearchOrFilterProperties, PropertyStatus, PropertyType } from "@/types/property-type";
-import { getLocation, searchOrFilterProperties } from "@/services/property-service";
+import { useLocationProperties, useSearchFilterProperties } from "@/hooks/use-properties";
+import { FavoriteCard } from "@/components/cards/property-card";
+import { useMyFavorites } from "@/hooks/use-favorite";
 
 const Search = () => {
-  const navigate = useNavigate();
   const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -46,16 +43,11 @@ const Search = () => {
   const [location, setLocation] = useState(locationSearch || "All Cities");
   const [filteredProperties, setFilteredProperties] = useState<ISearchOrFilterProperties>();
 
-  const { data, refetch } = useQuery({
-    queryKey: ["searchOrFilter-properties", filteredProperties],
-    queryFn: () => searchOrFilterProperties(filteredProperties as ISearchOrFilterProperties),
-    enabled: false,
-  });
-
-  const { data: locationProperties } = useQuery({
-    queryKey: ["location-properties", filteredProperties],
-    queryFn: () => getLocation(),
-  });
+  const { properties, fetchSearchFilterProperties } = useSearchFilterProperties(
+    filteredProperties as ISearchOrFilterProperties
+  );
+  const { locationProperties } = useLocationProperties(filteredProperties as ISearchOrFilterProperties);
+  const { favorites } = useMyFavorites();
 
   const handlePropertyTypeChange = (type: PropertyType | "all") => {
     setPropertyType((prev) => {
@@ -104,6 +96,7 @@ const Search = () => {
     setPriceRange({ min: 0, max: 5000000 });
     setLocation("All Cities");
     updateSearchParams("q", null);
+    updateSearchParams("location", null);
     setSearchParams(searchParams);
     setFilteredProperties({ limit: 8, page: 1 });
   };
@@ -124,7 +117,7 @@ const Search = () => {
 
   useEffect(() => {
     if (filteredProperties) {
-      refetch();
+      fetchSearchFilterProperties();
     } else {
       setFilteredProperties({
         page: 1,
@@ -243,7 +236,7 @@ const Search = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All Cities">All Cities</SelectItem>
-                      {locationProperties?.data?.map((location, index) => (
+                      {locationProperties?.map((location, index) => (
                         <SelectItem key={index} value={location}>
                           {location}
                         </SelectItem>
@@ -271,53 +264,24 @@ const Search = () => {
               </div>
             </div>
             <div className="relative grid grid-cols-2 col-span-8 gap-4 pt-12 ">
-              {data ? (
+              {properties?.data ? (
                 <span className="absolute top-0 text-slate-800 font-sans ">
-                  Showing {Math.max(1, (data.page - 1) * data.limit)} -{" "}
-                  {Math.min((data.page - 1) * data.limit + data.limit, data.total)} of {data.total} results
+                  Showing {Math.max(1, (properties.page - 1) * properties.limit)} -{" "}
+                  {Math.min((properties.page - 1) * properties.limit + properties.limit, properties.total)} of{" "}
+                  {properties.total} results
                 </span>
               ) : null}
-              {data && data.data.length > 0 ? (
-                data.data.map((property) => (
-                  <div
-                    key={property.id}
-                    className="bg-white rounded-[12px] shadow overflow-clip aspect-square"
-                  >
-                    <div className="relative">
-                      <img
-                        src={property.photos.main_photo}
-                        alt={property.title}
-                        className="w-full h-[248px] object-cover "
-                      />
-                      <span className="absolute bottom-3 left-3 bg-white p-2 rounded-sm text-sm font-medium">
-                        {usdCurrencyFormat(property.price) +
-                          `${property.listingType === "rent" ? " / Month" : ""}`}
-                      </span>
-                    </div>
-                    <div className="p-4">
-                      <div className="space-y-2">
-                        <h3
-                          className="text-[15px] text-[#181a20] font-semibold mt-2 hover:underline"
-                          onClick={() => navigate(`/properties/${convertToUrlSlug(property.title)}`)}
-                        >
-                          {property.title}
-                        </h3>
-                        <p className="text-[#717171] text-sm">
-                          {property.location.city}, {property.location.state}, {property.location.country}
-                        </p>
-                      </div>
-                      <hr className="my-2" />
-                      <div className="flex items-center justify-between ">
-                        <span className="text-[13px] capitalize text-[#181a20] ">for {property.status}</span>
-                        <div className="flex items-center gap-x-4 text-[#454545]">
-                          <RxExternalLink />
-                          <MdOutlineLibraryAdd />
-                          <CiHeart />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
+              {properties && properties.data.length > 0 ? (
+                properties.data.map((property) => {
+                  const favorite = favorites?.find((favorite) => favorite.property.id === property.id);
+                  return (
+                    <FavoriteCard
+                      key={property.id}
+                      property={property}
+                      favoriteId={favorite ? favorite.id : null}
+                    />
+                  );
+                })
               ) : (
                 <h1 className="text-lg capitalize ">no result {keyword ? `for "${keyword}"` : null}</h1>
               )}
@@ -336,7 +300,7 @@ const Search = () => {
                   >
                     <PaginationPrevious />
                   </PaginationItem>
-                  {Array.from({ length: Number(data?.totalPages) }, (_, index) => (
+                  {Array.from({ length: Number(properties?.totalPages) }, (_, index) => (
                     <PaginationItem key={index}>
                       <PaginationLink
                         onClick={() =>
@@ -346,7 +310,7 @@ const Search = () => {
                             }
                           })
                         }
-                        isActive={data?.page === index + 1}
+                        isActive={properties?.page === index + 1}
                       >
                         {index + 1}
                       </PaginationLink>
@@ -358,7 +322,7 @@ const Search = () => {
                   <PaginationItem
                     onClick={() =>
                       setFilteredProperties((prev) => {
-                        if (prev && data && prev.page < data.totalPages) {
+                        if (prev && properties && prev.page < properties.totalPages) {
                           return { ...prev, page: prev.page + 1 };
                         }
                         return prev;

@@ -1,4 +1,3 @@
-import { MdDashboard } from "react-icons/md";
 import { FolderHeart, HouseIcon, UserCog } from "lucide-react";
 import { ILinkNavbar } from "./types";
 import { ElementType } from "react";
@@ -29,22 +28,15 @@ export const linkNavbar: ILinkNavbar[] = [
 export const linkProfile: (ILinkNavbar & {
   icon: ElementType;
 })[] = [
+  { id: 1, path: "/dashboard/property", title: "My Property", icon: HouseIcon },
   {
-    id: 1,
-    path: "/dashboard",
-    title: "Dashboard",
-    icon: MdDashboard,
-  },
-
-  { id: 2, path: "/dashboard/property", title: "My Property", icon: HouseIcon },
-  {
-    id: 3,
+    id: 2,
     path: "/dashboard/favorite",
     title: "My Favorite",
     icon: FolderHeart,
   },
   {
-    id: 4,
+    id: 3,
     path: "/dashboard/profile",
     title: "My Profile",
     icon: UserCog,

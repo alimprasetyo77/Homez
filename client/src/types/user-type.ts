@@ -1,29 +1,16 @@
 import { z } from "zod";
-import { IProperty } from "./property-type";
 
-const MAX_MB = 2;
-const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+// const MAX_MB = 2;
+// const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
+// const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const updateUserSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   email: z.string().email().optional(),
   password: z.string().min(8).max(100).optional(),
-
   phone: z.string().min(10, { message: "Invalid phone number" }).max(20).optional(),
-
-  photoProfile: z
-    .instanceof(File)
-    .refine((file) => file.size <= MAX_UPLOAD_SIZE, `Max image size is ${MAX_MB}MB`)
-    .refine(
-      (file) => !file || file.type === "" || ACCEPTED_IMAGE_TYPES.includes(file.type),
-      "Only .jpg, .jpeg, and .png formats are supported"
-    )
-    .optional()
-    .or(z.string()),
-
+  photoProfile: z.string().optional(),
   bio: z.string().optional(),
-
   location: z
     .object({
       address: z.string().optional(),
@@ -60,10 +47,7 @@ export const changePasswordSchema = z
 export type IChangePassword = z.infer<typeof changePasswordSchema>;
 export type IUpdateUserType = z.infer<typeof updateUserSchema>;
 
-export interface IUser extends Omit<IUpdateUserType, "photoProfile" | "password"> {
-  photoUrl: string;
+export interface IUser extends Omit<IUpdateUserType, "password"> {
   role: "OWNER" | "REGULAR" | "ADMIN";
-  properties: IProperty[];
-  favorites: string[];
   createdAt: string;
 }

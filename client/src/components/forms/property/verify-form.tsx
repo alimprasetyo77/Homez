@@ -71,8 +71,6 @@ const VerifyForm = () => {
             control={control}
             name="type"
             render={({ field }) => {
-              console.log("FIELD TYPE VALUE:", field.value);
-
               return (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-gray-700">Property Type</FormLabel>

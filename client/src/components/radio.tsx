@@ -10,7 +10,7 @@ const Radio = (props: CheckboxProps) => {
   const { label, isChecked, onChange } = props;
 
   return (
-    <div role="button" onClick={() => onChange(label.toLowerCase() as PropertyStatus)}>
+    <div role="button">
       <label
         htmlFor={`${label.split(" ").join("")}`}
         className="flex items-center w-full py-1 px-2 cursor-pointer"
@@ -25,6 +25,7 @@ const Radio = (props: CheckboxProps) => {
                 id={`${label.split(" ").join("")}`}
                 type="radio"
                 checked={isChecked}
+                onChange={() => onChange(label.toLowerCase() as PropertyStatus)}
                 value={label}
                 className={
                   "h-4 w-4  rounded-full cursor-pointer appearance-none border border-black/30 transition-all checked:border-black checked:border-[3px]"

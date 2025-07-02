@@ -5,6 +5,18 @@ import { User } from "../generated/prisma";
 import { RequestWithUser } from "../types/user-request";
 
 export class PropertyController {
+  static async getByUserId(req: RequestWithUser, res: Response, next: NextFunction) {
+    try {
+      const request = req.user?.id;
+      const response = await PropertyService.getByUserId(request!);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const { propertyId } = req.params;

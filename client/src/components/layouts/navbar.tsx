@@ -58,7 +58,7 @@ const Navbar = () => {
         {token ? (
           <ProfileMenu>
             <Avatar className="size-9">
-              <AvatarImage src={user?.photoUrl} alt="@shadcn" />
+              <AvatarImage src={user?.photoProfile} alt="@shadcn" />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
           </ProfileMenu>
