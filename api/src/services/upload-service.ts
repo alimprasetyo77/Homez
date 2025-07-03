@@ -55,6 +55,7 @@ export class UploadService {
         field: field!,
         userId: request.user.id,
         status: "pending",
+        propertyId: null,
       },
     });
 

@@ -61,21 +61,29 @@ async function cleanup() {
   const oldUploads = await prisma.upload.findMany({
     where: {
       status: "pending",
-      // propertyId: null,
+      propertyId: null,
       uploadedAt: { lt: cutoff },
     },
   });
-  console.log(oldUploads);
+  if (oldUploads.length === 0) {
+    console.log("🧹 No orphan uploads found.");
+    return;
+  }
   for (const u of oldUploads) {
-    await cloudinary.uploader.destroy(u.publicId);
-    await prisma.upload.delete({ where: { id: u.id } });
+    try {
+      await cloudinary.uploader.destroy(u.publicId);
+      await prisma.upload.delete({ where: { id: u.id } });
+      console.log(`🗑️ Deleted orphan upload: ${u.publicId}`);
+    } catch (err) {
+      console.error(`❌ Failed to delete upload ${u.publicId}:`, err);
+    }
   }
 
-  console.log(`🧹 Cleaned ${oldUploads.length} orphan uploads`);
+  console.log(`🧹 Cleaned ${oldUploads.length} orphan uploads at ${new Date().toISOString()}`);
 }
 
 cron.schedule("*/30 * * * *", cleanup);
-
+// cleanup();
 // async function seedDatabase() {
 //   try {
 
