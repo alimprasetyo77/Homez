@@ -76,6 +76,15 @@ export class UserController {
     }
   }
 
+  static async getAll(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await UserService.getAll();
+      res.status(200).json({ message: "Get users successfuly", data: response });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async update(req: Request & { user?: User }, res: Response, next: NextFunction) {
     try {
       const user = req.user as User;

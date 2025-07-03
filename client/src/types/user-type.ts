@@ -48,6 +48,7 @@ export type IChangePassword = z.infer<typeof changePasswordSchema>;
 export type IUpdateUserType = z.infer<typeof updateUserSchema>;
 
 export interface IUser extends Omit<IUpdateUserType, "password"> {
+  id: string;
   role: "OWNER" | "REGULAR" | "ADMIN";
   createdAt: string;
 }

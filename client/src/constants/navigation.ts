@@ -1,4 +1,4 @@
-import { FolderHeart, HouseIcon, UserCog } from "lucide-react";
+import { FolderHeart, HouseIcon, UserCog, Users } from "lucide-react";
 import { ILinkNavbar } from "./types";
 import { ElementType } from "react";
 
@@ -25,7 +25,7 @@ export const linkNavbar: ILinkNavbar[] = [
   },
 ];
 
-export const linkProfile: (ILinkNavbar & {
+export const linkUserOwner: (ILinkNavbar & {
   icon: ElementType;
 })[] = [
   { id: 1, path: "/dashboard/property", title: "My Property", icon: HouseIcon },
@@ -34,6 +34,24 @@ export const linkProfile: (ILinkNavbar & {
     path: "/dashboard/favorite",
     title: "My Favorite",
     icon: FolderHeart,
+  },
+  {
+    id: 3,
+    path: "/dashboard/profile",
+    title: "My Profile",
+    icon: UserCog,
+  },
+];
+
+export const linkAdmin: (ILinkNavbar & {
+  icon: ElementType;
+})[] = [
+  { id: 1, path: "/dashboard/property", title: "List Properties", icon: HouseIcon },
+  {
+    id: 2,
+    path: "/dashboard/user",
+    title: "List Users",
+    icon: Users,
   },
   {
     id: 3,

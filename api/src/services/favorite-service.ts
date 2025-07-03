@@ -1,4 +1,3 @@
-import { isValidObjectId } from "mongoose";
 import { Prisma, User } from "../generated/prisma";
 import { prisma } from "../main";
 import { ResponseError } from "../utils/response-error";

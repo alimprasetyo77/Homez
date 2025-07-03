@@ -1,27 +1,32 @@
+import { useEffect } from "react";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth-store";
-import { ReactNode, useEffect, useState } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useMyProperties } from "@/hooks/use-properties";
 
-const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
-  const { token } = useAuthStore();
+const ProtectedRoute = () => {
+  const { token, user } = useAuthStore();
   const { pathname } = useLocation();
 
-  const [havePendingProperty, setHavePendingProperty] = useState(false);
-  // const protectedByToken = ["/dashboard", "/dashboard/profile"];
+  const isOwner = user?.role === "OWNER";
+  const isOnFormPage = pathname.startsWith("/property/form");
+
+  const { properties, isLoading } = useMyProperties({ enabled: isOwner });
+
+  const havePendingProperty = isOwner ? properties?.some((property) => property.status === "pending") : false;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
 
-  if (pathname.startsWith("/dashboard")) {
-    if (!token) {
-      return <Navigate to={"/"} />;
-    }
-    if (pathname == "/property/form" && havePendingProperty) {
-      return <Navigate to={"/dashboard/property"} />;
-    }
+  if (!token || !user) {
+    return <Navigate to="/" replace />;
   }
-  return children ? children : <Outlet />;
+
+  if (isOnFormPage && havePendingProperty && !isLoading) {
+    return <Navigate to="/dashboard/property" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

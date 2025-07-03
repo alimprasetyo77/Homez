@@ -1,5 +1,6 @@
 import { Prisma, Property, User } from "../generated/prisma";
 import { prisma } from "../main";
+import { IPublicUser } from "../types/user-request";
 import { ResponseError } from "../utils/response-error";
 import {
   ICreateProperty,
@@ -81,7 +82,7 @@ export class PropertyService {
 
     const property = await prisma.property.update({
       where: { id },
-      data,
+      data: { ...data, ...(propertyExists.status === "rejected" && { status: "pending" }) },
     });
     return property;
   }
@@ -95,7 +96,8 @@ export class PropertyService {
     if (!propertyExists) {
       throw new ResponseError(404, "Property not found");
     }
-    if (propertyExists.ownerId !== user.id) {
+
+    if (user.role !== "ADMIN" && propertyExists.ownerId !== user.id) {
       throw new ResponseError(403, "You are not authorized to delete this property");
     }
 
@@ -110,6 +112,9 @@ export class PropertyService {
     if (fileUpload.length > 0) {
       await Promise.allSettled(fileUpload.map((file) => cloudinary.uploader.destroy(file.publicId)));
     }
+    await prisma.upload.deleteMany({
+      where: { AND: [{ propertyId, userId: user.id }] },
+    });
   }
 
   static async search(request: ISearchProperty) {

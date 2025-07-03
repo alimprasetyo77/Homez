@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { linkProfile } from "@/constants/navigation";
+import { linkAdmin, linkUserOwner } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { ChevronDown, LogOut } from "lucide-react";
 import { createElement, ReactNode, useState } from "react";
@@ -9,7 +9,8 @@ import { Link } from "react-router-dom";
 const ProfileMenu = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-
+  const isAdmin = user?.role === "ADMIN";
+  const isOwner = user?.role === "OWNER";
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -22,10 +23,7 @@ const ProfileMenu = ({ children }: { children: ReactNode }) => {
       <PopoverContent className="w-64 mt-4 pt-3">
         <div className="grid gap-4 text-sm">
           <div className="grid gap-0.5">
-            {linkProfile.map((link) => {
-              const linkValidForOwnerOrAdmin = [1, 2, 3];
-              const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
-              if (linkValidForOwnerOrAdmin.includes(link.id) && !isOwnerOrAdmin) return;
+            {[...(isAdmin ? linkAdmin : linkUserOwner)].map((link) => {
               return (
                 <Link to={link.path} key={link.id} onClick={() => setIsOpen(false)}>
                   <div className="py-3 px-4 hover:bg-[#181a20] hover:text-white rounded-xl flex items-center gap-x-6 font-medium transition-all duration-200">

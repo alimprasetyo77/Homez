@@ -1,4 +1,4 @@
-import { linkProfile } from "@/constants/navigation";
+import { linkAdmin, linkUserOwner } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -7,6 +7,9 @@ import ProfileMenu from "../profile-menu";
 const LayoutDashboard = () => {
   const { user } = useAuthStore();
   const { pathname } = useLocation();
+  const isOwner = user?.role === "OWNER";
+  const isAdmin = user?.role === "ADMIN";
+
   return (
     <div className="h-[100vh] flex">
       <aside className="relative border-r flex flex-col gap-y-8 p-8 min-w-[300px]">
@@ -24,9 +27,8 @@ const LayoutDashboard = () => {
           />
         </Link>
         <ul className="flex flex-col space-y-4 ">
-          {linkProfile.map((link) => {
-            const isOwnerOrAdmin = user?.role === "OWNER" || user?.role === "ADMIN";
-            if (link.id === 1 && !isOwnerOrAdmin) return;
+          {[...(isAdmin ? linkAdmin : linkUserOwner)].map((link) => {
+            if (link.id === 1 && !isOwner && !isAdmin) return;
             return (
               <Link to={link.path} key={link.id}>
                 <li

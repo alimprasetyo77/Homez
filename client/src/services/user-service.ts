@@ -10,6 +10,14 @@ export const getUser = async () => {
     throw new Error(error.response?.data.errors.message);
   }
 };
+export const getUsers = async () => {
+  try {
+    const response = await axiosWithConfig.get("/users");
+    return response.data as Response<IUser[]>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
 
 export const updateUser = async (body: IUpdateUserType) => {
   const formData = new FormData();

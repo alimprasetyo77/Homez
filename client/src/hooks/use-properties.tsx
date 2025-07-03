@@ -22,6 +22,7 @@ interface IOptionsProps {
   onError?: (err: any) => void;
   onSettled?: (data: any) => void;
   onMutate?: (data: any) => void;
+  enabled?: boolean;
 }
 
 export const useSearchFilterProperties = (filteredProperties: ISearchOrFilterProperties) => {
@@ -50,7 +51,7 @@ export const usePopularProperties = (activeLinkOnProperties: PropertyType) => {
   const { data, isLoading } = useQuery({
     queryKey: ["properties", activeLinkOnProperties],
     queryFn: () => getPopular(activeLinkOnProperties),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -64,6 +65,7 @@ export const useMyProperties = (options?: IOptionsProps) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["properties"],
     queryFn: getMyProperties,
+    staleTime: 5 * 60 * 1000,
     ...options,
   });
   return {
@@ -73,28 +75,31 @@ export const useMyProperties = (options?: IOptionsProps) => {
   };
 };
 
-export const useProperties = () => {
-  const { data, isLoading, isError } = useQuery({
+export const useProperties = (options?: IOptionsProps) => {
+  const { data, isLoading } = useQuery({
     queryKey: ["properties"],
     queryFn: getProperties,
+    ...options,
+    staleTime: 1000 * 60,
+    refetchOnMount: false,
   });
   return {
     properties: data?.data,
     isLoading,
-    isError,
   };
 };
 
 export const useProperty = (propertyId: string) => {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["property", propertyId],
     queryFn: () => getPropertyById(propertyId),
     enabled: Boolean(propertyId),
+    refetchOnMount: false,
   });
   return {
     property: data?.data,
     isLoading,
-    isError,
+    error,
   };
 };
 

@@ -107,6 +107,10 @@ export class UserService {
   static async get(user: IPublicUser): Promise<IPublicUser> {
     return user;
   }
+  static async getAll(): Promise<IPublicUser[]> {
+    const users = await prisma.user.findMany({ omit: { password: true, token: true } });
+    return users;
+  }
 
   static async update(user: User, request: IUpdateUserSchema): Promise<IUpdateUserSchema> {
     const data = validate(UserValidation.updateUser, request);

@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { FavoriteService } from "../services/favorite-service";
 
 import { RequestWithUser } from "../types/user-request";
 import { User } from "../generated/prisma";
-import { ObjectId } from "mongoose";
 
 export class FavoriteController {
   static async add(req: RequestWithUser, res: Response, next: NextFunction) {

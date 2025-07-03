@@ -8,7 +8,7 @@ export const useMyFavorites = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["favorites"],
     queryFn: () => getMyFavorites(),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     enabled: Boolean(token),

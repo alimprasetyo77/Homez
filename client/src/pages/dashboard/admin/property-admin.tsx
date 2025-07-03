@@ -2,26 +2,21 @@ import { DataTable } from "@/components/data-table";
 import { usdCurrencyFormat } from "@/lib/utils";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleOff, Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, Check, Edit, ExternalLink, Eye, MoreHorizontal, Trash2, X } from "lucide-react";
 import Alert from "@/components/alert";
-import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useDeleteProperty, useMyProperties } from "@/hooks/use-properties";
-import { useEffect, useState } from "react";
+import { useDeleteProperty, useProperties } from "@/hooks/use-properties";
+import ReviewProperty from "@/components/modals/review-property-modal";
+import { useApproveProperty, useRejectProperty } from "@/hooks/use-admin";
 
-const Property = () => {
+const PropertyAdmin = () => {
   const navigate = useNavigate();
+  const { rejectProperty } = useRejectProperty();
+  const { approveProperty } = useApproveProperty();
+  const { properties, isLoading } = useProperties();
   const { deleteProperty, pendingDeleteProperty } = useDeleteProperty();
-  const [havePendingProperty, sethavePendingProperty] = useState(false);
-  const { properties: myProperties } = useMyProperties();
-
-  useEffect(() => {
-    if (!myProperties) return;
-    const result = myProperties?.some((property) => property.status === "pending");
-    sethavePendingProperty(result!);
-  }, [myProperties]);
 
   const columns: ColumnDef<IProperty>[] = [
     {
@@ -46,7 +41,12 @@ const Property = () => {
 
     {
       accessorKey: "status",
-      header: () => <h3 className="text-center">Status</h3>,
+      header: ({ column }) => (
+        <Button variant={"ghost"} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          Status
+          <ArrowUpDown />
+        </Button>
+      ),
       size: 50,
       cell: (info) => {
         const status = info.getValue() as string;
@@ -56,7 +56,7 @@ const Property = () => {
           rejected: "bg-red-100 text-red-800",
         };
         return (
-          <div className="text-center text-xs font-medium">
+          <div className="text-xs font-medium">
             <span className={`inline-flex items-center px-2 py-1 rounded-full ${statusClasses[status]}`}>
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
@@ -82,6 +82,7 @@ const Property = () => {
       id: "actions",
       header: () => <h3 className="text-center">Actions</h3>,
       cell: (info) => {
+        const isPending = info.row.original.status === "pending";
         return (
           <div className="flex items-center justify-center gap-x-2">
             <Popover>
@@ -105,22 +106,54 @@ const Property = () => {
                     <span>Delete</span>
                   </div>
                 </Alert>
-                <div
-                  onClick={() => {
-                    navigate(`/property/form/${info.row.original.id}`);
-                  }}
-                >
-                  <Edit className="size-4" />
-                  <span>Edit</span>
-                </div>
-                <div>
-                  <CircleOff className="size-4" />
-                  <span>Sold</span>
-                </div>
-                <div onClick={() => navigate(`/properties/${info.row.original.id}`)}>
-                  <ExternalLink className="size-4" />
-                  <span>view</span>
-                </div>
+                {!isPending && (
+                  <div
+                    onClick={() => {
+                      navigate(`/property/form/${info.row.original.id}`);
+                    }}
+                  >
+                    <Edit className="size-4" />
+                    <span>Edit</span>
+                  </div>
+                )}
+
+                <ReviewProperty propertyId={info.row.original.id}>
+                  <div>
+                    <Eye className="size-4" />
+                    <span>Review</span>
+                  </div>
+                </ReviewProperty>
+                {!isPending && (
+                  <div onClick={() => navigate(`/property/${info.row.original.id}`)}>
+                    <ExternalLink className="size-4" />
+                    <span>View on page</span>
+                  </div>
+                )}
+
+                {isPending && (
+                  <>
+                    <Alert
+                      title="Are you sure you want to approve this property?"
+                      description={`Once approved, the listing will be published and visible to users.`}
+                      onAction={async () => await approveProperty(info.row.original.id)}
+                    >
+                      <div>
+                        <Check className="size-4" />
+                        <span>Approve</span>
+                      </div>
+                    </Alert>
+                    <Alert
+                      title="Reject this property?"
+                      description={`Rejected listings will be hidden from the public.`}
+                      onAction={async () => await rejectProperty(info.row.original.id)}
+                    >
+                      <div>
+                        <X className="size-4" />
+                        <span>Reject</span>
+                      </div>
+                    </Alert>
+                  </>
+                )}
               </PopoverContent>
             </Popover>
           </div>
@@ -130,36 +163,16 @@ const Property = () => {
     },
   ];
 
-  if (!myProperties) {
-    return (
-      <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
-        <h1 className="text-2xl font-semibold">My Properties</h1>
-        <p className="text-gray-500">You have no properties listed.</p>
-      </div>
-    );
-  }
   return (
     <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">My Properties</h1>
-          <Button
-            variant={"outline"}
-            onClick={() => {
-              if (havePendingProperty) {
-                toast("You have pending property");
-                return;
-              }
-              navigate("/property/form");
-            }}
-          >
-            Add Property
-          </Button>
+          <h1 className="text-2xl font-semibold">List Properties</h1>
         </div>
-        <DataTable columns={columns} data={myProperties} isLoading={pendingDeleteProperty} />
+        <DataTable columns={columns} data={properties ?? []} isLoading={isLoading ?? pendingDeleteProperty} />
       </div>
     </div>
   );
 };
 
-export default Property;
+export default PropertyAdmin;

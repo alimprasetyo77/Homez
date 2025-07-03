@@ -5,13 +5,14 @@ import { useCreateFavorite, useDeleteFavorite, useMyFavorites } from "@/hooks/us
 import { useProperty } from "@/hooks/use-properties";
 import { usdCurrencyFormat } from "@/lib/utils";
 import { ArrowUpRight, Dot, Heart, Share2 } from "lucide-react";
+import { FaSpinner } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 
 const DetailProperty = () => {
   const { propertyId } = useParams();
   const { favorites } = useMyFavorites();
   const favorite = favorites?.find((favorite) => favorite.property.id === propertyId);
-  const { property, isLoading } = useProperty(propertyId!);
+  const { property, isLoading, error } = useProperty(propertyId!);
   const { createFavorite, isloadingCreateFavorite } = useCreateFavorite();
   const { deleteFavorite, isloadingDeleteFavorite } = useDeleteFavorite();
   const handleFavoriteClick = () => {
@@ -21,7 +22,22 @@ const DetailProperty = () => {
       createFavorite(property?.id!);
     }
   };
-  if (isLoading) return <div>Loading</div>;
+
+  if (isLoading)
+    return (
+      <div className="min-h-screen py-16 bg-accent flex items-center justify-center">
+        <FaSpinner className="animate-spin size-8 " />
+      </div>
+    );
+  if (property?.status === "pending" || property?.status === "rejected") {
+    return (
+      <div className="min-h-screen py-16 bg-accent flex items-center justify-center">Property not found.</div>
+    );
+  }
+  if (error)
+    return (
+      <div className="min-h-screen py-16 bg-accent flex items-center justify-center">{error.message}</div>
+    );
 
   return (
     <div className="min-h-screen py-16 bg-accent">
