@@ -24,11 +24,15 @@ const ReviewProperty = ({ children, propertyId }: { children: ReactNode; propert
       <DialogContent className="min-w-7xl max-h-[50rem] overflow-y-auto">
         <DialogHeader>
           <DialogHeader className="space-y-3">
-            <DialogTitle>Review Property Submission</DialogTitle>
-            <DialogDescription className="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-[13px] text-yellow-800 rounded-md ">
-              🔔 Please review all details carefully before approving or rejecting this property. Make sure
-              the listing is complete, accurate, and complies with platform standards.
-            </DialogDescription>
+            <DialogTitle>
+              {property?.status == "pending" ? "Review Property Submission" : "Detail Property"}
+            </DialogTitle>
+            {property?.status === "pending" && (
+              <DialogDescription className="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-[13px] text-yellow-800 rounded-md ">
+                🔔 Please review all details carefully before approving or rejecting this property. Make sure
+                the listing is complete, accurate, and complies with platform standards.
+              </DialogDescription>
+            )}
           </DialogHeader>
         </DialogHeader>
 

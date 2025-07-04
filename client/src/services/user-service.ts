@@ -1,10 +1,17 @@
 import axiosWithConfig from "@/lib/axios-config";
 import { Response } from "@/types/type";
 import { IChangePassword, IUpdateUserType, IUser } from "../types/user-type";
-import { checkProperty } from "@/lib/utils";
 export const getUser = async () => {
   try {
     const response = await axiosWithConfig.get("/users/current");
+    return response.data as Response<IUser>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+export const getUserById = async (userId: string) => {
+  try {
+    const response = await axiosWithConfig.get(`/users/${userId}`);
     return response.data as Response<IUser>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -20,22 +27,8 @@ export const getUsers = async () => {
 };
 
 export const updateUser = async (body: IUpdateUserType) => {
-  const formData = new FormData();
-  let key: keyof typeof body;
-  for (key in body) {
-    const value = body[key];
-    if (!checkProperty(value)) continue;
-
-    if (value instanceof File) {
-      formData.append(key, value as File);
-    } else if (typeof value === "object") {
-      formData.append(key, JSON.stringify(value) as "object");
-    } else {
-      formData.append(key, String(value));
-    }
-  }
   try {
-    const response = await axiosWithConfig.put("/users/current", formData);
+    const response = await axiosWithConfig.put("/users/current", body);
 
     return response.data as Response<IUser>;
   } catch (error: any) {
@@ -58,7 +51,16 @@ export const changePassword = async (body: IChangePassword) => {
 export const deleteUser = async () => {
   try {
     const response = await axiosWithConfig.delete("/users/current");
-    return response.data as Response;
+    return response.data as Omit<Response, "data">;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
+export const deleteUserById = async (userId: string) => {
+  try {
+    const response = await axiosWithConfig.delete(`/users/${userId}`);
+    return response.data as Omit<Response, "data">;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
   }

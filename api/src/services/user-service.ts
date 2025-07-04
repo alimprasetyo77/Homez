@@ -108,7 +108,10 @@ export class UserService {
     return user;
   }
   static async getAll(): Promise<IPublicUser[]> {
-    const users = await prisma.user.findMany({ omit: { password: true, token: true } });
+    const users = await prisma.user.findMany({
+      where: { NOT: { role: "ADMIN" } },
+      omit: { password: true, token: true },
+    });
     return users;
   }
 
@@ -132,6 +135,21 @@ export class UserService {
     }
 
     transactionQueries.push(prisma.user.deleteMany({ where: { id: user.id } }));
+
+    await prisma.$transaction(transactionQueries);
+  }
+  static async deleteById(userId: string): Promise<void> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new ResponseError(404, "Invalid user id.");
+
+    const transactionQueries = [];
+
+    transactionQueries.push(prisma.favorite.deleteMany({ where: { userId } }));
+
+    if (user.role === "OWNER") {
+      transactionQueries.push(prisma.property.deleteMany({ where: { ownerId: userId } }));
+    }
+    transactionQueries.push(prisma.user.delete({ where: { id: userId } }));
 
     await prisma.$transaction(transactionQueries);
   }

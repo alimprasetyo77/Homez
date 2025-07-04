@@ -1,17 +1,16 @@
 import { DataTable } from "@/components/data-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, FileSearch, MoreHorizontal, Trash2 } from "lucide-react";
 import Alert from "@/components/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useNavigate } from "react-router-dom";
-import { useDeleteProperty } from "@/hooks/use-properties";
-import { useUsers } from "@/hooks/use-users";
+import { useDeleteUserById, useUsers } from "@/hooks/use-users";
 import { IUser } from "@/types/user-type";
 import { FaSpinner } from "react-icons/fa";
+import ReviewUser from "@/components/modals/review-user-modal";
+import { Button } from "@/components/ui/button";
 
 const User = () => {
-  const navigate = useNavigate();
-  const { deleteProperty, pendingDeleteProperty } = useDeleteProperty();
+  const { deleteUserByID, pendingDeleteUser } = useDeleteUserById();
   const { users, isLoading } = useUsers();
 
   const columns: ColumnDef<IUser>[] = [
@@ -19,19 +18,35 @@ const User = () => {
       accessorKey: "name",
       header: () => <h3 className="pl-2 ">Name</h3>,
       size: 500,
-      cell: (info) => <div className="text-xs font-medium">{info.row.original.name}</div>,
+      cell: (info) => <div className="font-medium">{info.row.original.name}</div>,
+      meta: {
+        filterable: true,
+        placeholder: "Search users",
+      },
     },
 
     {
       accessorKey: "role",
-      header: () => <h3 className="text-center">Role</h3>,
+      header: ({ column }) => (
+        <Button variant={"ghost"} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          Role
+          <ArrowUpDown />
+        </Button>
+      ),
       size: 100,
-      cell: (info) => <div className="text-center text-xs font-medium">{info.row.original.role}</div>,
+      cell: (info) => <div className="text-xs font-medium">{info.row.original.role}</div>,
     },
 
     {
       accessorKey: "createdAt",
-      header: () => <h3 className="text-center">Registered At</h3>,
+      header: ({ column }) => (
+        <div className="flex items-center justify-center">
+          <Button variant={"ghost"} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            Registered At
+            <ArrowUpDown />
+          </Button>
+        </div>
+      ),
       size: 100,
       cell: (info) => (
         <div className="text-center text-xs font-medium">
@@ -61,21 +76,22 @@ const User = () => {
                 align="end"
                 className="max-w-[150px] *:hover:bg-gray-200 p-0 *:px-4 *:py-2 *:flex *:items-center *:gap-x-2 *:text-xs py-2 *:cursor-pointer"
               >
+                <ReviewUser userId={info.row.original.id}>
+                  <div>
+                    <FileSearch className="size-4" />
+                    <span>View Details</span>
+                  </div>
+                </ReviewUser>
                 <Alert
                   title="Are you sure?"
                   description={`This action cannot be undone. This will permanently delete the property data.`}
-                  onAction={async () => await deleteProperty(info.row.original.id)}
+                  onAction={async () => await deleteUserByID(info.row.original.id)}
                 >
                   <div>
                     <Trash2 className="size-4" />
                     <span>Delete</span>
                   </div>
                 </Alert>
-
-                <div onClick={() => navigate(`/properties/${info.row.original.id}`)}>
-                  <ExternalLink className="size-4" />
-                  <span>view</span>
-                </div>
               </PopoverContent>
             </Popover>
           </div>
@@ -96,7 +112,21 @@ const User = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">List Users</h1>
         </div>
-        <DataTable columns={columns} data={users ?? []} isLoading={isLoading ?? pendingDeleteProperty} />
+        <DataTable
+          columns={columns}
+          data={users ?? []}
+          isLoading={isLoading ?? pendingDeleteUser}
+          initialStateSorting={[
+            {
+              id: "role",
+              desc: true,
+            },
+            {
+              id: "createdAt",
+              desc: true,
+            },
+          ]}
+        />
       </div>
     </div>
   );

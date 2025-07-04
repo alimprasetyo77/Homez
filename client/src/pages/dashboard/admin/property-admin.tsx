@@ -1,8 +1,7 @@
 import { DataTable } from "@/components/data-table";
-import { usdCurrencyFormat } from "@/lib/utils";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Check, Edit, ExternalLink, Eye, MoreHorizontal, Trash2, X } from "lucide-react";
+import { ArrowUpDown, Check, Edit, ExternalLink, FileSearch, MoreHorizontal, Trash2, X } from "lucide-react";
 import Alert from "@/components/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -22,21 +21,12 @@ const PropertyAdmin = () => {
     {
       accessorKey: "title",
       header: () => <h3 className="pl-2">Property</h3>,
-      size: 800,
-      cell: (info) => (
-        <div className="flex items-start gap-x-4 ">
-          <div className="space-y-2">
-            <h2 className="font-bold ">{info.getValue() as string}</h2>
-            <p className="text-gray-600 text-xs text-wrap">
-              {info.row.original.location.address}, {info.row.original.location.city},{" "}
-              {info.row.original.location.state}, {info.row.original.location.country}
-            </p>
-            <span className="font-semibold text-gray-800 text-sm">
-              {usdCurrencyFormat(info.row.original.price)}
-            </span>
-          </div>
-        </div>
-      ),
+      size: 500,
+      cell: (info) => <h2 className="font-medium">{info.getValue() as string}</h2>,
+      meta: {
+        filterable: true,
+        placeholder: "Search properties...",
+      },
     },
 
     {
@@ -47,7 +37,7 @@ const PropertyAdmin = () => {
           <ArrowUpDown />
         </Button>
       ),
-      size: 50,
+      size: 100,
       cell: (info) => {
         const status = info.getValue() as string;
         const statusClasses: Record<string, string> = {
@@ -66,8 +56,15 @@ const PropertyAdmin = () => {
     },
     {
       accessorKey: "createdAt",
-      header: () => <h3 className="text-center">Publisehed At</h3>,
-      size: 50,
+      header: ({ column }) => (
+        <div className="flex items-center justify-center">
+          <Button variant={"ghost"} onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            Publisehed At
+            <ArrowUpDown />
+          </Button>
+        </div>
+      ),
+      size: 100,
       cell: (info) => (
         <div className="text-center text-xs font-medium">
           {new Date(info.getValue() as string).toLocaleDateString("en-US", {
@@ -119,10 +116,12 @@ const PropertyAdmin = () => {
 
                 <ReviewProperty propertyId={info.row.original.id}>
                   <div>
-                    <Eye className="size-4" />
-                    <span>Review</span>
+                    <FileSearch className="size-4" />
+
+                    <span>{isPending ? "Review" : "View Details"}</span>
                   </div>
                 </ReviewProperty>
+
                 {!isPending && (
                   <div onClick={() => navigate(`/property/${info.row.original.id}`)}>
                     <ExternalLink className="size-4" />
@@ -159,7 +158,7 @@ const PropertyAdmin = () => {
           </div>
         );
       },
-      size: 50,
+      size: 100,
     },
   ];
 
@@ -169,7 +168,22 @@ const PropertyAdmin = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">List Properties</h1>
         </div>
-        <DataTable columns={columns} data={properties ?? []} isLoading={isLoading ?? pendingDeleteProperty} />
+
+        <DataTable
+          columns={columns}
+          data={properties ?? []}
+          isLoading={isLoading ?? pendingDeleteProperty}
+          initialStateSorting={[
+            {
+              id: "status",
+              desc: true,
+            },
+            {
+              id: "createdAt",
+              desc: true,
+            },
+          ]}
+        />
       </div>
     </div>
   );

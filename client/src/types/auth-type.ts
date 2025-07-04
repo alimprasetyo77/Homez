@@ -13,7 +13,7 @@ export const registerSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().min(1, { message: "Email is required" }).email("Invalid email"),
   password: z.string().min(8, { message: "Too short — use at least 8 characters." }).max(100),
-  role: z.enum(["USER", "AGENT"], {
+  role: z.enum(["OWNER", "REGULAR"], {
     required_error: "Please select an account type",
   }),
 });

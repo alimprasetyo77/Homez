@@ -2,28 +2,31 @@ import ChangePassword from "@/components/modals/change-password-modal";
 import DeleteUser from "@/components/modals/delete-user-modal";
 import UpdateUser from "@/components/modals/update-user-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { checkCompleteProfile } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
-import { Info } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { PiWarningCircle } from "react-icons/pi";
 
 const Profile = () => {
   const { user } = useAuthStore();
+  const isCompleteProfile = checkCompleteProfile(user!);
   return (
     <div className="bg-white rounded-xl p-6 border space-y-8">
-      {/* <h1 className="text-xl font-medium">Profile</h1> */}
-      {user?.role == "OWNER" && (
-        <div className="p-4 rounded-xl border flex items-center gap-4">
-          <Info className="text-sky-500" />
-          <h3 className="text-sm text-sky-500">
-            Your current account type is set to agent, if you want to remove your agent account, and return to
-            normal account, you must click the button below.
+      <h1 className="text-xl font-medium">Profile</h1>
+      {!isCompleteProfile && (
+        <div className="p-4 rounded-sm border-l-4 border-yellow-400 flex items-center gap-4 bg-yellow-50">
+          <PiWarningCircle className="size-5 text-yellow-800" />
+          <h3 className="text-sm text-yellow-800">
+            Your profile is not yet complete. Please update your personal information to unlock all features,
+            including the ability to add new properties.
           </h3>
         </div>
       )}
+
       <div className="flex items-center justify-between bg-white rounded-xl p-6 border ">
         <div className="flex items-center gap-x-5">
           <Avatar className="size-20 relative group  ">
-            <AvatarImage src={user?.photoUrl as string} alt="@shadcn" />
+            <AvatarImage src={user?.photoProfile as string} alt="@shadcn" />
             <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="space-y-2">

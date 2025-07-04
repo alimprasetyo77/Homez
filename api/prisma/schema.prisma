@@ -9,22 +9,22 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  email        String        @unique
+  email        String            @unique
   password     String
-  role         UserRole      @default(REGULAR)
+  role         UserRole          @default(REGULAR)
   // field opsional untuk agent
   phone        String?
   photoProfile String?
-  location     LocationType?
+  location     LocationTypeUser?
   bio          String?
   socialMedia  SocialMedia?
   // relasi
-  properties   Property[]    @relation("OwnerProperties")
+  properties   Property[]        @relation("OwnerProperties")
   favorites    Favorite[]
   token        String?
-  createdAt    DateTime      @default(now())
+  createdAt    DateTime          @default(now())
 }
 
 model Property {
@@ -131,6 +131,14 @@ type LocationType {
   postalCode String
   latitude   Float
   longitude  Float
+}
+
+type LocationTypeUser {
+  address    String
+  city       String
+  state      String
+  country    String
+  postalCode String
 }
 
 type PhotoType {

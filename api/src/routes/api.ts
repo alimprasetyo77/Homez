@@ -20,8 +20,9 @@ apiRouter.get("/api/users/properties", PropertyController.getByUserId);
 apiRouter.get("/api/users/favorites", FavoriteController.getMyFavorite);
 apiRouter.put("/api/users/current", UserController.update);
 apiRouter.put("/api/users/change-password", UserController.changePassword);
-apiRouter.delete("/api/users/current", UserController.delete);
 apiRouter.get("/api/users/:id", UserController.getById);
+apiRouter.delete("/api/users/current", UserController.delete);
+apiRouter.delete("/api/users/:id", roleOnly(["ADMIN"]) as RequestHandler, UserController.deleteById);
 
 // Property routes
 //OWNER ONLY

@@ -11,27 +11,18 @@ import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import UpdateUserForm from "../forms/user/update-user-form";
 import { IUpdateUserType, updateUserSchema } from "@/types/user-type";
-import { updateUser } from "@/services/user-service";
 import { useAuthStore } from "@/stores/auth-store";
+import { useUpdateUser } from "@/hooks/use-users";
 
 const UpdateUser = () => {
-  const { user, resetUser } = useAuthStore();
+  const { user } = useAuthStore();
   const [open, setOpen] = useState(false);
-
-  const mutation = useMutation({
-    mutationFn: updateUser,
-    onSuccess: ({ message, data }) => {
-      resetUser(data);
+  const { updateUserAsync, pendingUpdateUser } = useUpdateUser({
+    onSuccess() {
       handleCloseDialog();
-      toast.success(message);
-    },
-    onError: (error) => {
-      toast.error(`${error}`);
     },
   });
 
@@ -39,24 +30,38 @@ const UpdateUser = () => {
     resolver: zodResolver(updateUserSchema),
     shouldFocusError: true,
     defaultValues: {
+      name: "",
       phone: "",
       bio: "",
+      email: "",
+      location: {
+        address: "",
+        city: "",
+        country: "",
+        postalCode: "",
+        state: "",
+      },
+      password: "",
+      photoProfile: "",
+      socialMedia: {
+        facebook: "",
+        instagram: "",
+        linkedIn: "",
+        x: "",
+      },
     },
   });
   const handleCloseDialog = () => {
     form.reset();
     setOpen(false);
   };
-
+  console.log(form.watch());
   useEffect(() => {
     if (user) {
-      form.reset({
-        ...user,
-        photoProfile: "undefined",
-      });
+      form.reset(user);
     }
   }, [user]);
-  console.log("LOG FORM EDIT PERSONAL INFO : ", form.getValues());
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -73,7 +78,7 @@ const UpdateUser = () => {
         </DialogHeader>
         <div className="*:w-full flex flex-col items-center justify-center p-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-8">
+            <form onSubmit={form.handleSubmit((data) => updateUserAsync(data))} className="space-y-8">
               <UpdateUserForm />
 
               <div className="flex items-center gap-x-4 justify-end">
@@ -86,7 +91,7 @@ const UpdateUser = () => {
                   disabled={form.formState.isSubmitting || !form.formState.isDirty}
                   aria-disabled={form.formState.isSubmitting}
                 >
-                  <span>{mutation.isPending ? "Saved..." : "Save Changes"}</span>
+                  <span>{pendingUpdateUser ? "Saved..." : "Save Changes"}</span>
                   <ArrowRight />
                 </Button>
               </div>

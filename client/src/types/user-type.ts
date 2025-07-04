@@ -11,26 +11,20 @@ export const updateUserSchema = z.object({
   phone: z.string().min(10, { message: "Invalid phone number" }).max(20).optional(),
   photoProfile: z.string().optional(),
   bio: z.string().optional(),
-  location: z
-    .object({
-      address: z.string().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      country: z.string().optional(),
-      postalCode: z.number().optional(),
-      latitude: z.number().optional(),
-      longitude: z.number().optional(),
-    })
-    .optional(),
+  location: z.object({
+    address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    postalCode: z.string().optional(),
+  }),
 
-  socialMedia: z
-    .object({
-      facebook: z.string().url().optional(),
-      x: z.string().url().optional(),
-      linkedIn: z.string().url().optional(),
-      instagram: z.string().url().optional(),
-    })
-    .optional(),
+  socialMedia: z.object({
+    facebook: z.string().url().optional(),
+    x: z.string().url().optional(),
+    linkedIn: z.string().url().optional(),
+    instagram: z.string().url().optional(),
+  }),
 });
 
 export const changePasswordSchema = z

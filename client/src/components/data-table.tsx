@@ -1,8 +1,12 @@
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -11,44 +15,73 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "./ui/button";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
-
+import { Input } from "./ui/input";
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends unknown, TValue> {
+    filterable?: boolean;
+    placeholder?: string;
+  }
+}
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading?: boolean;
+  initialStateSorting?: { id: string; desc: boolean }[];
 }
 
-export function DataTable<TData, TValue>({ columns, data, isLoading }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "status",
-      desc: true,
-    },
-    {
-      id: "createdAt",
-      desc: true,
-    },
-  ]);
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  isLoading,
+  initialStateSorting,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>(initialStateSorting ?? []);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
     state: {
       sorting,
+      columnFilters,
+      pagination,
     },
   });
 
   return (
     <>
+      <div className=" flex items-center justify-start">
+        {table
+          .getAllColumns()
+          .filter((col) => col.getCanFilter() && col.columnDef.meta?.filterable)
+          .map((col) => (
+            <Input
+              key={col.id}
+              placeholder={col.columnDef.meta?.placeholder ?? `Filter ${col.id}`}
+              value={(col.getFilterValue() as string) ?? ""}
+              onChange={(e) => col.setFilterValue(e.target.value)}
+              className="max-w-sm text-[13px]!"
+            />
+          ))}
+      </div>
       <div className="rounded-md border relative">
         {isLoading && (
           <div className="absolute inset-0 bg-muted/50 z-50 flex items-center justify-center">
             <FaSpinner className="animate-spin duration-300 size-5" />
           </div>
         )}
+
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

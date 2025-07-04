@@ -1,3 +1,4 @@
+import { IUser } from "@/types/user-type";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -41,4 +42,16 @@ export const checkProperty = (
   }
 
   return false;
+};
+
+export const checkCompleteProfile = (user: IUser) => {
+  if (!user) return false;
+  if (user.role === "ADMIN") return true;
+  let field: keyof typeof user;
+  for (field in user) {
+    if (user[field] === "" || user[field] === null) {
+      return false;
+    }
+  }
+  return true;
 };

@@ -13,15 +13,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { IUpdateUserType } from "@/types/user-type";
 import { useAuthStore } from "@/stores/auth-store";
 import { Trash, UploadCloud } from "lucide-react";
-import { useState } from "react";
+import { ChangeEvent } from "react";
 import { useFormContext } from "react-hook-form";
+import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
+import { toast } from "sonner";
 
 const UpdateUserForm = () => {
-  const { control } = useFormContext<IUpdateUserType>();
-  const [previewImage, setPreviewImage] = useState<string>("");
-
+  const { control, setValue, resetField } = useFormContext<IUpdateUserType>();
   const { user } = useAuthStore();
+  const { uploadAsync, isLoading: isLoadingUploadFile } = useUploadFile({
+    onSuccess: (res) => {
+      setValue("photoProfile", res.data.url);
+    },
+    onError: (err) => {
+      toast.error(err?.message);
+    },
+  });
 
+  const { deleteUploadFileAsync, isLoading: isLoadingDeleteFile } = useDeleteUploadFile({
+    onSuccess: () => {
+      resetField("photoProfile", { defaultValue: "" });
+    },
+    onError: (err) => {
+      resetField("photoProfile", { defaultValue: "" });
+      toast.error(err?.message);
+    },
+  });
+
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    await uploadAsync({ file: file, field: "photoProfile" });
+  };
+
+  const handleDelete = async () => {
+    await deleteUploadFileAsync({ field: "photoProfile" });
+  };
   return (
     <div className="grid grid-cols-2 gap-8 overflow-y-scroll max-h-[500px] p-3">
       <FormField
@@ -34,33 +61,39 @@ const UpdateUserForm = () => {
                 className="hidden"
                 type="file"
                 onChange={(e) => {
-                  if (e.target.files) {
-                    const file = e.target.files[0];
-                    setPreviewImage(URL.createObjectURL(file));
-                    field.onChange(file);
-                  }
+                  if (field.value) return;
+                  handleChange(e);
                 }}
               />
             </FormControl>
 
             <Avatar className="size-24 relative group">
-              {previewImage || user?.photoUrl ? (
-                <div
-                  className="absolute hidden cursor-pointer group-hover:block top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 bg-gray-200 p-1 rounded-full"
-                  onClick={() => setPreviewImage("")}
-                >
-                  <Trash className="text-red-500 " />
-                </div>
-              ) : null}
-              <AvatarImage src={previewImage !== "" ? previewImage : user?.photoUrl} alt="@shadcn" />
+              <AvatarImage src={field.value} alt="@shadcn" />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <Button type="button" variant={"outline"} className="p-0 ">
-                <FormLabel className="text-xs cursor-pointer h-9 px-4 py-2">
-                  <UploadCloud /> <span>Upload File</span>
-                </FormLabel>
-              </Button>
+              {field.value == "" || !field.value ? (
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  className="p-0 "
+                  disabled={isLoadingUploadFile || isLoadingDeleteFile}
+                >
+                  <FormLabel className="text-xs cursor-pointer h-9 px-4 py-2">
+                    <UploadCloud /> <span>Upload Photo</span>
+                  </FormLabel>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  className="p-0 text-xs cursor-pointer h-9 px-4 py-2"
+                  disabled={isLoadingUploadFile || isLoadingDeleteFile}
+                  onClick={handleDelete}
+                >
+                  <Trash className="text-red-500" /> <span>Delete Photo</span>
+                </Button>
+              )}
               <FormDescription className="text-xs">
                 Photo must be JPEG or PNG format and at least 80x80
               </FormDescription>
@@ -102,12 +135,7 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Phone</FormLabel>
             <FormControl>
-              <Input
-                placeholder="Enter Number Phone"
-                className="h-[45px]"
-                {...field}
-                value={field.value ?? ""}
-              />
+              <Input placeholder="Enter Number Phone" className="h-[45px]" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -121,12 +149,7 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Postal Code</FormLabel>
             <FormControl>
-              <Input
-                placeholder="Enter Postal Code"
-                className="h-[45px]"
-                {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-              />
+              <Input placeholder="Enter Postal Code" className="h-[45px]" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -141,11 +164,7 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">Bio</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Tell us a little bit about yourself"
-                  {...field}
-                  value={field.value ?? ""}
-                />
+                <Textarea placeholder="Tell us a little bit about yourself" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -106,6 +106,15 @@ export class UserController {
       next(err);
     }
   }
+  static async deleteById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.params.id;
+      await UserService.deleteById(userId);
+      res.status(200).json({ message: "Delete successfuly" });
+    } catch (err) {
+      next(err);
+    }
+  }
   static async changePassword(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id as string;

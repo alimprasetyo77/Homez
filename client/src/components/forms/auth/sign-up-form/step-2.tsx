@@ -23,7 +23,7 @@ const FormSignUpStep2 = () => {
             <RadioGroup defaultValue={field.value} onValueChange={field.onChange} className="gap-4 pt-2">
               <FormItem className="flex items-center gap-3 border p-2 rounded-xl">
                 <FormControl>
-                  <RadioGroupItem value="USER" />
+                  <RadioGroupItem value="REGULAR" />
                 </FormControl>
                 <FormLabel className="grid w-full py-2 px-1.5 ">
                   <span className="font-normal">Regular</span>
@@ -34,10 +34,10 @@ const FormSignUpStep2 = () => {
               </FormItem>
               <FormItem className="flex items-center gap-3 border p-2 rounded-xl">
                 <FormControl>
-                  <RadioGroupItem value="AGENT" />
+                  <RadioGroupItem value="OWNER" />
                 </FormControl>
                 <FormLabel className="grid w-full py-2 px-1.5 ">
-                  <span className="font-normal">Agent</span>
+                  <span className="font-normal">Owner Properties</span>
                   <FormDescription className="text-xs">I want to list and manage properties.</FormDescription>
                 </FormLabel>
               </FormItem>

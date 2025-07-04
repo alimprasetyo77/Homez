@@ -10,7 +10,6 @@ const ProfileMenu = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const isAdmin = user?.role === "ADMIN";
-  const isOwner = user?.role === "OWNER";
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -20,7 +19,7 @@ const ProfileMenu = ({ children }: { children: ReactNode }) => {
           <ChevronDown />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 mt-4 pt-3">
+      <PopoverContent className="w-64 mt-4 pt-3" align="start">
         <div className="grid gap-4 text-sm">
           <div className="grid gap-0.5">
             {[...(isAdmin ? linkAdmin : linkUserOwner)].map((link) => {
