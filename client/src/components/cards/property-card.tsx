@@ -85,7 +85,7 @@ export const FavoriteCard = ({
     }
   };
   return (
-    <div className="rounded-xl overflow-hidden shadow-sm group">
+    <div className="rounded-xl overflow-hidden shadow-sm group max-h-fit">
       <div className="relative">
         <img
           className="aspect-[14/9] object-cover w-full"

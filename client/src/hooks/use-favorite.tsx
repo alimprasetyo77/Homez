@@ -11,6 +11,7 @@ export const useMyFavorites = () => {
     staleTime: 1000 * 60,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+
     enabled: Boolean(token),
   });
   return {

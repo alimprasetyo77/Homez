@@ -1,17 +1,20 @@
+import Alert from "@/components/alert";
 import ChangePassword from "@/components/modals/change-password-modal";
-import DeleteUser from "@/components/modals/delete-user-modal";
 import UpdateUser from "@/components/modals/update-user-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { checkCompleteProfile } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useDeleteUserLogin } from "@/hooks/use-users";
+import { isAllFieldsFilled } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { PiWarningCircle } from "react-icons/pi";
 
 const Profile = () => {
   const { user } = useAuthStore();
-  const isCompleteProfile = checkCompleteProfile(user!);
+  const { deleteUserByLogin, pendingDeleteUser } = useDeleteUserLogin();
+  const isCompleteProfile = isAllFieldsFilled(user!);
   return (
-    <div className="bg-white rounded-xl p-6 border space-y-8">
+    <div className="bg-white rounded-2xl p-6 border border-gray-200 space-y-6">
       <h1 className="text-xl font-medium">Profile</h1>
       {!isCompleteProfile && (
         <div className="p-4 rounded-sm border-l-4 border-yellow-400 flex items-center gap-4 bg-yellow-50">
@@ -32,27 +35,23 @@ const Profile = () => {
           <div className="space-y-2">
             <h2 className="font-semibold capitalize">{user?.name}</h2>
             <p className="flex items-center text-muted-foreground text-xs ">
-              {user?.location?.address ? (
-                <>
-                  <span className="mx-1">|</span>
-                  <span className="capitalize">{user?.location?.address}</span>
-                </>
-              ) : null}
-              {user?.location?.state ? <span className="capitalize ml-1">{user.location?.state}</span> : null}
+              {user?.location?.country ? <span className="capitalize">{user?.location?.country}</span> : null}
+              <span className="mx-2">|</span>
+              {user?.location?.state ? <span className="capitalize">{user.location?.state}</span> : null}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-x-6 *:border *:p-1.5 *:flex *:items-center *:justify-center *:rounded-full ">
-          <a href={user?.socialMedia?.facebook} target="_blank">
+          <a href={user?.socialMedia?.facebook ?? ""} target="_blank">
             <FaFacebook className="size-5" />
           </a>
-          <a href={user?.socialMedia?.linkedIn} target="_blank">
+          <a href={user?.socialMedia?.linkedIn ?? ""} target="_blank">
             <FaLinkedin className="size-5" />
           </a>
-          <a href={user?.socialMedia?.instagram} target="_blank">
+          <a href={user?.socialMedia?.instagram ?? ""} target="_blank">
             <FaInstagram className="size-5" />
           </a>
-          <a href={user?.socialMedia?.x} target="_blank">
+          <a href={user?.socialMedia?.x ?? ""} target="_blank">
             <FaTwitter className="size-5" />
           </a>
         </div>
@@ -60,7 +59,7 @@ const Profile = () => {
       <div className="bg-white rounded-xl p-6 border space-y-4 ">
         <h1 className="text-lg font-semibold text-gray-800">Personal information</h1>
         <div className="grid grid-cols-12">
-          <div className="col-span-5 grid grid-cols-2 gap-6">
+          <div className="col-span-5 grid grid-cols-2 gap-y-6 gap-x-16">
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">First Name</span>
               <span className=" font-medium text-sm text-gray-800">{user?.name}</span>
@@ -81,9 +80,13 @@ const Profile = () => {
         </div>
       </div>
       <div className="bg-white rounded-xl p-6 border space-y-4 ">
-        <h1 className="text-lg font-semibold text-gray-800">Address</h1>
-        <div className="grid grid-cols-12">
-          <div className="col-span-5 grid grid-cols-2 gap-6">
+        <h1 className="text-lg font-semibold text-gray-800">Location</h1>
+        <div className="grid grid-cols-12 ">
+          <div className="col-span-5 grid grid-cols-2 gap-y-6 gap-x-16">
+            <div className="flex flex-col">
+              <span className="text-muted-foreground text-xs">Address</span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.address ?? "-"}</span>
+            </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">Country</span>
               <span className=" font-medium text-sm text-gray-800">{user?.location?.country ?? "-"}</span>
@@ -98,15 +101,23 @@ const Profile = () => {
               <span className="text-muted-foreground text-xs">Postal Code</span>
               <span className=" font-medium text-sm text-gray-800">{user?.location?.postalCode ?? "-"}</span>
             </div>
-            <div className="flex flex-col ">
-              <span className="text-muted-foreground text-xs">TAX ID</span>
-              <span className=" font-medium text-sm text-gray-800">{"222"}</span>
-            </div>
           </div>
         </div>
       </div>
       <div className="gap-x-4 flex items-center justify-end *:text-xs *:cursor-pointer">
-        <DeleteUser />
+        <Alert
+          title="Delete this account"
+          description="Once you delete a account, there is no going back. Please be certain."
+          onAction={deleteUserByLogin}
+        >
+          <Button
+            className="h-auto text-xs cursor-pointer"
+            variant={"destructive"}
+            disabled={pendingDeleteUser}
+          >
+            Delete Account
+          </Button>
+        </Alert>
         <ChangePassword />
         <UpdateUser />
       </div>

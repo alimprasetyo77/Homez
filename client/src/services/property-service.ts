@@ -10,6 +10,15 @@ import {
 import axios from "axios";
 import { IForwardGeoCode, IReverseGeocode } from "@/types/geocode-type";
 
+export const getCountPropertyEachCities = async () => {
+  try {
+    const result = await axiosWithConfig.get("/properties/property-of-cities");
+    return result.data as Response<{ city: string; count: number; imgUrl: string }[]>;
+  } catch (error: any) {
+    throw new Error(error.response?.data.errors.message);
+  }
+};
+
 export const getMyProperties = async () => {
   try {
     const result = await axiosWithConfig.get("/users/properties");

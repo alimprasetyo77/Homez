@@ -131,16 +131,18 @@ export class PropertyService {
       limit = 8,
     } = validate(PropertyValidation.searchProperty, request);
 
-    const filterProperties: Record<string, any> = {
-      title: { contains: title, mode: "insensitive" },
-    };
+    const filterProperties: Prisma.PropertyWhereInput = {};
 
-    if (price && (price.min !== undefined || price.max !== undefined)) {
+    if (title) {
+      filterProperties.title = { contains: title, mode: "insensitive" };
+    }
+
+    if (price) {
       filterProperties.price = {};
-      if (price.min !== undefined) {
+      if (price.min != null) {
         filterProperties.price.gte = price.min;
       }
-      if (price.max !== undefined) {
+      if (price.max != null) {
         filterProperties.price.lte = price.max;
       }
     }
@@ -149,42 +151,54 @@ export class PropertyService {
       filterProperties.listingType = listingType;
     }
 
-    if (type) {
+    if (Array.isArray(type) && type.length > 0) {
       filterProperties.type = { in: type };
     }
 
-    if (bedrooms !== null && bedrooms !== undefined) {
+    if (bedrooms != null) {
       filterProperties.bedrooms = bedrooms;
     }
 
-    if (bathrooms !== null && bathrooms !== undefined) {
+    if (bathrooms != null) {
       filterProperties.bathrooms = bathrooms;
     }
 
-    if (squareFeet !== null && squareFeet !== undefined) {
+    if (squareFeet != null) {
       filterProperties.squareFeet = squareFeet;
     }
 
     if (location) {
-      filterProperties.location.city = { contains: location, mode: "insensitive" };
+      filterProperties.location = {
+        is: {
+          OR: [
+            { city: { contains: location, mode: "insensitive" } },
+            { state: { contains: location, mode: "insensitive" } },
+            { country: { contains: location, mode: "insensitive" } },
+          ],
+        },
+      };
     }
 
-    const properties = await prisma.property.findMany({
-      where: filterProperties,
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const currentPage = Math.max(1, page);
+    const pageSize = Math.max(1, limit);
 
-    const total = await prisma.property.count({
-      where: filterProperties,
-    });
+    const [properties, total] = await Promise.all([
+      prisma.property.findMany({
+        where: filterProperties,
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.property.count({
+        where: filterProperties,
+      }),
+    ]);
 
     return {
       data: properties,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: currentPage,
+      limit: pageSize,
+      totalPages: Math.ceil(total / pageSize),
     };
   }
 
@@ -192,5 +206,67 @@ export class PropertyService {
     const locations = await prisma.property.findMany();
     const uniqueCities = Array.from(new Set(locations.map((property) => property.location.city)));
     return { data: uniqueCities };
+  }
+  static async getCountPropertyEachCities() {
+    const imageOfCities: Record<string, { imgUrl: string }> = {
+      Bellingham: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1698074175473-33ea02d1a4ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fEJlbGxpbmdoYW0lMjBjaXRpZXN8ZW58MHx8MHx8fDA%3D",
+      },
+      Sedona: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1689783661451-06544b145848?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8U2Vkb25hJTIwY2l0aWVzfGVufDB8fDB8fHww",
+      },
+      Nashville: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1556033681-83abea291a96?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TmFzaHZpbGxlfGVufDB8fDB8fHww",
+      },
+      Denver: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1602800458591-eddda28a498b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8RGVudmVyfGVufDB8fDB8fHww",
+      },
+      "Beverly Hills": {
+        imgUrl:
+          "https://images.unsplash.com/photo-1631728883520-0e32ca119ef4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fEJldmVybHklMjBIaWxsc3xlbnwwfHwwfHx8MA%3D%3D",
+      },
+      Portland: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1539796240877-a8265851dd8f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fFBvcnRsYW5kfGVufDB8fDB8fHww",
+      },
+      Boston: {
+        imgUrl:
+          "https://images.unsplash.com/photo-1565127803082-69dd82351360?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Qm9zdG9ufGVufDB8fDB8fHww",
+      },
+      "Los Angeles": {
+        imgUrl:
+          "https://plus.unsplash.com/premium_photo-1697730143625-cc36da7bc150?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8TG9zJTIwQW5nZWxlc3xlbnwwfHwwfHx8MA%3D%3D",
+      },
+    };
+
+    const result = new Map<string, number>();
+
+    const properties = await prisma.property.findMany({
+      select: { location: { select: { city: true } } },
+      take: 8,
+    });
+
+    for (const property of properties) {
+      const city = property.location?.city;
+      if (!city) continue;
+
+      result.set(city, (result.get(city) ?? 0) + 1);
+    }
+
+    const response: Record<string, { count: number; imgUrl: string | null }> = {};
+
+    for (const [city, count] of result.entries()) {
+      const cityImage = imageOfCities[city]?.imgUrl ?? null;
+      response[city] = {
+        count,
+        imgUrl: cityImage,
+      };
+    }
+
+    return Object.entries(response).map(([city, data]) => ({ city, ...data }));
   }
 }

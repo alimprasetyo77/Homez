@@ -1,5 +1,5 @@
 import { Camera, Check, DollarSign, Home, Star } from "lucide-react";
-import { ICity, ILinkOnSearch } from "./types";
+import { ILinkOnSearch } from "./types";
 import { ICreateProperty, IProperty, IUpdateProperty } from "@/types/property-type";
 import { useForm } from "react-hook-form";
 
@@ -38,53 +38,6 @@ export const typeProperties: { title: string; image?: string }[] = [
   },
 ];
 
-export const ListCities: ICity[] = [
-  {
-    id: 1,
-    name: "Manhattan",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-1.png&w=384&q=75",
-  },
-  {
-    id: 2,
-    name: "San Diego",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-2.png&w=384&q=75",
-  },
-  {
-    id: 3,
-    name: "San Francisco",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-3.png&w=384&q=75",
-  },
-  {
-    id: 4,
-    name: "Los Angeles",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-4.png&w=384&q=75",
-  },
-  {
-    id: 5,
-    name: "California",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-5.png&w=384&q=75",
-  },
-  {
-    id: 6,
-    name: "New Jersey",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-6.png&w=384&q=75",
-  },
-  {
-    id: 7,
-    name: "Manhattan",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-1.png&w=384&q=75",
-  },
-  {
-    id: 8,
-    name: "San Diego",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-2.png&w=384&q=75",
-  },
-  {
-    id: 9,
-    name: "San Francisco",
-    image: "https://homez-appdir.vercel.app/_next/image?url=%2Fimages%2Flistings%2Fcp-m-3.png&w=384&q=75",
-  },
-];
 export const Steps = [
   { id: "verify", label: "Verify", icon: Check },
   { id: "details", label: "Details", icon: Home },

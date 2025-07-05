@@ -26,16 +26,15 @@ import { useMyFavorites } from "@/hooks/use-favorite";
 const Search = () => {
   const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const statePropertyStatus = state?.propertyStatus;
+  const statePropertyType = state?.propertyType;
   // Get query params from URL
   const querySearch = searchParams.get("q") || "";
   const locationSearch = searchParams.get("location") || "";
 
   const [keyword, setKeyword] = useState(querySearch || "");
-  const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | "all">(
-    state?.propertyStatus ?? "all"
-  );
-  const [propertyType, setPropertyType] = useState<(PropertyType | "all")[]>(["all"]);
+  const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | "all">(statePropertyStatus ?? "all");
+  const [propertyType, setPropertyType] = useState<(PropertyType | "all")[]>([statePropertyType ?? "all"]);
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
     min: 0,
     max: 5000000,
@@ -46,7 +45,9 @@ const Search = () => {
   const { properties, fetchSearchFilterProperties } = useSearchFilterProperties(
     filteredProperties as ISearchOrFilterProperties
   );
-  const { locationProperties } = useLocationProperties(filteredProperties as ISearchOrFilterProperties);
+
+  const { locationProperties } = useLocationProperties();
+
   const { favorites } = useMyFavorites();
 
   const handlePropertyTypeChange = (type: PropertyType | "all") => {
@@ -72,7 +73,7 @@ const Search = () => {
     if (keyword) {
       filter.title = keyword.trim();
     }
-    if (priceRange.min > 0 && priceRange.max < 5000000) {
+    if (priceRange.min >= 0 && priceRange.max < 5000000) {
       filter.price = { min: priceRange.min, max: priceRange.max };
     }
     if (propertyStatus !== "all") {
@@ -110,11 +111,12 @@ const Search = () => {
     }
   };
   useEffect(() => {
-    if (querySearch || locationSearch) {
+    if (statePropertyType || statePropertyStatus || searchParams.has("q") || searchParams.has("location")) {
       handleSearch();
     }
-  }, [searchParams, locationSearch]);
+  }, [statePropertyType, statePropertyStatus, searchParams.has("q"), searchParams.has("location")]);
 
+  console.log(filteredProperties);
   useEffect(() => {
     if (filteredProperties) {
       fetchSearchFilterProperties();

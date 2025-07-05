@@ -105,7 +105,25 @@ export class UserService {
   }
 
   static async get(user: IPublicUser): Promise<IPublicUser> {
-    return user;
+    return {
+      ...user,
+      bio: user.bio ?? "",
+      phone: user.phone ?? "",
+      photoProfile: user.photoProfile ?? "",
+      socialMedia: {
+        facebook: user.socialMedia?.facebook ?? "",
+        instagram: user.socialMedia?.instagram ?? "",
+        linkedIn: user.socialMedia?.linkedIn ?? "",
+        x: user.socialMedia?.x ?? "",
+      },
+      location: {
+        address: user.location?.address ?? "",
+        city: user.location?.city ?? "",
+        country: user.location?.country ?? "",
+        postalCode: user.location?.postalCode ?? "",
+        state: user.location?.state ?? "",
+      },
+    };
   }
   static async getAll(): Promise<IPublicUser[]> {
     const users = await prisma.user.findMany({

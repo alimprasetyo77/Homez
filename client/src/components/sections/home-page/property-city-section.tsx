@@ -7,14 +7,15 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useNavigate } from "react-router-dom";
-import { ListCities } from "@/constants/property";
-import CityCard from "../cards/city-card";
+import CityCard from "../../cards/city-card";
+import { usePropertyOfCities } from "@/hooks/use-properties";
+import { Skeleton } from "../../ui/skeleton";
 
 const PropertyByCity = () => {
   const navigate = useNavigate();
-
+  const { propertyOfCities, isLoading } = usePropertyOfCities();
   return (
-    <section className="py-[120px] px-20 ">
+    <section className="pt-[120px] pb-[40px] px-20 ">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 100, y: 0 }}
@@ -34,13 +35,17 @@ const PropertyByCity = () => {
         >
           <Carousel className="mt-10" opts={{ align: "start" }}>
             <CarouselContent>
-              {ListCities.map((city) => (
+              {propertyOfCities?.map((item, index) => (
                 <CarouselItem
-                  key={city.id}
+                  key={index}
                   className="basis-1/6 p-6 cursor-pointer"
-                  onClick={() => navigate(`/properties/search?location=${city.name}`)}
+                  onClick={() => navigate(`/properties/search?location=${item.city}`)}
                 >
-                  <CityCard key={city.id} {...city} />
+                  {isLoading ? (
+                    <Skeleton key={index} className="size-44 rounded-full" />
+                  ) : (
+                    <CityCard key={index} image={item.imgUrl} name={item.city} countProperty={item.count} />
+                  )}
                 </CarouselItem>
               ))}
             </CarouselContent>

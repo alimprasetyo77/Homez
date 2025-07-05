@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { usdCurrencyFormat } from "@/lib/utils";
+import { isAllFieldsFilled, usdCurrencyFormat } from "@/lib/utils";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleOff, Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
@@ -10,18 +10,21 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useDeleteProperty, useMyProperties } from "@/hooks/use-properties";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "@/stores/auth-store";
 
 const Property = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { deleteProperty, pendingDeleteProperty } = useDeleteProperty();
   const [havePendingProperty, sethavePendingProperty] = useState(false);
-  const { properties: myProperties } = useMyProperties();
+  const { properties } = useMyProperties();
+  const isCompleteProfile = isAllFieldsFilled(user!);
 
   useEffect(() => {
-    if (!myProperties) return;
-    const result = myProperties?.some((property) => property.status === "pending");
+    if (!properties) return;
+    const result = properties?.some((property) => property.status === "pending");
     sethavePendingProperty(result!);
-  }, [myProperties]);
+  }, [properties]);
 
   const columns: ColumnDef<IProperty>[] = [
     {
@@ -130,34 +133,42 @@ const Property = () => {
     },
   ];
 
-  if (!myProperties) {
+  if (!properties) {
     return (
-      <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
+      <div className="bg-white rounded-2xl p-6 border border-gray-200 min-h-screen space-y-6">
         <h1 className="text-2xl font-semibold">My Properties</h1>
         <p className="text-gray-500">You have no properties listed.</p>
       </div>
     );
   }
   return (
-    <div className="container bg-white rounded-sm p-8 min-h-screen space-y-6">
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">My Properties</h1>
-          <Button
-            variant={"outline"}
-            onClick={() => {
-              if (havePendingProperty) {
-                toast("You have pending property");
-                return;
-              }
-              navigate("/property/form");
-            }}
-          >
-            Add Property
-          </Button>
-        </div>
-        <DataTable columns={columns} data={myProperties} isLoading={pendingDeleteProperty} />
+    <div className="bg-white rounded-2xl p-6 border border-gray-200  min-h-screen space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-medium">My Properties</h1>
+        <Button
+          variant={"outline"}
+          onClick={() => {
+            if (!isCompleteProfile) {
+              toast.warning("Please complete your profile before proceeding.", {
+                action: (
+                  <Button onClick={() => navigate("/dashboard/profile")} variant={"outline"}>
+                    Go to Profile
+                  </Button>
+                ),
+              });
+              return;
+            }
+            if (havePendingProperty) {
+              toast("You have pending property");
+              return;
+            }
+            navigate("/property/form");
+          }}
+        >
+          Add Property
+        </Button>
       </div>
+      <DataTable columns={columns} data={properties} isLoading={pendingDeleteProperty} />
     </div>
   );
 };

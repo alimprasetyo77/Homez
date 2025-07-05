@@ -20,10 +20,10 @@ export const updateUserSchema = z.object({
   }),
 
   socialMedia: z.object({
-    facebook: z.string().url().optional(),
-    x: z.string().url().optional(),
-    linkedIn: z.string().url().optional(),
-    instagram: z.string().url().optional(),
+    facebook: z.string().optional(),
+    x: z.string().optional(),
+    linkedIn: z.string().optional(),
+    instagram: z.string().optional(),
   }),
 });
 

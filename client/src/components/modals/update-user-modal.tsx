@@ -18,11 +18,12 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useUpdateUser } from "@/hooks/use-users";
 
 const UpdateUser = () => {
-  const { user } = useAuthStore();
+  const { user, fetchUser } = useAuthStore();
   const [open, setOpen] = useState(false);
   const { updateUserAsync, pendingUpdateUser } = useUpdateUser({
     onSuccess() {
       handleCloseDialog();
+      fetchUser();
     },
   });
 
@@ -55,7 +56,7 @@ const UpdateUser = () => {
     form.reset();
     setOpen(false);
   };
-  console.log(form.watch());
+
   useEffect(() => {
     if (user) {
       form.reset(user);

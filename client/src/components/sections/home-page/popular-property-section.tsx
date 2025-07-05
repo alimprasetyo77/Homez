@@ -2,9 +2,9 @@ import { typeProperties } from "@/constants/property";
 import { PropertyType } from "@/types/property-type";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Skeleton } from "../ui/skeleton";
-import { PropertyCard } from "../cards/property-card";
+import { Button } from "../../ui/button";
+import { Skeleton } from "../../ui/skeleton";
+import { PropertyCard } from "../../cards/property-card";
 import { usePopularProperties } from "@/hooks/use-properties";
 import { useMyFavorites } from "@/hooks/use-favorite";
 

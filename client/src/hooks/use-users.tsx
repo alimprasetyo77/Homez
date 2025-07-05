@@ -1,4 +1,4 @@
-import { deleteUserById, getUserById, getUsers, updateUser } from "@/services/user-service";
+import { deleteUser, deleteUserById, getUserById, getUsers, updateUser } from "@/services/user-service";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -69,6 +69,23 @@ export const useDeleteUserById = () => {
   });
   return {
     deleteUserByID: mutation.mutateAsync,
+    pendingDeleteUser: mutation.isPending,
+  };
+};
+export const useDeleteUserLogin = () => {
+  const { clearState } = useAuthStore();
+  const mutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess({ message }) {
+      toast.success(message);
+      clearState();
+    },
+    onError(error) {
+      toast.error(`${error}`);
+    },
+  });
+  return {
+    deleteUserByLogin: mutation.mutateAsync,
     pendingDeleteUser: mutation.isPending,
   };
 };

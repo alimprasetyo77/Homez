@@ -25,7 +25,9 @@ const PropertyType = () => {
             <div
               key={index}
               className="flex items-center  flex-col gap-2 cursor-pointer gap-y-4 bg-white shadow rounded-md overflow-hidden pb-4"
-              onClick={() => navigate("/properties/search", { state: { propertyType: property.title } })}
+              onClick={() =>
+                navigate("/properties/search", { state: { propertyType: property.title.toLowerCase() } })
+              }
             >
               <img src={property.image} alt="property" className="aspect-[1/1] object-cover rounded-sm" />
               <span className="text-[#181a20] text-[15px] font-semibold">{property.title}</span>

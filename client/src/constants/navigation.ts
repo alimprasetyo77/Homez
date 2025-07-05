@@ -10,16 +10,22 @@ export const linkNavbar: ILinkNavbar[] = [
   },
   {
     id: 2,
-    title: "About",
-    path: "/about",
+    title: "Listing",
+    path: "/properties/search",
   },
   {
     id: 3,
+    title: "About",
+    path: "/about",
+  },
+
+  {
+    id: 4,
     title: "Contact",
     path: "/contact",
   },
   {
-    id: 4,
+    id: 5,
     title: "Blog",
     path: "/blog",
   },

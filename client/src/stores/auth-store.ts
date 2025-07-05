@@ -18,10 +18,10 @@ interface IAuthStore {
 export const useAuthStore = create<IAuthStore>((set, _get) => ({
   isLoading: false,
   user: null,
-  token: sessionStorage.getItem("token") ?? null,
+  token: localStorage.getItem("token") ?? null,
 
   clearState() {
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     set({ user: null, token: null });
   },
 
@@ -30,7 +30,7 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
   },
 
   setToken(token: string) {
-    sessionStorage.setItem("token", token);
+    localStorage.setItem("token", token);
     set({ token });
   },
 
@@ -48,11 +48,12 @@ export const useAuthStore = create<IAuthStore>((set, _get) => ({
   async logout() {
     try {
       await logout();
-      const tokenInSessionStorage = sessionStorage.getItem("token");
-      if (tokenInSessionStorage) {
-        sessionStorage.removeItem("token");
+      const tokenInlocalStorage = localStorage.getItem("token");
+      if (tokenInlocalStorage) {
+        localStorage.removeItem("token");
       }
       set({ user: null, token: null });
+      location.reload();
     } catch (error) {
       toast.error(`${error}`);
     }

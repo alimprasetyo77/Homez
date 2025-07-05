@@ -13,4 +13,5 @@ publicRouter.post("/api/users/logout", UserController.logout);
 publicRouter.get("/api/properties", PropertyController.getAll);
 publicRouter.get("/api/properties/location", PropertyController.getLocation);
 publicRouter.post("/api/properties/search", PropertyController.search);
+publicRouter.get("/api/properties/property-of-cities", PropertyController.getCountPropertyEachCities);
 publicRouter.get("/api/properties/:propertyId", PropertyController.getById);

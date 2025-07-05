@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { BiSearch } from "react-icons/bi";
 import { PiBuildingApartment, PiBuildingOfficeLight, PiHouseSimple } from "react-icons/pi";
 import { MdOutlineVilla } from "react-icons/md";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 
 const Hero = () => {
   const navigate = useNavigate();

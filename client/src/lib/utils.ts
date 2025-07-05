@@ -44,14 +44,17 @@ export const checkProperty = (
   return false;
 };
 
-export const checkCompleteProfile = (user: IUser) => {
-  if (!user) return false;
-  if (user.role === "ADMIN") return true;
-  let field: keyof typeof user;
-  for (field in user) {
-    if (user[field] === "" || user[field] === null) {
-      return false;
+export function isAllFieldsFilled(data: IUser): boolean {
+  const check = (obj: IUser): boolean => {
+    for (const value of Object.values(obj)) {
+      if (typeof value === "string") {
+        if (value.trim() === "") return false;
+      } else if (typeof value === "object" && value !== null) {
+        if (!check(value)) return false;
+      }
     }
-  }
-  return true;
-};
+    return true;
+  };
+
+  return check(data);
+}

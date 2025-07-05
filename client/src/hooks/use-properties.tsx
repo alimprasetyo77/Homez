@@ -1,6 +1,7 @@
 import {
   createProperty,
   deleteProperty,
+  getCountPropertyEachCities,
   getLocation,
   getMyProperties,
   getPopular,
@@ -37,10 +38,11 @@ export const useSearchFilterProperties = (filteredProperties: ISearchOrFilterPro
   };
 };
 
-export const useLocationProperties = (filteredProperties: ISearchOrFilterProperties) => {
+export const useLocationProperties = () => {
   const { data } = useQuery({
-    queryKey: ["location-properties", filteredProperties],
+    queryKey: ["location-properties"],
     queryFn: () => getLocation(),
+    refetchOnMount: false,
   });
   return {
     locationProperties: data?.data,
@@ -57,6 +59,19 @@ export const usePopularProperties = (activeLinkOnProperties: PropertyType) => {
   });
   return {
     popularProperties: data?.data,
+    isLoading,
+  };
+};
+export const usePropertyOfCities = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["PropertyOfCities"],
+    queryFn: () => getCountPropertyEachCities(),
+    staleTime: 1000 * 60 * 60 * 24,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+  return {
+    propertyOfCities: data?.data,
     isLoading,
   };
 };

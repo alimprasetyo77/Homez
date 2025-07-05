@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { IUpdateUserType } from "@/types/user-type";
 import { useAuthStore } from "@/stores/auth-store";
-import { Trash, UploadCloud } from "lucide-react";
+import { Loader2, Trash, UploadCloud } from "lucide-react";
 import { ChangeEvent } from "react";
 import { useFormContext } from "react-hook-form";
 import { useDeleteUploadFile, useUploadFile } from "@/hooks/use-upload-file";
@@ -23,7 +23,7 @@ const UpdateUserForm = () => {
   const { user } = useAuthStore();
   const { uploadAsync, isLoading: isLoadingUploadFile } = useUploadFile({
     onSuccess: (res) => {
-      setValue("photoProfile", res.data.url);
+      setValue("photoProfile", res.data.url, { shouldDirty: true });
     },
     onError: (err) => {
       toast.error(err?.message);
@@ -68,11 +68,19 @@ const UpdateUserForm = () => {
             </FormControl>
 
             <Avatar className="size-24 relative group">
-              <AvatarImage src={field.value} alt="@shadcn" />
-              <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              {isLoadingUploadFile || isLoadingDeleteFile ? (
+                <div className="flex items-center justify-center w-full bg-gray-100">
+                  <Loader2 className="animate-spin duration-500 stroke-gray-700" />
+                </div>
+              ) : (
+                <>
+                  <AvatarImage src={field.value} alt="@shadcn" />
+                  <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </>
+              )}
             </Avatar>
             <div className="space-y-2">
-              {field.value == "" || !field.value ? (
+              {!field.value ? (
                 <Button
                   type="button"
                   variant={"outline"}
@@ -135,7 +143,13 @@ const UpdateUserForm = () => {
           <FormItem>
             <FormLabel className="text-xs">Phone</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Number Phone" className="h-[45px]" {...field} />
+              <Input
+                type="number"
+                placeholder="Enter Number Phone"
+                className="h-[45px]"
+                {...field}
+                onChange={(e) => field.onChange(String(e.target.value))}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -172,8 +186,21 @@ const UpdateUserForm = () => {
         />
       </div>
 
-      <h3 className="font-medium -mb-4 col-span-2">Address</h3>
+      <h3 className="font-medium -mb-4 col-span-2">Location</h3>
       <div className="col-span-2 gap-4 grid grid-cols-2">
+        <FormField
+          control={control}
+          name="location.address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs">Address</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter City" className="h-[45px]" {...field} value={field.value} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name="location.city"
@@ -181,7 +208,7 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">City</FormLabel>
               <FormControl>
-                <Input placeholder="Enter City" className="h-[45px]" {...field} />
+                <Input placeholder="Enter City" className="h-[45px]" {...field} value={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -207,7 +234,7 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">State</FormLabel>
               <FormControl>
-                <Input placeholder="Enter State" className="h-[45px]" {...field} />
+                <Input placeholder="Enter State" className="h-[45px]" {...field} value={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -236,7 +263,7 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">X Url</FormLabel>
               <FormControl>
-                <Input placeholder="Enter X Url" className="h-[45px]" {...field} />
+                <Input placeholder="Enter X Url" className="h-[45px]" {...field} value={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>

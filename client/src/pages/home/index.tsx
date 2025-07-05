@@ -1,7 +1,7 @@
-import Hero from "@/components/sections/hero-section";
-import PropertyType from "@/components/sections/property-type-section";
-import PopularProperty from "@/components/sections/popular-property-section";
-import PropertyByCity from "@/components/sections/property-city-section";
+import Hero from "@/components/sections/home-page/hero-section";
+import PropertyType from "@/components/sections/home-page/property-type-section";
+import PopularProperty from "@/components/sections/home-page/popular-property-section";
+import PropertyByCity from "@/components/sections/home-page/property-city-section";
 
 const Home = () => {
   return (

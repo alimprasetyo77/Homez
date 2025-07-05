@@ -83,14 +83,3 @@ async function cleanup() {
 }
 
 cron.schedule("*/30 * * * *", cleanup);
-// cleanup();
-// async function seedDatabase() {
-//   try {
-
-//   } catch (error) {
-//     console.error("Error seeding database:", error);
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// }
-// seedDatabase();

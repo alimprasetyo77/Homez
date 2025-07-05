@@ -4,11 +4,7 @@ export interface ILinkOnSearch {
   id: number;
   title: ListLinkSearch;
 }
-export interface ICity {
-  id: number;
-  name: string;
-  image: string;
-}
+
 export interface ILinkNavbar {
   id: number;
   title: string;

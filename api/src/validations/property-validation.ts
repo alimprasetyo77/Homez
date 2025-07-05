@@ -74,17 +74,16 @@ export class PropertyValidation {
     title: z.string().optional(),
     price: z
       .object({
-        min: z.number().nonnegative().optional().nullable(),
-        max: z.number().nonnegative().optional().nullable(),
+        min: z.number().optional(),
+        max: z.number().optional(),
       })
-      .optional()
-      .nullable(),
-    status: z.enum(["buy", "rent"]).optional().nullable(),
+      .optional(),
+    status: z.enum(["buy", "rent"]).optional(),
     type: z.array(z.enum(["house", "apartment", "office", "villa"])).optional(),
-    bedrooms: z.number().int().nonnegative().optional().nullable(),
-    bathrooms: z.number().int().nonnegative().optional().nullable(),
-    squareFeet: z.number().positive().optional().nullable(),
-    location: z.string().optional().nullable(),
+    bedrooms: z.number().int().nonnegative().optional(),
+    bathrooms: z.number().int().nonnegative().optional(),
+    squareFeet: z.number().positive().optional(),
+    location: z.string().optional(),
     page: z.number().int().nonnegative().default(1),
     limit: z.number().int().nonnegative().default(8),
   });

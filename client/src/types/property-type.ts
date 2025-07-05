@@ -1,4 +1,4 @@
-import PropertyType from "@/components/sections/property-type-section";
+import PropertyType from "@/components/sections/home-page/property-type-section";
 import { z } from "zod";
 import { IUser } from "./user-type";
 const propertyTypeOptions = ["house", "apartment", "villa", "office"] as const;
