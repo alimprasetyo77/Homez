@@ -43,11 +43,13 @@ app.use(
 );
 app.use(requestLogger);
 app.use(apiLimiter);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse form data in the req.body
 app.use(cookieParser());
 
+app.get("/", (_req, res) => {
+  res.send("Hello World!");
+});
 app.use(publicRouter);
 app.use(apiRouter);
 
