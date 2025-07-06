@@ -22,8 +22,9 @@ export class UserController {
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // ✅ cookie dikirim hanya lewat HTTPS
-        sameSite: "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
       });
       res.status(200).json({ message: "Login successfully", data: { token: response.accessToken } });
     } catch (err) {
@@ -38,8 +39,9 @@ export class UserController {
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // ✅ cookie dikirim hanya lewat HTTPS
-        sameSite: "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
       });
       res.status(200).json({ accessToken: response.accessToken });
     } catch (err) {
@@ -50,7 +52,12 @@ export class UserController {
     try {
       const refreshToken = req.cookies["refreshToken"];
       await UserService.logout(refreshToken);
-      res.clearCookie("refreshToken");
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // ✅ cookie dikirim hanya lewat HTTPS
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        path: "/",
+      });
       res.status(200).json({ message: "Logout successfully" });
     } catch (err) {
       next(err);
