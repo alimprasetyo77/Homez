@@ -221,6 +221,14 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -238,6 +246,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mongodb",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -246,8 +255,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id           String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name         String\n  email        String            @unique\n  password     String\n  role         UserRole          @default(REGULAR)\n  // field opsional untuk agent\n  phone        String?\n  photoProfile String?\n  location     LocationTypeUser?\n  bio          String?\n  socialMedia  SocialMedia?\n  // relasi\n  properties   Property[]        @relation(\"OwnerProperties\")\n  favorites    Favorite[]\n  token        String?\n  createdAt    DateTime          @default(now())\n}\n\nmodel Property {\n  id            String              @id @default(auto()) @map(\"_id\") @db.ObjectId\n  title         String\n  description   String\n  price         Float\n  status        PropertyStatus\n  type          PropertyType\n  listingType   PropertyListingType\n  bedrooms      Int\n  bathrooms     Int\n  squareFeet    Int\n  location      LocationType\n  amenities     Amenity[]\n  photos        PhotoType\n  photoDocument String?\n  isVerified    Boolean             @default(false)\n  isFeatured    Boolean             @default(false)\n\n  // relasi ke user sebagai pemilik properti\n  owner   User?  @relation(\"OwnerProperties\", fields: [ownerId], references: [id])\n  ownerId String @db.ObjectId\n\n  favorites Favorite[]\n  createdAt DateTime   @default(now())\n}\n\nmodel Favorite {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  user       User     @relation(fields: [userId], references: [id])\n  userId     String   @db.ObjectId\n  property   Property @relation(fields: [propertyId], references: [id])\n  propertyId String   @db.ObjectId\n  createdAt  DateTime @default(now())\n\n  @@unique([userId, propertyId])\n}\n\nmodel Upload {\n  id         String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  publicId   String\n  url        String\n  field      String\n  status     StatusUploadPhoto\n  uploadedAt DateTime          @default(now())\n  propertyId String?\n  userId     String\n}\n\nenum StatusUploadPhoto {\n  pending\n  attached\n}\n\nenum Amenity {\n  AC\n  WATER_HEATER\n  KITCHEN_SET\n  FURNISHED\n  PRIVATE_POOL\n  BALCONY\n  GARDEN\n  GARAGE\n  SECURITY\n  CCTV\n  GYM\n  SHARED_POOL\n  ELEVATOR\n  PLAYGROUND\n  INTERNET\n  CABLE_TV\n}\n\nenum PropertyListingType {\n  buy\n  rent\n}\n\nenum UserRole {\n  OWNER\n  REGULAR\n  ADMIN\n}\n\nenum PropertyType {\n  house\n  apartment\n  office\n  villa\n}\n\nenum PropertyStatus {\n  pending\n  approved\n  rejected\n}\n\ntype LocationType {\n  address    String\n  city       String\n  state      String\n  country    String\n  postalCode String\n  latitude   Float\n  longitude  Float\n}\n\ntype LocationTypeUser {\n  address    String\n  city       String\n  state      String\n  country    String\n  postalCode String\n}\n\ntype PhotoType {\n  main_photo String\n  photo_1    String\n  photo_2    String\n  photo_3    String\n  photo_4    String\n}\n\ntype SocialMedia {\n  facebook  String\n  x         String\n  linkedIn  String\n  instagram String\n}\n",
-  "inlineSchemaHash": "66e0f663736430823ba776b96fdb29600ced13ff3174a5ebccfff20c3df51b2d",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"windows\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id           String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name         String\n  email        String            @unique\n  password     String\n  role         UserRole          @default(REGULAR)\n  // field opsional untuk agent\n  phone        String?\n  photoProfile String?\n  location     LocationTypeUser?\n  bio          String?\n  socialMedia  SocialMedia?\n  // relasi\n  properties   Property[]        @relation(\"OwnerProperties\")\n  favorites    Favorite[]\n  token        String?\n  createdAt    DateTime          @default(now())\n}\n\nmodel Property {\n  id            String              @id @default(auto()) @map(\"_id\") @db.ObjectId\n  title         String\n  description   String\n  price         Float\n  status        PropertyStatus\n  type          PropertyType\n  listingType   PropertyListingType\n  bedrooms      Int\n  bathrooms     Int\n  squareFeet    Int\n  location      LocationType\n  amenities     Amenity[]\n  photos        PhotoType\n  photoDocument String?\n  isVerified    Boolean             @default(false)\n  isFeatured    Boolean             @default(false)\n\n  // relasi ke user sebagai pemilik properti\n  owner   User?  @relation(\"OwnerProperties\", fields: [ownerId], references: [id])\n  ownerId String @db.ObjectId\n\n  favorites Favorite[]\n  createdAt DateTime   @default(now())\n}\n\nmodel Favorite {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  user       User     @relation(fields: [userId], references: [id])\n  userId     String   @db.ObjectId\n  property   Property @relation(fields: [propertyId], references: [id])\n  propertyId String   @db.ObjectId\n  createdAt  DateTime @default(now())\n\n  @@unique([userId, propertyId])\n}\n\nmodel Upload {\n  id         String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  publicId   String\n  url        String\n  field      String\n  status     StatusUploadPhoto\n  uploadedAt DateTime          @default(now())\n  propertyId String?\n  userId     String\n}\n\nenum StatusUploadPhoto {\n  pending\n  attached\n}\n\nenum Amenity {\n  AC\n  WATER_HEATER\n  KITCHEN_SET\n  FURNISHED\n  PRIVATE_POOL\n  BALCONY\n  GARDEN\n  GARAGE\n  SECURITY\n  CCTV\n  GYM\n  SHARED_POOL\n  ELEVATOR\n  PLAYGROUND\n  INTERNET\n  CABLE_TV\n}\n\nenum PropertyListingType {\n  buy\n  rent\n}\n\nenum UserRole {\n  OWNER\n  REGULAR\n  ADMIN\n}\n\nenum PropertyType {\n  house\n  apartment\n  office\n  villa\n}\n\nenum PropertyStatus {\n  pending\n  approved\n  rejected\n}\n\ntype LocationType {\n  address    String\n  city       String\n  state      String\n  country    String\n  postalCode String\n  latitude   Float\n  longitude  Float\n}\n\ntype LocationTypeUser {\n  address    String\n  city       String\n  state      String\n  country    String\n  postalCode String\n}\n\ntype PhotoType {\n  main_photo String\n  photo_1    String\n  photo_2    String\n  photo_3    String\n  photo_4    String\n}\n\ntype SocialMedia {\n  facebook  String\n  x         String\n  linkedIn  String\n  instagram String\n}\n",
+  "inlineSchemaHash": "b31186b3cc4d7713acf73a9e3f2b785b43372f9f3911cabb6795e7a941be31b2",
   "copyEngine": true
 }
 
@@ -288,6 +297,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "src/generated/prisma/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
+path.join(process.cwd(), "src/generated/prisma/libquery_engine-rhel-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "src/generated/prisma/schema.prisma")
