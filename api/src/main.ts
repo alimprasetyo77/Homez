@@ -36,7 +36,9 @@ export const apiLimiter = rateLimit({
 });
 
 const allowedOrigins =
-  process.env.NODE_ENV === "development" ? [process.env.URL_DEV, process.env.PROD_DEV] : [process.env.PROD];
+  process.env.NODE_ENV === "development"
+    ? [process.env.URL_DEV, process.env.URL_PROD_DEV]
+    : [process.env.URL_PROD];
 
 app.use(
   cors({
