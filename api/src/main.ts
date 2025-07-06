@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import { requestLogger } from "./middleware/requestLogger";
 import rateLimit from "express-rate-limit";
-import cron from "node-cron";
 dotenv.config();
 
 const app = express();
