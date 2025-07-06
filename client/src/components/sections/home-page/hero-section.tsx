@@ -102,11 +102,10 @@ const Hero = () => {
                   name="search"
                 />
                 <Button
-                  variant="default"
                   type="submit"
-                  className="bg-[#181a20] text-white font-semibold rounded-full size-14 p-4.5 cursor-pointer"
+                  className="bg-[#181a20] text-white font-semibold rounded-full size-14 p-4.5 cursor-pointer "
                 >
-                  <BiSearch />
+                  <BiSearch className="size-5" />
                 </Button>
               </form>
             </motion.div>

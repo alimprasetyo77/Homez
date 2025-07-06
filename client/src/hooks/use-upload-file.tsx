@@ -1,6 +1,6 @@
 import { deletePhoto, getPublicIdByField, uploadPhoto } from "@/services/upload-service";
 import { Response } from "@/types/type";
-import { IUpload } from "@/types/upload.type";
+import { IUpload, uploadPhotoSchema } from "@/types/upload.type";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -19,8 +19,14 @@ export const useUploadFile = (options?: IUseUploadFileOptions) => {
 
   const mutation = useMutation({
     mutationKey: ["upload"],
-    mutationFn: ({ file, field }: { file: File; field: string }) =>
-      uploadPhoto(file, field, (percent) => setProgress(percent)),
+    mutationFn: ({ file, field }: { file: File; field: string }) => {
+      const result = uploadPhotoSchema.safeParse({ file });
+      if (!result.success) {
+        const errorMessage = result.error.errors[0].message || "Invalid file upload";
+        throw new Error(errorMessage);
+      }
+      return uploadPhoto(result.data.file, field, (percent) => setProgress(percent));
+    },
     onMutate: (data) => {
       setProgress(0);
       options?.onMutate?.(data);

@@ -1,7 +1,4 @@
 import { z } from "zod";
-const MAX_MB = 2;
-const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const registerSchema = z.object({
   name: z.string().min(2).max(50),
@@ -19,13 +16,19 @@ export const updateUserSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   email: z.string().email().optional(),
   password: z.string().min(8).max(100).optional(),
-
-  phone: z.string().min(10, { message: "Invalid phone number" }).max(20).optional(),
-
+  phone: z
+    .string()
+    .max(20)
+    .optional()
+    .refine(
+      (v) => {
+        if (!v || v.trim() === "") return true;
+        return v.length >= 10;
+      },
+      { message: "Invalid phone number" }
+    ),
   photoProfile: z.string().optional(),
-
   bio: z.string().optional(),
-
   location: z
     .object({
       address: z.string().optional(),

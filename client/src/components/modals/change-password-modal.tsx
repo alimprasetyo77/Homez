@@ -20,7 +20,8 @@ const ChangePassword = () => {
     mutationFn: changePassword,
     onSuccess: ({ message }) => {
       toast.success(message);
-      handleCloseDialog();
+      form.reset();
+      setOpen(false);
     },
     onError: (error) => {
       toast.error(`${error}`);
@@ -29,15 +30,21 @@ const ChangePassword = () => {
 
   const form = useForm<IChangePassword>({
     resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      current_password: "",
+      new_password: "",
+      confirm_new_password: "",
+    },
   });
 
-  const handleCloseDialog = () => {
-    form.reset();
-    setOpen(false);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        setOpen(value);
+        !value && form.reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant={"outline"}>Change Password</Button>
       </DialogTrigger>

@@ -5,6 +5,8 @@ import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "../main";
 import { IPublicUser } from "../types/user-request";
 import { Prisma } from "../generated/prisma";
+import { validate } from "../validations/validation";
+import { UploadValidation } from "../validations/upload-validation";
 
 export interface IRequestPublicId {
   field: keyof Prisma.$PhotoTypePayload | "photoDocument";
@@ -44,7 +46,10 @@ export class UploadService {
     const file = request.files.file?.[0];
     const field = request.fields.field?.[0];
     if (!file || !field) throw new ResponseError(400, "File and field are required");
-    const result = await cloudinary.uploader.upload(file.filepath, {
+
+    const data = validate(UploadValidation.create, file);
+
+    const result = await cloudinary.uploader.upload(data.filepath, {
       folder: "homez_file/property/photos",
     });
 

@@ -13,6 +13,7 @@ const Profile = () => {
   const { user } = useAuthStore();
   const { deleteUserByLogin, pendingDeleteUser } = useDeleteUserLogin();
   const isCompleteProfile = isAllFieldsFilled(user!);
+
   return (
     <div className="bg-white rounded-2xl p-6 border border-gray-200 space-y-6">
       <h1 className="text-xl font-medium">Profile</h1>
@@ -36,25 +37,27 @@ const Profile = () => {
             <h2 className="font-semibold capitalize">{user?.name}</h2>
             <p className="flex items-center text-muted-foreground text-xs ">
               {user?.location?.country ? <span className="capitalize">{user?.location?.country}</span> : null}
-              <span className="mx-2">|</span>
+              {user?.location.country && user.location.state ? <span className="mx-2">|</span> : null}
               {user?.location?.state ? <span className="capitalize">{user.location?.state}</span> : null}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-x-6 *:border *:p-1.5 *:flex *:items-center *:justify-center *:rounded-full ">
-          <a href={user?.socialMedia?.facebook ?? ""} target="_blank">
-            <FaFacebook className="size-5" />
-          </a>
-          <a href={user?.socialMedia?.linkedIn ?? ""} target="_blank">
-            <FaLinkedin className="size-5" />
-          </a>
-          <a href={user?.socialMedia?.instagram ?? ""} target="_blank">
-            <FaInstagram className="size-5" />
-          </a>
-          <a href={user?.socialMedia?.x ?? ""} target="_blank">
-            <FaTwitter className="size-5" />
-          </a>
-        </div>
+        {Object.values(user?.socialMedia!).some(Boolean) ? (
+          <div className="flex items-center gap-x-6 *:border *:p-1.5 *:flex *:items-center *:justify-center *:rounded-full ">
+            <a href={user?.socialMedia.facebook} target="_blank">
+              <FaFacebook className="size-5" />
+            </a>
+            <a href={user?.socialMedia.linkedIn} target="_blank">
+              <FaLinkedin className="size-5" />
+            </a>
+            <a href={user?.socialMedia.instagram} target="_blank">
+              <FaInstagram className="size-5" />
+            </a>
+            <a href={user?.socialMedia.x} target="_blank">
+              <FaTwitter className="size-5" />
+            </a>
+          </div>
+        ) : null}
       </div>
       <div className="bg-white rounded-xl p-6 border space-y-4 ">
         <h1 className="text-lg font-semibold text-gray-800">Personal information</h1>
@@ -85,21 +88,21 @@ const Profile = () => {
           <div className="col-span-5 grid grid-cols-2 gap-y-6 gap-x-16">
             <div className="flex flex-col">
               <span className="text-muted-foreground text-xs">Address</span>
-              <span className=" font-medium text-sm text-gray-800">{user?.location?.address ?? "-"}</span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.address || "-"}</span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">Country</span>
-              <span className=" font-medium text-sm text-gray-800">{user?.location?.country ?? "-"}</span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.country || "-"}</span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">City/State</span>
               <span className=" font-medium text-sm text-gray-800">
-                {user?.location?.city ?? "-"} / {user?.location?.state ?? "-"}
+                {user?.location?.city || "-"} / {user?.location?.state || "-"}
               </span>
             </div>
             <div className="flex flex-col ">
               <span className="text-muted-foreground text-xs">Postal Code</span>
-              <span className=" font-medium text-sm text-gray-800">{user?.location?.postalCode ?? "-"}</span>
+              <span className=" font-medium text-sm text-gray-800">{user?.location?.postalCode || "-"}</span>
             </div>
           </div>
         </div>

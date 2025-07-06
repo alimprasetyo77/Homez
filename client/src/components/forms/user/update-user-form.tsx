@@ -41,7 +41,7 @@ const UpdateUserForm = () => {
   });
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+    if (!e.target.files?.[0]) return;
     const file = e.target.files[0];
     await uploadAsync({ file: file, field: "photoProfile" });
   };
@@ -195,7 +195,7 @@ const UpdateUserForm = () => {
             <FormItem>
               <FormLabel className="text-xs">Address</FormLabel>
               <FormControl>
-                <Input placeholder="Enter City" className="h-[45px]" {...field} value={field.value} />
+                <Input placeholder="Enter Address" className="h-[45px]" {...field} value={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>

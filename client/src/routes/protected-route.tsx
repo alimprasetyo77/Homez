@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMyProperties } from "@/hooks/use-properties";
@@ -13,10 +12,6 @@ const ProtectedRoute = () => {
   const { properties, isLoading } = useMyProperties({ enabled: isOwner });
 
   const havePendingProperty = isOwner ? properties?.some((property) => property.status === "pending") : false;
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [pathname]);
 
   if (!token || !user) {
     return <Navigate to="/" replace />;

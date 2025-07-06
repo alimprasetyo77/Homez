@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-const MAX_MB = 2;
-const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
-
 export class PropertyValidation {
   static readonly createProperty = z.object({
     title: z.string({ required_error: "Title is required" }).nonempty("Title cannot be empty"),

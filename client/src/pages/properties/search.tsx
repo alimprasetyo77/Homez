@@ -116,7 +116,6 @@ const Search = () => {
     }
   }, [statePropertyType, statePropertyStatus, searchParams.has("q"), searchParams.has("location")]);
 
-  console.log(filteredProperties);
   useEffect(() => {
     if (filteredProperties) {
       fetchSearchFilterProperties();

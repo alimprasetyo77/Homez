@@ -15,12 +15,21 @@ const DetailProperty = () => {
   const { property, isLoading, error } = useProperty(propertyId!);
   const { createFavorite, isloadingCreateFavorite } = useCreateFavorite();
   const { deleteFavorite, isloadingDeleteFavorite } = useDeleteFavorite();
+
   const handleFavoriteClick = () => {
     if (favorite) {
       deleteFavorite(favorite.id);
     } else {
       createFavorite(property?.id!);
     }
+  };
+
+  const ContactViaWhatsApp = ({ phone, propertyName }: { phone: string; propertyName: string }) => {
+    const message = `Hello, I'm interested in the property "${propertyName}". Is it still available?`;
+    const encodedMessage = encodeURIComponent(message);
+    const waLink = `https://wa.me/${phone}?text=${encodedMessage}`;
+
+    window.open(waLink, "_blank");
   };
 
   if (isLoading)
@@ -202,7 +211,16 @@ const DetailProperty = () => {
                   </Button>
                 </div>
               </div>
-              <Button variant={"outline"} className="w-full">
+              <Button
+                variant={"outline"}
+                className="w-full"
+                onClick={() =>
+                  ContactViaWhatsApp({
+                    phone: property?.owner.phone ?? "",
+                    propertyName: property?.title ?? "",
+                  })
+                }
+              >
                 <span>Contact Owner </span>
                 <ArrowUpRight />
               </Button>

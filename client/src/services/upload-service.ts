@@ -7,7 +7,7 @@ export const uploadPhoto = async (file: File, field: string, onProgress?: (perce
     const formData = new FormData();
     formData.append("file", file);
     formData.append("field", field);
-    const result = await axiosWithConfig.post("/upload", formData, {
+    const result = await axiosWithConfig.post("/api/upload", formData, {
       onUploadProgress(progressEvent) {
         if (progressEvent.total) {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);

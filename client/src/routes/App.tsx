@@ -4,11 +4,9 @@ import About from "@/pages/about";
 import Search from "@/pages/properties/search";
 import Layout from "@/components/layouts/layout";
 import DetailProperty from "@/pages/properties/detail";
-import Login from "@/pages/auth/login";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import ProtectedRoute from "./protected-route";
-import Register from "@/pages/auth/register";
 import CreateUpdateProperty from "@/pages/properties/create-update-property";
 import Property from "@/pages/dashboard/property";
 import Favorite from "@/pages/dashboard/favorite";
@@ -17,6 +15,7 @@ import LayoutDashboard from "@/components/layouts/layout-dashboard";
 import { FaSpinner } from "react-icons/fa";
 import User from "@/pages/dashboard/admin/user";
 import PropertyAdmin from "@/pages/dashboard/admin/property-admin";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 function App() {
   const { token, fetchUser, isLoading, user } = useAuthStore();
@@ -38,9 +37,8 @@ function App() {
   }
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/properties/search" element={<Search />} />
