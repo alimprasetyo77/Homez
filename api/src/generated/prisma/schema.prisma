@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String            @unique
+  password     String
+  role         UserRole          @default(REGULAR)
+  // field opsional untuk agent
+  phone        String?
+  photoProfile String?
+  location     LocationTypeUser?
+  bio          String?
+  socialMedia  SocialMedia?
+  // relasi
+  properties   Property[]        @relation("OwnerProperties")
+  favorites    Favorite[]
+  token        String?
+  createdAt    DateTime          @default(now())
+}
+
+model Property {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  price         Float
+  status        PropertyStatus
+  type          PropertyType
+  listingType   PropertyListingType
+  bedrooms      Int
+  bathrooms     Int
+  squareFeet    Int
+  location      LocationType
+  amenities     Amenity[]
+  photos        PhotoType
+  photoDocument String?
+  isVerified    Boolean             @default(false)
+  isFeatured    Boolean             @default(false)
+
+  // relasi ke user sebagai pemilik properti
+  owner   User?  @relation("OwnerProperties", fields: [ownerId], references: [id])
+  ownerId String @db.ObjectId
+
+  favorites Favorite[]
+  createdAt DateTime   @default(now())
+}
+
+model Favorite {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, propertyId])
+}
+
+model Upload {
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  publicId   String
+  url        String
+  field      String
+  status     StatusUploadPhoto
+  uploadedAt DateTime          @default(now())
+  propertyId String?
+  userId     String
+}
+
+enum StatusUploadPhoto {
+  pending
+  attached
+}
+
+enum Amenity {
+  AC
+  WATER_HEATER
+  KITCHEN_SET
+  FURNISHED
+  PRIVATE_POOL
+  BALCONY
+  GARDEN
+  GARAGE
+  SECURITY
+  CCTV
+  GYM
+  SHARED_POOL
+  ELEVATOR
+  PLAYGROUND
+  INTERNET
+  CABLE_TV
+}
+
+enum PropertyListingType {
+  buy
+  rent
+}
+
+enum UserRole {
+  OWNER
+  REGULAR
+  ADMIN
+}
+
+enum PropertyType {
+  house
+  apartment
+  office
+  villa
+}
+
+enum PropertyStatus {
+  pending
+  approved
+  rejected
+}
+
+type LocationType {
+  address    String
+  city       String
+  state      String
+  country    String
+  postalCode String
+  latitude   Float
+  longitude  Float
+}
+
+type LocationTypeUser {
+  address    String
+  city       String
+  state      String
+  country    String
+  postalCode String
+}
+
+type PhotoType {
+  main_photo String
+  photo_1    String
+  photo_2    String
+  photo_3    String
+  photo_4    String
+}
+
+type SocialMedia {
+  facebook  String
+  x         String
+  linkedIn  String
+  instagram String
+}

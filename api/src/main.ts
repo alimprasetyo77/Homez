@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import { PrismaClient } from "./generated/prisma";
 import { apiRouter } from "./routes/api";
 import { errorMiddleware } from "./middleware/error-middleware";
