@@ -35,10 +35,19 @@ export const apiLimiter = rateLimit({
   },
 });
 
+const allowedOrigins =
+  process.env.NODE_ENV === "development" ? [process.env.URL_DEV, process.env.PROD_DEV] : [process.env.PROD];
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "development" ? "http://localhost:5173" : "http://localhost:4173", // Adjust this to your frontend URL
-    credentials: true, // Allow credentials if needed
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 app.use(requestLogger);
