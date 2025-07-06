@@ -37,7 +37,7 @@ export const apiLimiter = rateLimit({
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Adjust this to your frontend URL
+    origin: process.env.NODE_ENV === "development" ? "http://localhost:5173" : "http://localhost:4173", // Adjust this to your frontend URL
     credentials: true, // Allow credentials if needed
   })
 );
@@ -55,8 +55,9 @@ app.use(apiRouter);
 
 app.use(errorMiddleware);
 
-// app.listen(3000, () => console.log("Listening on port 3000"));
-
+if (process.env.NODE_ENV === "development") {
+  app.listen(3000, () => console.log("Listening on port 3000"));
+}
 export default function handler(req: Request, res: Response) {
   app(req, res);
 }

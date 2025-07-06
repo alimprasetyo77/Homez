@@ -23,7 +23,7 @@ export const uploadPhoto = async (file: File, field: string, onProgress?: (perce
 
 export const getPublicIdByField = async (field: string, propertyId?: string) => {
   try {
-    const result = await axiosWithConfig.get("/upload", {
+    const result = await axiosWithConfig.get("/api/upload", {
       params: { field, ...(propertyId && { propertyId }) },
     });
     return result.data as Response<Omit<IUpload, "field" | "url">>;
@@ -34,7 +34,7 @@ export const getPublicIdByField = async (field: string, propertyId?: string) => 
 
 export const deletePhoto = async (publicId: string, field?: string, propertyId?: string) => {
   try {
-    const result = await axiosWithConfig.delete("/upload", {
+    const result = await axiosWithConfig.delete("/api/upload", {
       params: { publicId, ...(field && { field }), ...(propertyId && { propertyId }) },
     });
     return result.data as Omit<Response, "data">;

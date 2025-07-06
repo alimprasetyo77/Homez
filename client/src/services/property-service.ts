@@ -12,7 +12,7 @@ import { IForwardGeoCode, IReverseGeocode } from "@/types/geocode-type";
 
 export const getCountPropertyEachCities = async () => {
   try {
-    const result = await axiosWithConfig.get("/properties/property-of-cities");
+    const result = await axiosWithConfig.get("/api/properties/property-of-cities");
     return result.data as Response<{ city: string; count: number; imgUrl: string }[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -21,7 +21,7 @@ export const getCountPropertyEachCities = async () => {
 
 export const getMyProperties = async () => {
   try {
-    const result = await axiosWithConfig.get("/users/properties");
+    const result = await axiosWithConfig.get("/api/users/properties");
     return result.data as Response<IProperty[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -30,7 +30,7 @@ export const getMyProperties = async () => {
 
 export const getPropertyById = async (propertyId: string) => {
   try {
-    const result = await axiosWithConfig.get(`/properties/${propertyId}`);
+    const result = await axiosWithConfig.get(`/api/properties/${propertyId}`);
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -39,7 +39,7 @@ export const getPropertyById = async (propertyId: string) => {
 
 export const getProperties = async () => {
   try {
-    const result = await axiosWithConfig.get("/properties");
+    const result = await axiosWithConfig.get("/api/properties");
     return result.data as Response<IProperty[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -48,7 +48,7 @@ export const getProperties = async () => {
 
 export const getLocation = async () => {
   try {
-    const result = await axiosWithConfig.get("/properties/location");
+    const result = await axiosWithConfig.get("/api/properties/location");
     return result.data as Response<string[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -57,7 +57,7 @@ export const getLocation = async () => {
 
 export const getPopular = async (typeProperty: PropertyType) => {
   try {
-    const result = await axiosWithConfig.post("/properties/search", {
+    const result = await axiosWithConfig.post("/api/properties/search", {
       type: [typeProperty],
       limit: 6,
       page: 1,
@@ -69,7 +69,7 @@ export const getPopular = async (typeProperty: PropertyType) => {
 };
 export const createProperty = async (body: ICreateProperty) => {
   try {
-    const result = await axiosWithConfig.post("/properties", body);
+    const result = await axiosWithConfig.post("/api/properties", body);
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -78,7 +78,7 @@ export const createProperty = async (body: ICreateProperty) => {
 
 export const updateProperty = async (body: IUpdateProperty, propertyId: string) => {
   try {
-    const result = await axiosWithConfig.put(`/properties/${propertyId}`, body);
+    const result = await axiosWithConfig.put(`/api/properties/${propertyId}`, body);
     return result.data as Response<IProperty>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -87,7 +87,7 @@ export const updateProperty = async (body: IUpdateProperty, propertyId: string) 
 
 export const deleteProperty = async (propertyId: string) => {
   try {
-    const response = await axiosWithConfig.delete(`/properties/${propertyId}`);
+    const response = await axiosWithConfig.delete(`/api/properties/${propertyId}`);
     return response.data as Omit<Response, "data">;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
@@ -96,7 +96,7 @@ export const deleteProperty = async (propertyId: string) => {
 
 export const searchOrFilterProperties = async (payload: ISearchOrFilterProperties) => {
   try {
-    const result = await axiosWithConfig.post("/properties/search", payload);
+    const result = await axiosWithConfig.post("/api/properties/search", payload);
     return result.data as ResponsePagination<IProperty[]>;
   } catch (error: any) {
     throw new Error(error.response?.data.errors.message);
