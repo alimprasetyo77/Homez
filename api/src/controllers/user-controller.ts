@@ -21,8 +21,8 @@ export class UserController {
       const response = await UserService.login(request);
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
-        secure: false, // set true for HTTPS
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production", // ✅ cookie dikirim hanya lewat HTTPS
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({ message: "Login successfully", data: { token: response.accessToken } });
@@ -37,8 +37,8 @@ export class UserController {
       const response = await UserService.refreshToken(refreshToken);
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
-        secure: false, // set true for HTTPS
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production", // ✅ cookie dikirim hanya lewat HTTPS
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({ accessToken: response.accessToken });
