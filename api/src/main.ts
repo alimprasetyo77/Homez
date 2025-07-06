@@ -55,31 +55,3 @@ app.use(apiRouter);
 app.use(errorMiddleware);
 
 app.listen(3000, () => console.log("Listening on port 3000"));
-
-async function cleanup() {
-  const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 jam
-  const oldUploads = await prisma.upload.findMany({
-    where: {
-      status: "pending",
-      propertyId: null,
-      uploadedAt: { lt: cutoff },
-    },
-  });
-  if (oldUploads.length === 0) {
-    console.log("🧹 No orphan uploads found.");
-    return;
-  }
-  for (const u of oldUploads) {
-    try {
-      await cloudinary.uploader.destroy(u.publicId);
-      await prisma.upload.delete({ where: { id: u.id } });
-      console.log(`🗑️ Deleted orphan upload: ${u.publicId}`);
-    } catch (err) {
-      console.error(`❌ Failed to delete upload ${u.publicId}:`, err);
-    }
-  }
-
-  console.log(`🧹 Cleaned ${oldUploads.length} orphan uploads at ${new Date().toISOString()}`);
-}
-
-cron.schedule("*/30 * * * *", cleanup);
