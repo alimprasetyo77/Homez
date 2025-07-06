@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { PrismaClient } from "./generated/prisma";
 import { apiRouter } from "./routes/api";
 import { errorMiddleware } from "./middleware/error-middleware";
@@ -53,4 +53,8 @@ app.use(apiRouter);
 
 app.use(errorMiddleware);
 
-app.listen(3000, () => console.log("Listening on port 3000"));
+// app.listen(3000, () => console.log("Listening on port 3000"));
+
+export default function handler(req: Request, res: Response) {
+  app(req, res);
+}
