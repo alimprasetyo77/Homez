@@ -23,10 +23,9 @@
 - [🏁 Getting Started](#-getting-started)
 - [📁 Project Structure](#-project-structure)
 - [🔧 Configuration](#-configuration)
-- [🧪 Testing](#-testing)
 - [🚀 Deployment](#-deployment)
 - [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [📚 API Documentation](#-api-documentation)
 - [👨‍💻 Author](#-author)
 
 ---
@@ -276,12 +275,6 @@ vercel --prod
 - Follow ESLint configuration
 - Write meaningful commit messages
 - Update documentation as needed
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
