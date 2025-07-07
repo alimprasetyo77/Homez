@@ -2,7 +2,7 @@ import { DataTable } from "@/components/data-table";
 import { isAllFieldsFilled, usdCurrencyFormat } from "@/lib/utils";
 import { IProperty } from "@/types/property-type";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleOff, Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
 import Alert from "@/components/alert";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -115,10 +115,6 @@ const Property = () => {
                 >
                   <Edit className="size-4" />
                   <span>Edit</span>
-                </div>
-                <div>
-                  <CircleOff className="size-4" />
-                  <span>Sold</span>
                 </div>
                 <div onClick={() => navigate(`/properties/${info.row.original.id}`)}>
                   <ExternalLink className="size-4" />

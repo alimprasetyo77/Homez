@@ -131,7 +131,9 @@ export class PropertyService {
       limit = 8,
     } = validate(PropertyValidation.searchProperty, request);
 
-    const filterProperties: Prisma.PropertyWhereInput = {};
+    const filterProperties: Prisma.PropertyWhereInput = {
+      status: "approved",
+    };
 
     if (title) {
       filterProperties.title = { contains: title, mode: "insensitive" };
