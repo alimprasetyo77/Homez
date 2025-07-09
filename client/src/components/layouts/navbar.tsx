@@ -1,19 +1,24 @@
 import { linkNavbar } from "@/constants/navigation";
 import { useAuthStore } from "@/stores/auth-store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfileMenu from "../profile-menu";
 import { useDialogStore } from "@/stores/dialog-store";
+import { Button } from "../ui/button";
+import { Menu } from "lucide-react";
+import SidebarNavigation from "./sidebar-nav";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { user, token } = useAuthStore();
   const { openDialog } = useDialogStore();
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentPath = location.pathname.split("/")[1];
   const navbarRef = useRef<HTMLDivElement>(null);
+
   const isActive = (path: string) => {
     return `${
       currentPath === path.split("/")[1] ? "text-[#eb6753]" : "text-[#181a20]"
@@ -36,7 +41,10 @@ const Navbar = () => {
   }, []);
   return (
     <nav className="py-4 h-[80px] transition-all duration-200" ref={navbarRef}>
-      <div className={`max-w-[1230px] mx-auto flex items-center justify-between font-semibold text-[15px]`}>
+      <SidebarNavigation isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} isActiveLink={isActive} />
+      <div
+        className={`max-w-[1230px] px-8 lg:px-0 mx-auto flex items-center justify-between font-semibold text-[15px]`}
+      >
         <img
           alt="Header Logo"
           loading="lazy"
@@ -46,8 +54,10 @@ const Navbar = () => {
           data-nimg="1"
           src="https://homez-appdir.vercel.app/images/header-logo2.svg"
           style={{ color: "transparent" }}
+          className="w-28 lg:w-auto cursor-pointer"
+          onClick={() => navigate("/")}
         />
-        <div className="flex gap-x-2">
+        <div className="hidden lg:flex gap-x-2">
           {linkNavbar.map((link) => (
             <Link to={link.path} key={link.id}>
               <span className={isActive(link.path)}> {link.title}</span>
@@ -63,14 +73,20 @@ const Navbar = () => {
             </Avatar>
           </ProfileMenu>
         ) : (
-          <button
-            className="cursor-pointer flex items-center gap-x-2"
-            onClick={() => {
-              openDialog("signIn");
-            }}
-          >
-            <FaRegUserCircle className="size-4.5" /> <span>Login / Register</span>
-          </button>
+          <>
+            <Button
+              variant={"ghost"}
+              className="cursor-pointer hidden lg:flex items-center gap-x-2 font-semibold"
+              onClick={() => {
+                openDialog("signIn");
+              }}
+            >
+              <FaRegUserCircle className="size-4.5" /> <span>Login / Register</span>
+            </Button>
+            <Button variant={"outline"} className="flex lg:hidden " onClick={() => setSidebarOpen(true)}>
+              <Menu className="size-5" />
+            </Button>
+          </>
         )}
       </div>
     </nav>

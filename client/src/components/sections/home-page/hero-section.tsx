@@ -24,11 +24,11 @@ const Hero = () => {
     e.currentTarget.reset();
   };
   return (
-    <section className="flex items-center justify-center rounded-3xl rounded-br-[38px] bg-no-repeat  min-h-[660px] max-w-[1600px] w-full mx-auto overflow-hidden bg-[url('https://homez-appdir.vercel.app/_next/static/media/home-4.3e6e2403.jpg')]">
+    <section className="flex items-center justify-center rounded-3xl rounded-br-[38px] bg-no-repeat  min-h-[630px] lg:min-h-[660px] max-w-[1600px] w-full mx-auto overflow-hidden bg-[url('https://homez-appdir.vercel.app/_next/static/media/home-4.3e6e2403.jpg')]">
       <div className="max-w-[1230px] mx-auto w-full">
-        <div className=" grid grid-cols-12">
-          <div className="space-y-6 col-span-9 relative">
-            <div className="absolute -top-0 -right-40">
+        <div className="grid grid-cols-12 p-4 lg:p-0">
+          <div className="space-y-6 col-span-full lg:col-span-9 relative">
+            <div className="absolute -top-0 -right-40 hidden lg:block">
               <img
                 alt="Logo"
                 loading="lazy"
@@ -43,14 +43,14 @@ const Hero = () => {
                 className="animate-spin"
               />
             </div>
-
+            {/* Typography */}
             <div className="space-y-2">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 100, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.5 }}
-                className="text-[40px] font-semibold"
+                className="text-3xl lg:text-[40px] font-semibold leading-relaxed"
               >
                 Easy Way to Find a <br />
                 Perfect Property
@@ -60,7 +60,7 @@ const Hero = () => {
                 whileInView={{ opacity: 100, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.5 }}
-                className="text-[#181a20] text-[15px] font-normal leading-7"
+                className="text-[#181a20] text-sm lg:text-[15px] font-normal leading-7"
               >
                 Find the perfect property for you and your family. We have a wide range of properties to
                 choose from.
@@ -88,24 +88,24 @@ const Hero = () => {
                     `}
                     onClick={() => setActiveLinkOnSearch(link.title)}
                   >
-                    <span className="capitalize">{link.title}</span>
+                    <span className="capitalize text-sm lg:text-[15px]">{link.title}</span>
                   </li>
                 ))}
               </ul>
               <form
                 onSubmit={handleSearch}
-                className="flex gap-3 bg-white p-5 rounded-tr-xl rounded-bl-xl rounded-br-xl"
+                className="flex items-center gap-3 bg-white p-5 rounded-tr-xl rounded-bl-xl rounded-br-xl"
               >
                 <Input
-                  className="outline-none bg-[#f7f7f7] border-none focus-visible:border-none focus-visible:ring-0 p-4 h-auto"
+                  className="outline-none bg-[#f7f7f7] border-none focus-visible:border-none focus-visible:ring-0 p-4 h-auto text-sm lg:text-[15px]"
                   placeholder={`Search Properties for ${activeLinkOnSearch}`}
                   name="search"
                 />
                 <Button
                   type="submit"
-                  className="bg-[#181a20] text-white font-semibold rounded-full size-14 p-4.5 cursor-pointer "
+                  className="bg-[#181a20] text-white font-semibold rounded-full size-11 lg:size-14 p-3.5 lg:p-4.5 cursor-pointer "
                 >
-                  <BiSearch className="size-5" />
+                  <BiSearch className="size-4 lg:size-5" />
                 </Button>
               </form>
             </motion.div>
@@ -115,7 +115,7 @@ const Hero = () => {
               whileInView={{ opacity: 100, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1.5 }}
-              className="flex items-center gap-6"
+              className="hidden lg:flex items-center gap-6"
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center justify-center bg-white rounded-full p-2">
