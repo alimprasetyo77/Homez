@@ -249,7 +249,7 @@ export class PropertyService {
 
     const properties = await prisma.property.findMany({
       select: { location: { select: { city: true } } },
-      take: 8,
+      take: 7,
     });
 
     for (const property of properties) {

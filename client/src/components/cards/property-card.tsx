@@ -1,13 +1,12 @@
 import { BiLink } from "react-icons/bi";
 import { BedSingle, Heart, SquareArrowOutUpRight, SquareIcon } from "lucide-react";
-import { MdAdd } from "react-icons/md";
 import { usdCurrencyFormat } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { IProperty } from "@/types/property-type";
 import { IFavorite } from "@/types/favorite-type";
 import { PiShowerLight } from "react-icons/pi";
 import { useCreateFavorite, useDeleteFavorite } from "@/hooks/use-favorite";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const PropertyCard = ({
   property,
@@ -16,6 +15,7 @@ export const PropertyCard = ({
   property: IProperty;
   favoriteId: string | null;
 }) => {
+  const navigate = useNavigate();
   const { createFavorite } = useCreateFavorite();
   const { deleteFavorite } = useDeleteFavorite();
   const handleFavoriteClick = () => {
@@ -38,18 +38,12 @@ export const PropertyCard = ({
         <Button className="cursor-pointer bg-black/75" onClick={handleFavoriteClick}>
           <Heart fill={favoriteId ? "white" : ""} />
         </Button>
-        <Button className="cursor-pointer bg-black/75">
-          <MdAdd />
-        </Button>
-        <Button className="cursor-pointer bg-black/75">
+
+        <Button className="cursor-pointer bg-black/75" onClick={() => navigate(`/property/${property.id}`)}>
           <BiLink />
         </Button>
       </div>
-      <Link
-        to={`/property/${property.id}`}
-        preventScrollReset={true}
-        className="bg-white px-5 py-3 rounded-xl flex justify-between items-center gap-2 absolute bottom-2 inset-x-2 cursor-pointer"
-      >
+      <div className="bg-white px-5 py-3 rounded-xl flex justify-between items-center gap-2 absolute bottom-2 inset-x-2 ">
         <div className="flex flex-col">
           <h3 className="text-[15px] font-semibold text-[#181a20]">{property.title}</h3>
           <span className="text-xs text-[#717171] ">
@@ -63,7 +57,7 @@ export const PropertyCard = ({
         >
           {usdCurrencyFormat(property.price)}
         </Button>
-      </Link>
+      </div>
     </div>
   );
 };
