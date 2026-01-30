@@ -74,6 +74,7 @@
 
 ### Frontend
 - React.js
+- Typescript
 - Vite
 - Tailwind CSS
 - Zustand
@@ -87,6 +88,7 @@
 ### Backend
 - Node.js
 - Express.js
+- Typescript
 - MongoDB 
 - Zod
 - JWT 
@@ -248,15 +250,6 @@ npm run build
 # Deploy to Vercel
 vercel --prod
 ```
----
-
-### Code Style
-
-- Follow ESLint configuration
-- Write meaningful commit messages
-- Update documentation as needed
-
----
 
 ## 📚 API Documentation
 
@@ -325,9 +318,5 @@ DELETE /api/upload                              # Delete File in cloudinary & db
 PUT    /api/admin/approve_property/:propertyId  # Approve the property listing application
 PUT    /api/admin/reject_property/:propertyId   # Reject the property listing application
 ```
----
 
-<div align="center">
-  <p>⭐ Don't forget to star this repository if you found it helpful!</p>
-  <p>Made with ❤️ by Alim Prasetyo</p>
-</div>
+
