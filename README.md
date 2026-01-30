@@ -179,8 +179,6 @@ npm start
 6. **Access the application**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
-- API Documentation: http://localhost:5000/api-docs
-
 ---
 
 ## 📁 Project Structure
@@ -241,10 +239,6 @@ Homez/
 2. **Cloudinary** (for image storage)
    - Create account and get API credentials
    - Configure upload presets
-
-3. **Email Service** 
-   - Configure SMTP settings for email notifications
-
 ---
 
 ## 🚀 Deployment
@@ -345,24 +339,6 @@ DELETE /api/upload                              # Delete File in cloudinary & db
 PUT    /api/admin/approve_property/:propertyId  # Approve the property listing application
 PUT    /api/admin/reject_property/:propertyId   # Reject the property listing application
 ```
-
----
-
-## 👨‍💻 Author
-
-**Alim Prasetyo**
-- GitHub: [@alimprasetyo77](https://github.com/alimprasetyo77)
-- LinkedIn: [Alim Prasetyo Putra Sinambela](https://www.linkedin.com/in/alim-prasetyo-putra-sinambela/)
-- Email: alimprasetyo96@gmail.com
-
----
-
-## 🙏 Acknowledgments
-
-- Icons provided by [Lucide Icons](https://lucide.dev)
-- Design inspiration from [Themeforest](https://themeforest.net/)
- 
----
 
 ## 📈 Roadmap
 
