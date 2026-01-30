@@ -73,26 +73,24 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: React.js
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **UI Components**: ShadCN
-- **Maps**: Leaflet.js with OpenStreetMap tiles
-- **HTTP Client**: Axios 
+- React.js
+- Vite
+- Tailwind CSS
+- Zustand
+- ShadCN
+- Leaflet.js
+- Axios
+- Tanstack Query
+- React Hook Form
+- Zod
 
 ### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB 
-- **Authentication**: JWT 
-- **File Storage**: Cloudinary 
-
-### DevOps & Tools
-- **Version Control**: GitHub
-- **Package Manager**: npm 
-- **Build Tool**: Vite 
-- **Deployment**: Vercel 
-
+- Node.js
+- Express.js
+- MongoDB 
+- Zod
+- JWT 
+- Cloudinary 
 
 ---
 
@@ -229,18 +227,6 @@ Homez/
 # Create database and configure connection string in .env
 ```
 
-### Third-party Services
-
-1. **Leaflet.js Maps**
-   - Uses OpenStreetMap tiles (free)
-   - Optional: Mapbox tiles for enhanced styling
-   - Configure default map center coordinates
-     
-2. **Cloudinary** (for image storage)
-   - Create account and get API credentials
-   - Configure upload presets
----
-
 ## 🚀 Deployment
 
 ### Frontend Deployment (Vercel)
@@ -339,15 +325,6 @@ DELETE /api/upload                              # Delete File in cloudinary & db
 PUT    /api/admin/approve_property/:propertyId  # Approve the property listing application
 PUT    /api/admin/reject_property/:propertyId   # Reject the property listing application
 ```
-
-## 📈 Roadmap
-
-- [ ] Mobile Application (React Native)
-- [ ] AI-powered Property Recommendations
-- [ ] Virtual Property Tours
-- [ ] Multi-language Support
-- [ ] Advanced Analytics Dashboard
-
 ---
 
 <div align="center">
